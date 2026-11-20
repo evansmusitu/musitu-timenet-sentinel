@@ -1,0 +1,32 @@
+name: NASA C-MAPSS reproducible CPU benchmark
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sentinel/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - '.github/workflows/benchmark.yml'
+jobs:
+  test-and-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -r requirements.txt pytest
+      - name: Unit tests
+        run: python -m pytest -q
+      - name: Official NASA FD001 benchmark
+        run: python -m sentinel.benchmark --download
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nasa-cmapss-results
+          path: artifacts/
+          retention-days: 30
