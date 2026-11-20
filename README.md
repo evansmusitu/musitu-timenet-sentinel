@@ -4,6 +4,14 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 
 **Status:** CPU benchmark and tests implemented. OpenTime 5B checkpoint is **not trained or verified** here. The current competition aims to integrate a real TimeNet/TimeF dataset and a trained or fine-tuned time-series language model.
 
+## Live evidence
+
+- **Interactive demonstration:** https://evansmusitu.github.io/musitu-timenet-sentinel/
+- **Successful official NASA FD001 CPU benchmark:** https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482
+- **Download artifact:** open that run's Artifacts section and download `nasa-cmapss-results`.
+- **Official test on 100 unseen engines:** 19.4025-cycle RUL MAE; 27.2319-cycle RMSE; 30-cycle warning F1 0.8889, precision 1.0, recall 0.8.
+- **Separate experimental fixed-prompt temporal QA Transformer:** source `sentinel/temporal_qa.py`, workflow `.github/workflows/temporal.yml`. Any metrics must come from a completed, successful model-training run. This is **not** OpenTime's 5B model or a general-purpose TSLM.
+
 ## Reproduce
 
 ```bash
