@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 SOURCE_URL = "https://zenodo.org/records/15346912/files/CMAPSSData.zip?download=1"
-SOURCE_MD5 = "79a22f36e80606c69d0e9e4da5bb2bdf"
+SOURCE_MD5 = "79a22f36e80606c69d0e9e4da5bb2b7a"
 COLS = ["unit", "cycle"] + [f"setting_{i}" for i in range(1, 4)] + [f"sensor_{i}" for i in range(1, 22)]
 
 def download_dataset(root: Path) -> Path:
