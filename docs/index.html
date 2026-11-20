@@ -33,7 +33,7 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <section class="hero">
 <span class="pill">TimeNet · OpenTime Hackathon 2026 · Evidence-first project</span>
 <h1>Detect the failure <em>before it happens.</em></h1>
-<p class="lead">MUSITU AXIOM Sentinel explores how multivariate time-series intelligence can turn complex machinery telemetry into explainable maintenance warnings. Our working, reproducible baseline is tested against 100 unseen NASA simulated turbofan engines.</p>
+<p class="lead">MUSITU AXIOM Sentinel explores how multivariate time-series intelligence can turn complex machinery telemetry into explainable maintenance warnings. Our two trained, reproducible models—a classical baseline and a fixed-question temporal Transformer—have been evaluated on 100 held-out NASA simulated turbofan engines.</p>
 <div class="actions">
 <a class="btn" href="#demo">Explore the interactive evidence →</a>
 <a class="btn alt" href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482">Inspect successful CI run ↗</a>
@@ -41,16 +41,16 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 </section>
 <section class="strip" aria-label="Official held-out benchmark">
 <div class="stat"><div class="label">Held-out test engines</div><div class="num">100</div><div class="note">NASA C-MAPSS FD001</div></div>
-<div class="stat"><div class="label">Remaining life MAE</div><div class="num">19.40</div><div class="note">Cycles · lower is better</div></div>
-<div class="stat"><div class="label">Failure-warning F1</div><div class="num">0.889</div><div class="note">Within 30 cycles</div></div>
-<div class="stat"><div class="label">Reproducibility</div><div class="num">5/5</div><div class="note">GitHub unit tests passed</div></div>
+<div class="stat"><div class="label">Remaining life MAE</div><div class="num">19.04</div><div class="note">Cycles · temporal QA model</div></div>
+<div class="stat"><div class="label">Failure-warning F1</div><div class="num">0.960</div><div class="note">Temporal warning head</div></div>
+<div class="stat"><div class="label">Temporal model training</div><div class="num">12</div><div class="note">Verified epochs · 5/5 tests passed</div></div>
 </section>
 <section class="section" id="demo">
 <h2>Inspect an engine. Challenge the model.</h2>
-<p class="description">Select a genuine held-out engine from the published benchmark. The forecast and ground truth shown here come from real test outputs of the classical CPU baseline. They are not OpenTime TSLM predictions. We deliberately include misses and large errors.</p>
+<p class="description">Select a genuine held-out engine and compare actual benchmark predictions from the CPU baseline and an original trained temporal QA Transformer. These are not OpenTime 5B predictions. We include misses, false alarms, and large forecast errors.</p>
 <div class="dashboard">
 <div class="panel">
-<div class="label">Choose simulated engine</div><select id="engine" aria-label="Select NASA test engine"></select>
+<div class="label">Choose simulated engine</div><select id="engine" aria-label="Select NASA test engine"></select><div class="label">Choose evaluated model</div><select id="model" aria-label="Select evaluation model"><option value="temporal">Trained temporal QA Transformer</option><option value="baseline">Classical CPU baseline</option></select>
 <div class="label">Predicted remaining life</div><div id="prediction" class="big">—</div><div class="note">Cycles until estimated failure</div>
 <p id="warning" class="badge">—</p>
 <div class="key"><span>Observed cycle</span><strong id="cycle">—</strong></div>
@@ -61,7 +61,7 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <div class="panel">
 <div class="label">Ground truth versus model prediction</div><h3>Evidence, not a simulation of accuracy</h3>
 <svg id="scatter" viewBox="0 0 650 420" role="img" aria-label="Scatterplot of actual versus predicted remaining useful life for selected real benchmark engines"></svg>
-<p class="note">Each dot represents one selected official-test engine. Dashed diagonal = perfect forecast. Click a dot to inspect its outcome. The full 100-engine CSV is in the public workflow artifact.</p>
+<p class="note">Each dot represents a selected official-test engine. Dashed diagonal = perfect forecast. Click a dot to inspect its outcome. Full CSVs for all 100 engines are in the corresponding successful workflow artifacts.</p>
 </div>
 </div>
 </section>
@@ -69,19 +69,19 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <h2>What we can actually prove</h2>
 <p class="description">The benchmark was run on a publicly inspectable GitHub Actions Ubuntu environment, with source-data checksum verification and versioned artifacts. We distinguish measurements from goals.</p>
 <div class="grid2">
-<div class="panel"><h3>Measured performance</h3>
-<div class="key"><span>Official-test RUL RMSE</span><strong>27.23 cycles</strong></div>
-<div class="key"><span>Official-test RUL MAE</span><strong>19.40 cycles</strong></div>
-<div class="key"><span>30-cycle warning precision</span><strong>100%</strong></div>
-<div class="key"><span>30-cycle warning recall</span><strong>80%</strong></div>
-<div class="key"><span>30-cycle warning F1</span><strong>88.89%</strong></div>
+<div class="panel"><h3>Measured performance · temporal QA</h3>
+<div class="key"><span>Official-test RUL RMSE</span><strong>26.45 cycles</strong></div>
+<div class="key"><span>Official-test RUL MAE</span><strong>19.04 cycles</strong></div>
+<div class="key"><span>30-cycle warning precision</span><strong>96%</strong></div>
+<div class="key"><span>30-cycle warning recall</span><strong>96%</strong></div>
+<div class="key"><span>30-cycle warning F1</span><strong>96.00%</strong></div><div class="key"><span>Classical baseline RUL MAE</span><strong>19.40 cycles</strong></div><div class="key"><span>Classical baseline warning F1</span><strong>88.89%</strong></div>
 <p class="note">The precision/recall figures refer only to this simulated FD001 held-out set and this decision threshold, not to field deployment.</p>
 </div>
 <div class="panel"><h3>Audit trail</h3>
 <ul>
 <li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel">Browse source code</a></li>
-<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482">Check verified CI execution</a></li>
-<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482/artifacts">Download official 100-engine prediction CSV</a></li>
+<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482">Check classical baseline execution</a></li><li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819987425">Inspect real temporal Transformer training and artifact</a></li>
+<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482">Download baseline CSV from run artifacts</a></li><li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819987425">Download trained model, metrics, and CSV from run artifacts</a></li>
 <li><a href="https://zenodo.org/records/15346912">Inspect versioned NASA data archive</a></li>
 <li><a href="https://huggingface.co/opentime/tslm-nov26">Inspect experimental OpenTime 5B checkpoint</a></li>
 </ul>
@@ -93,10 +93,10 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <p class="description">The baseline pipeline is real and reproducible. The architecture is designed to be extended with time-series language-model inference when its model-specific components are available.</p>
 <div class="steps">
 <div class="step"><b>01 / INGEST</b><h3>Observe past signals</h3><p>Use a 30-cycle history of 21 sensor streams plus three engine operating settings, never future telemetry.</p></div>
-<div class="step"><b>02 / REASON</b><h3>Estimate remaining life</h3><p>Gradient-boosted regression produces remaining useful life in cycles, with engine-disjoint training and validation.</p></div>
+<div class="step"><b>02 / REASON</b><h3>Estimate remaining life</h3><p>A gradient-boosted baseline and an original 12-epoch temporal QA Transformer produce held-out remaining-life estimates and 30-cycle warning responses.</p></div>
 <div class="step"><b>03 / DECIDE</b><h3>Surface an actionable warning</h3><p>Flag engines estimated at or below 30 remaining cycles. Compare the prediction against known test labels.</p></div>
 </div>
-<div class="caution"><strong>Research status and limitations.</strong> NASA C-MAPSS FD001 is simulated engine degradation data. Our scored model is a classical gradient-boosted CPU model, <strong>not an OpenTime/TSLM fine-tune</strong>. The experimental OpenTime checkpoint uses unpublished mechanisms; it has not been verified in this project. The demonstration must not be used for live aircraft maintenance, safety decisions, or commercial claims.</div>
+<div class="caution"><strong>Research status and limitations.</strong> NASA C-MAPSS FD001 is simulated engine degradation data. Our scored models are a classical CPU baseline and an original fixed-question temporal QA Transformer, <strong>not an OpenTime 5B fine-tune or a general-purpose language model</strong>. The experimental OpenTime checkpoint uses novel components not yet integrated here. The demonstration must not be used for live aircraft maintenance, safety decisions, or commercial claims.</div>
 </section>
 <section class="section"><h2>Why this direction matters</h2><p class="lead">An effective time-series AI employee should not merely predict a number. It should provide evidence, make errors visible, trigger human-review workflows, and help businesses take preventive action. This is our testable starting point toward that vision.</p>
 <div class="actions"><a class="btn" href="https://github.com/evansmusitu/musitu-timenet-sentinel">Verify it on GitHub →</a><a class="btn alt" href="https://challenge.timenet.ai/">TimeNet competition ↗</a></div>
@@ -105,17 +105,17 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <footer><div class="wrap">MUSITU AXIOM Sentinel · Independent TimeNet / OpenTime 2026 entry · NASA simulated data · Demonstration and research only.<br>Source results dated 20 November 2026 UTC · Created by MUSITU.</div></footer>
 <script>
 const sample=[
-{u:1,c:31,a:112,p:193.79},{u:3,c:126,a:69,p:45.10},{u:6,c:105,a:93,p:126.93},
-{u:10,c:192,a:96,p:81.59},{u:15,c:76,a:83,p:168.72},{u:21,c:148,a:57,p:65.34},
-{u:31,c:196,a:8,p:12.56},{u:34,c:203,a:7,p:9.72},{u:41,c:123,a:18,p:38.68},
-{u:51,c:144,a:114,p:100.27},{u:61,c:159,a:21,p:18.49},{u:68,c:187,a:8,p:7.39},
-{u:71,c:68,a:118,p:130.56},{u:81,c:213,a:8,p:7.73},{u:91,c:234,a:38,p:37.01},
-{u:100,c:198,a:20,p:19.01}];
-const select=document.getElementById("engine"),svg=document.getElementById("scatter");
+{u:1,c:31,a:112,p:193.79,t:149.85,r:0},{u:3,c:126,a:69,p:45.10,t:70.64,r:0},{u:6,c:105,a:93,p:126.93,t:122.35,r:0},
+{u:10,c:192,a:96,p:81.59,t:125.11,r:0},{u:15,c:76,a:83,p:168.72,t:153.64,r:0},{u:21,c:148,a:57,p:65.34,t:84.95,r:0},
+{u:31,c:196,a:8,p:12.56,t:17.69,r:1},{u:34,c:203,a:7,p:9.72,t:7.74,r:1},{u:41,c:123,a:18,p:38.68,t:28.42,r:.75},
+{u:51,c:144,a:114,p:100.27,t:136.98,r:0},{u:61,c:159,a:21,p:18.49,t:20.74,r:1},{u:68,c:187,a:8,p:7.39,t:9.35,r:1},
+{u:71,c:68,a:118,p:130.56,t:104.90,r:0},{u:81,c:213,a:8,p:7.73,t:11.33,r:1},{u:91,c:234,a:38,p:37.01,t:25.60,r:.94},
+{u:100,c:198,a:20,p:19.01,t:19.65,r:1}];
+const select=document.getElementById("engine"),modelSelect=document.getElementById("model"),svg=document.getElementById("scatter");
 sample.forEach(d=>{const o=document.createElement("option");o.value=d.u;o.textContent="Engine "+String(d.u).padStart(3,"0");select.appendChild(o)});
 const NS="http://www.w3.org/2000/svg";
 function element(name,attrs,text){const el=document.createElementNS(NS,name);for(const [k,v]of Object.entries(attrs))el.setAttribute(k,v);if(text!==undefined)el.textContent=text;svg.appendChild(el);return el}
-function chart(u){
+function chart(u){const mode=modelSelect.value;
 svg.innerHTML="";
 const left=65,right=620,top=24,bottom=350,max=210;
 const X=v=>left+v/max*(right-left),Y=v=>bottom-v/max*(bottom-top);
@@ -125,9 +125,9 @@ element("line",{x1:left,y1:top,x2:left,y2:bottom,stroke:"#8294ab"});
 element("line",{x1:X(0),y1:Y(0),x2:X(205),y2:Y(205),stroke:"#f8c778","stroke-width":2,"stroke-dasharray":"7 7"});
 element("text",{x:(left+right)/2,y:406,fill:"#d4e6f8","font-size":14,"text-anchor":"middle"},"Actual remaining life (cycles)");
 element("text",{x:17,y:194,fill:"#d4e6f8","font-size":14,transform:"rotate(-90,17,194)","text-anchor":"middle"},"Predicted life (cycles)");
-sample.forEach(d=>{const active=d.u===u;const dot=element("circle",{cx:X(d.a),cy:Y(d.p),r:active?9:6,fill:active?"#62e8dd":d.p<=30?"#f98d9b":"#7a94bc",stroke:active?"#fff":"none","stroke-width":2,opacity:active?1:.78,style:"cursor:pointer",tabindex:0,role:"button","aria-label":"Engine "+d.u});dot.addEventListener("click",()=>{select.value=d.u;update()});dot.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select.value=d.u;update()}})});
+sample.forEach(d=>{const active=d.u===u;const dot=element("circle",{cx:X(d.a),cy:Y(mode==="temporal"?d.t:d.p),r:active?9:6,fill:active?"#62e8dd":d.p<=30?"#f98d9b":"#7a94bc",stroke:active?"#fff":"none","stroke-width":2,opacity:active?1:.78,style:"cursor:pointer",tabindex:0,role:"button","aria-label":"Engine "+d.u});dot.addEventListener("click",()=>{select.value=d.u;update()});dot.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select.value=d.u;update()}})});
 }
-function update(){const d=sample.find(x=>x.u===Number(select.value));document.getElementById("prediction").textContent=d.p.toFixed(2);document.getElementById("cycle").textContent=d.c;document.getElementById("actual").textContent=d.a+" cycles";document.getElementById("error").textContent=Math.abs(d.a-d.p).toFixed(2)+" cycles";const warn=document.getElementById("warning");warn.textContent=d.p<=30?"⚠ Flagged: ≤30 cycles":"Above warning threshold";warn.className=d.p<=30?"badge danger":"badge";chart(d.u)}
-select.addEventListener("change",update);select.value=41;update();
+function update(){const d=sample.find(x=>x.u===Number(select.value));const temporal=modelSelect.value==="temporal";const prediction=temporal?d.t:d.p;document.getElementById("prediction").textContent=prediction.toFixed(2);document.getElementById("cycle").textContent=d.c;document.getElementById("actual").textContent=d.a+" cycles";document.getElementById("error").textContent=Math.abs(d.a-prediction).toFixed(2)+" cycles";const warn=document.getElementById("warning");const flag=temporal?d.r>=.5:d.p<=30;warn.textContent=flag?"⚠ Flagged: ≤30 cycles":"Above warning threshold";warn.className=flag?"badge danger":"badge";chart(d.u)}
+select.addEventListener("change",update);modelSelect.addEventListener("change",update);select.value=41;update();
 </script>
 </body></html>
