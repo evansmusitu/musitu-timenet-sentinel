@@ -10,7 +10,13 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 - **Successful official NASA FD001 CPU benchmark:** https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482
 - **Download artifact:** open that run's Artifacts section and download `nasa-cmapss-results`.
 - **Official test on 100 unseen engines:** 19.4025-cycle RUL MAE; 27.2319-cycle RMSE; 30-cycle warning F1 0.8889, precision 1.0, recall 0.8.
-- **Separate experimental fixed-prompt temporal QA Transformer:** source `sentinel/temporal_qa.py`, workflow `.github/workflows/temporal.yml`. Any metrics must come from a completed, successful model-training run. This is **not** OpenTime's 5B model or a general-purpose TSLM.
+- **Separate experimental fixed-prompt temporal QA Transformer:** source `sentinel/temporal_qa.py`, workflow `.github/workflows/temporal.yml`. The 12-epoch training run completed successfully: 19.0436-cycle RUL MAE, 26.4463-cycle RMSE, and F1 0.960 from its trained 30-cycle warning head on 100 official test engines. [Check training and model artifact](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819987425). This is **not** OpenTime's 5B model or a general-purpose TSLM.
+
+## Official TimeNet connector contribution
+
+- **Upstream draft PR:** https://github.com/OpenTSLM/TimeNet/pull/836
+- Fork branch: https://github.com/evansmusitu/TimeNet/tree/feat/musitu-cmapss-fd001
+- PR is a draft pending CI, format integration and NASA data-license metadata review; no raw data redistributed.
 
 ## Reproduce
 
