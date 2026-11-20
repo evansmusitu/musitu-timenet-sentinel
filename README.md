@@ -1,0 +1,29 @@
+# MUSITU AXIOM Sentinel — TimeNet / OpenTime Hackathon
+
+Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 simulated turbofan engine telemetry.
+
+**Status:** CPU benchmark and tests implemented. OpenTime 5B checkpoint is **not trained or verified** here. The current competition aims to integrate a real TimeNet/TimeF dataset and a trained or fine-tuned time-series language model.
+
+## Reproduce
+
+```bash
+pip install -r requirements.txt pytest
+python -m pytest -q
+python -m sentinel.benchmark --download
+```
+
+The runner fetches the NASA FD001 archive from the versioned Zenodo record and verifies its MD5, then produces `artifacts/metrics.json`, `artifacts/official_test_predictions.csv` and `artifacts/summary.md`.
+
+**Method:** 30-cycle past-only windows, 21 sensor streams, 3 operating settings, engine-group-disjoint development split, held-out NASA test engines, gradient-boosted regression of remaining useful life (RUL) plus 30-cycle warning classification. Baseline is classical machine learning, not the OpenTime TSLM.
+
+The experimental checkpoint shared in OpenTime Discord is https://huggingface.co/opentime/tslm-nov26 . Martin noted that novel model components are not yet included in the main OpenTSLM repository; inspect the example helpers at https://github.com/aws-samples/generative-ai-on-amazon-sagemaker/blob/main/examples/opentslm-finetune-arfbench/scripts/utils.py .
+
+## Source
+
+NASA Ames Prognostics Center of Excellence: https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/
+
+Archived source: https://zenodo.org/records/15346912 (MD5 `79a22f36e80606c69d0e9e4da5bb2bdf`). We do **not** redistribute source data.
+
+TimeNet: https://github.com/OpenTSLM/TimeNet . Current challenge: https://challenge.timenet.ai/ . Submission deadline 2026-11-22 11:59 p.m. PST, official form https://tally.so/r/J1qbyK .
+
+**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. An upstream TimeNet PR, real TSLM training/evaluation, hosted demo, social posts and submission remain to be completed.
