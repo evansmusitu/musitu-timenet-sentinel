@@ -6,3 +6,7 @@ data/
 artifacts/
 .env*
 *.safetensors
+# Never commit service-account private keys or credentials
+*.pem
+*.key
+!nebius/musitu-timenet-github-public.pem
