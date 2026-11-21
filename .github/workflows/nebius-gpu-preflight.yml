@@ -114,6 +114,7 @@ jobs:
             --profile musitu-preflight --format json > "$tmp/quotas.json" 2>/dev/null; then
             quota_api_status="PROJECT_QUERY_SUCCEEDED"
           fi
+          export quota_api_status
 
           python scripts/nebius_gpu_plan.py --inventory-dir "$tmp" --gpu-minutes 45 > "$tmp/report.json"
           python - "$tmp/report.json" <<'PY'
