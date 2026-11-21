@@ -121,7 +121,9 @@ jobs:
               "- GPU-related platform labels: **" + (", ".join(info["gpu_platforms_advertised"]) or "none found") + "**",
               "- Existing instances in project: **" + str(info["existing_instance_count"]) + "**",
               "- GPU quota/capacity: **NOT verified**",
-              "- Estimated max 45-minute one-GPU session: **$" + report["indicative_run_estimate_usd"] + " (NOT a billing cap)**",
+              "- Indicative 45-minute rate for advertised GPU(s): **" + str(info["advertised_gpu_45m_indicative_cost_usd"]) + "**",
+              "- Advertised GPU within $3 planning threshold: **" + str(info["advertised_gpu_45m_below_planning_threshold"]) + "**",
+              "- RTX PRO 6000 45-minute reference estimate: **$" + report["indicative_run_estimate_usd"] + " (only if that GPU is actually advertised, NOT a billing cap)**",
               "- Launch approved: **NO** (requires verified region, capacity, project networking, image and shutdown)",
           ]
           print("\n".join(text))
