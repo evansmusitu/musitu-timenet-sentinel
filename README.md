@@ -18,6 +18,19 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 - Fork branch: https://github.com/evansmusitu/TimeNet/tree/feat/musitu-cmapss-fd001
 - PR is a draft pending CI, format integration and NASA data-license metadata review; no raw data redistributed.
 
+## Experimental OpenTime checkpoint adaptation (GPU run pending)
+
+A new GPU runner is checked in at `sentinel/opentime_train.py`. It uses the organizer-recommended AWS reference implementation pinned to commit `b83a9901d401e9e872ee9048fe61e6c9df9a5b78` and explicit immutable HF checkpoint revision. It constructs past-only 24-channel windows, freezes the base model according to the upstream recipe, selects the best epoch on development engines only, and logs before/after performance and raw predictions on the fixed 100-engine official test set. The data adapter was exercised with local regression tests; GPU compatibility and model results remain unverified.
+
+```bash
+# Run on CUDA-enabled PyTorch 2.9 GPU image; recommend one 80 GB GPU.
+python -m pip install -r requirements-opentime.txt
+REV=$(python -c 'from huggingface_hub import model_info; print(model_info("opentime/tslm-nov26").sha)')
+python -m sentinel.opentime_train --revision "$REV" --epochs 1 --train-limit 48 --val-limit 24
+```
+
+Results and adapted parameter weights go to `artifacts/opentime/`. Inspect the checkpoint's Gemma license prior to use or distribution. No GPU execution or paid cloud provisioning is performed by this script.
+
 ## Reproduce
 
 ```bash
@@ -36,8 +49,8 @@ The experimental checkpoint shared in OpenTime Discord is https://huggingface.co
 
 NASA Ames Prognostics Center of Excellence: https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/
 
-Archived source: https://zenodo.org/records/15346912 (MD5 `79a22f36e80606c69d0e9e4da5bb2bdf`). We do **not** redistribute source data.
+Archived source: https://zenodo.org/records/15346912 (MD5 `79a22f36e80606c69d0e9e4da5bb2b7a`). We do **not** redistribute source data.
 
 TimeNet: https://github.com/OpenTSLM/TimeNet . Current challenge: https://challenge.timenet.ai/ . Submission deadline 2026-11-22 11:59 p.m. PST, official form https://tally.so/r/J1qbyK .
 
-**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. An upstream TimeNet PR, real TSLM training/evaluation, hosted demo, social posts and submission remain to be completed.
+**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. The upstream PR is open in draft and the demo is published. Remaining: TimeNet integration and license review, actual OpenTime checkpoint evaluation, public social posts and final submission.
