@@ -105,13 +105,20 @@ jobs:
                  "quotas":["quotas","quota-allowance","list"],
               }
               reports={}
+              failures={}
               for name,parts in checks.items():
                   cmd=["nebius"]+parts+base
                   try:
                       result=subprocess.run(cmd,capture_output=True,text=True,timeout=55)
                       reports[name] = json.loads(result.stdout) if result.returncode==0 else None
+                      if result.returncode != 0:
+                          err=result.stderr.lower()
+                          failures[name]=("PERMISSION_DENIED" if "permission" in err or "denied" in err
+                                          else "INVALID_PARENT" if "parent_id is invalid" in err
+                                          else "UNAVAILABLE_OR_OTHER_ERROR")
                   except (ValueError, subprocess.TimeoutExpired):
                       reports[name] = None
+                      failures[name]="PARSE_OR_TIMEOUT"
               platform_report=reports["platforms"]
               gpu=summarize_platforms(platform_report) if platform_report is not None else []
               def count_items(payload):
@@ -127,7 +134,7 @@ jobs:
               print("Region:",item["region"])
               print(" RTX platforms:",", ".join(rtx) if rtx else "none")
               print(" Subnet count:",subnet_count,"(negative = inaccessible)")
-              print(" Instance count:",instance_count,"(negative = inaccessible)")
+              print(" Instance count:",instance_count,"(negative = inaccessible; reason: "+failures.get("instances","none")+")")
               print(" Quota records:",quota_count,"(negative = inaccessible)")
               # Quota records are permissioned and may be pool-specific. Never equate
               # a nonzero count to usable GPU quota or capacity.
@@ -137,6 +144,13 @@ jobs:
                       label=str((q.get("metadata") or {}).get("name",""))
                       if "rtx" in label.lower() or "gpu" in label.lower():
                           quota_names.append(label[:100])
+                      if label == "compute.instance.gpu.rtx6000":
+                          spec=q.get("spec") or {}
+                          status=q.get("status") or {}
+                          print(" RTX quota limit:",spec.get("limit","unspecified"),
+                                "usage:",status.get("usage","unknown"),
+                                "state:",status.get("state","unknown"),
+                                "region:",spec.get("region","unspecified"))
                   print(" GPU quota record names:",", ".join(quota_names[:10]) or "not unambiguously labeled")
               print(" Runtime readiness:", "UNVERIFIED (quota/capacity/price/image/watchdog)")
           print("Cloud writes: NONE. GPU quota and capacity: NOT verified.")
