@@ -73,7 +73,7 @@ if ($LASTEXITCODE -ne 0) {
     if ($LASTEXITCODE -ne 0) { throw 'GitHub authentication was not completed.' }
 }
 $actualLogin = (& $gh api user --jq '.login' 2>$null | Select-Object -First 1)
-if ($LASTEXITCODE -ne 0 -or $actualLogin.Trim() -ne $expectedLogin) {
+if ($LASTEXITCODE -ne 0 -or -not $actualLogin -or $actualLogin.Trim() -ne $expectedLogin) {
     throw "Authenticated GitHub user must be $expectedLogin. Switch accounts with 'gh auth login'."
 }
 Write-Host "GitHub owner confirmed: $expectedLogin"
