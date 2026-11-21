@@ -107,6 +107,14 @@ jobs:
           nebius compute instance list --parent-id "$PROJECT_ID" --all \
             --profile musitu-preflight --format json > "$tmp/instances.json"
 
+          # Quotas are a separate API and may be tenant-scoped or permission gated.
+          # Never confuse absence of quota records with permission to provision.
+          quota_api_status="UNAVAILABLE_OR_DENIED"
+          if nebius quotas quota-allowance list --parent-id "$PROJECT_ID" --all \
+            --profile musitu-preflight --format json > "$tmp/quotas.json" 2>/dev/null; then
+            quota_api_status="PROJECT_QUERY_SUCCEEDED"
+          fi
+
           python scripts/nebius_gpu_plan.py --inventory-dir "$tmp" --gpu-minutes 45 > "$tmp/report.json"
           python - "$tmp/report.json" <<'PY'
           import json, sys
@@ -120,6 +128,7 @@ jobs:
               "- Count of advertised compute platforms: **" + str(info["platform_count"]) + "**",
               "- GPU-related platform labels: **" + (", ".join(info["gpu_platforms_advertised"]) or "none found") + "**",
               "- Existing instances in project: **" + str(info["existing_instance_count"]) + "**",
+              "- Project quota API: **" + quota_api_status + "** (NOT a capacity guarantee)",
               "- GPU quota/capacity: **NOT verified**",
               "- Indicative 45-minute rate for advertised GPU(s): **" + str(info["advertised_gpu_45m_indicative_cost_usd"]) + "**",
               "- Advertised GPU within $3 planning threshold: **" + str(info["advertised_gpu_45m_below_planning_threshold"]) + "**",
