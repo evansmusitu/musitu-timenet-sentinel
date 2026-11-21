@@ -12,14 +12,18 @@ GPU_RATE_USD = Decimal("1.80")  # Published indicative on-demand rate; not a quo
 EXTRA_HEADROOM_USD = Decimal("0.50")
 MAX_GPU_MINUTES = 60
 MAX_SINGLE_RUN_USD = Decimal("3.00")
+# Conservatively use the higher published B300 rate while Nebius price pages vary.
+PROJECT_PLATFORM_RATES = {"gpu-b300-sxm": Decimal("9.50"), "gpu-rtx6000-a": Decimal("1.80")}
 
 
-def estimate_cost(minutes: int, gpu_count: int = 1) -> Decimal:
+def estimate_cost(minutes: int, gpu_count: int = 1, rate: Decimal = GPU_RATE_USD) -> Decimal:
     if type(minutes) is not int or not 1 <= minutes <= MAX_GPU_MINUTES:
         raise ValueError("GPU runtime must be an integer from 1 to 60 minutes")
     if gpu_count != 1:
         raise ValueError("At most one GPU per run")
-    value = GPU_RATE_USD * Decimal(minutes) / Decimal(60) + EXTRA_HEADROOM_USD
+    if rate <= 0:
+        raise ValueError("Hourly GPU rate must be positive")
+    value = rate * Decimal(minutes) / Decimal(60) + EXTRA_HEADROOM_USD
     value = value.quantize(Decimal("0.01"), rounding=ROUND_UP)
     if value > MAX_SINGLE_RUN_USD:
         raise ValueError("Estimated cost exceeds the per-run planning threshold")
@@ -69,7 +73,19 @@ def read_inventory(directory: Path) -> dict:
         if any(token in text for token in ("gpu", "h100", "h200", "rtx", "b200", "b300", "l40s", "a100")):
             gpu_names.append(meta.get("name") or "unnamed-gpu-platform")
 
+    advertised_rates = {name: PROJECT_PLATFORM_RATES[name]
+                        for name in gpu_names if name in PROJECT_PLATFORM_RATES}
+    project_45m_estimates = {
+        name: str((rate * Decimal(45) / Decimal(60) + EXTRA_HEADROOM_USD)
+                  .quantize(Decimal("0.01"), rounding=ROUND_UP))
+        for name, rate in advertised_rates.items()
+    }
     return {
+        "advertised_gpu_45m_indicative_cost_usd": project_45m_estimates,
+        "advertised_gpu_45m_below_planning_threshold": all(
+            Decimal(cost) <= MAX_SINGLE_RUN_USD
+            for cost in project_45m_estimates.values()
+        ) if project_45m_estimates else False,
         "platform_count": len(platforms),
         "gpu_platforms_advertised": sorted(set(gpu_names))[:15],
         "subnet_configured": bool(subnets),
