@@ -1,0 +1,120 @@
+name: Nebius GPU budget and inventory preflight (no spend)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/nebius_gpu_plan.py
+      - tests/test_nebius_gpu_plan.py
+      - .github/workflows/nebius-gpu-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nebius-gpu-readonly-preflight
+  cancel-in-progress: false
+
+jobs:
+  test-budget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test cost calculations and fail-closed parsing
+        run: |
+          python -m unittest discover -s tests -p 'test_nebius_gpu_plan.py' -v
+          python scripts/nebius_gpu_plan.py --gpu-minutes 45
+
+  read-only-nebius-inventory:
+    needs: test-budget
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.actor == 'evansmusitu')
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confirm authorized key credentials exist without printing them
+        env:
+          SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+          KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+          PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+          PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +x
+          for variable in SA_ID KEY_ID PRIVATE_PEM PROJECT_ID; do
+            if [[ -z "${!variable:-}" ]]; then
+              echo "Missing required Nebius credential; no cloud changes attempted."
+              exit 3
+            fi
+          done
+          [[ "$SA_ID" == serviceaccount-* && "$KEY_ID" == publickey-* ]]
+          echo "Credential presence check: PASS"
+
+      - name: Read Nebius project inventory via official CLI (read-only)
+        env:
+          SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+          KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+          PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+          PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          set +x
+          umask 077
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          printf '%s\n' "$PRIVATE_PEM" > "$tmp/private.pem"
+          openssl pkey -in "$tmp/private.pem" -noout 2>/dev/null
+
+          curl --fail --silent --show-error --location \
+            https://storage.eu-north1.nebius.cloud/cli/install.sh -o "$tmp/install.sh"
+          bash "$tmp/install.sh" >/dev/null
+          if ! command -v nebius >/dev/null 2>&1; then
+            path="$(find "$HOME" -maxdepth 5 -type f -name nebius -perm -u+x -print -quit 2>/dev/null)"
+            [[ -n "$path" ]] || { echo "Official Nebius CLI installation failed."; exit 5; }
+            export PATH="$(dirname "$path"):$PATH"
+          fi
+
+          nebius profile create --endpoint api.nebius.cloud \
+            --service-account-id "$SA_ID" \
+            --public-key-id "$KEY_ID" \
+            --private-key-file "$tmp/private.pem" \
+            --profile musitu-preflight \
+            --parent-id "$PROJECT_ID" >/dev/null
+
+          nebius iam service-account get --id "$SA_ID" \
+            --profile musitu-preflight >/dev/null
+          echo "Nebius read-only IAM authentication: PASS"
+
+          # Requests below are LIST operations only. No create/start/stop/delete.
+          nebius compute platform list --parent-id "$PROJECT_ID" --all \
+            --profile musitu-preflight --format json > "$tmp/platforms.json"
+          nebius vpc subnet list --parent-id "$PROJECT_ID" --all \
+            --profile musitu-preflight --format json > "$tmp/subnets.json"
+          nebius compute instance list --parent-id "$PROJECT_ID" --all \
+            --profile musitu-preflight --format json > "$tmp/instances.json"
+
+          python scripts/nebius_gpu_plan.py --inventory-dir "$tmp" --gpu-minutes 45 > "$tmp/report.json"
+          python - "$tmp/report.json" <<'PY'
+          import json, sys
+          report=json.load(open(sys.argv[1],encoding="utf-8"))
+          info=report["inventory"]
+          text=[
+              "### Nebius GPU preflight — read-only",
+              "",
+              "- Cloud writes: **NONE**",
+              "- Configured subnets detected: **" + str(info["subnet_configured"]) + "**",
+              "- Count of advertised compute platforms: **" + str(info["platform_count"]) + "**",
+              "- GPU-related platform labels: **" + (", ".join(info["gpu_platforms_advertised"]) or "none found") + "**",
+              "- Existing instances in project: **" + str(info["existing_instance_count"]) + "**",
+              "- GPU quota/capacity: **NOT verified**",
+              "- Estimated max 45-minute one-GPU session: **$" + report["indicative_run_estimate_usd"] + " (NOT a billing cap)**",
+              "- Launch approved: **NO** (requires verified region, capacity, project networking, image and shutdown)",
+          ]
+          print("\n".join(text))
+          PY
+          echo "No Nebius GPU instances started."
