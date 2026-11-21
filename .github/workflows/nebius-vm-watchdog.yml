@@ -1,0 +1,105 @@
+name: Nebius MUSITU GPU expiry watchdog (audit by default)
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Watchdog behavior. Stopping needs repo variable NEBIUS_WATCHDOG_ENABLE_STOP=true.
+        required: true
+        default: audit
+        type: choice
+        options:
+          - audit
+          - stop-expired
+  push:
+    branches: [main]
+    paths:
+      - scripts/nebius_vm_watchdog.py
+      - tests/test_nebius_vm_watchdog.py
+      - .github/workflows/nebius-vm-watchdog.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nebius-expiry-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test owner and expiry guards
+        run: python -m unittest discover -s tests -p 'test_nebius_vm_watchdog.py' -v
+
+      - name: Check only owned Nebius GPUs and audit expired instances
+        env:
+          SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+          KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+          PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+          PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }}
+          WATCHDOG_MODE: ${{ inputs.mode || 'audit' }}
+          WATCHDOG_STOP_ENABLE_FLAG: ${{ vars.NEBIUS_WATCHDOG_ENABLE_STOP }}
+          EVENT: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          set +x
+          umask 077
+          [[ -n "$SA_ID" && -n "$KEY_ID" && -n "$PRIVATE_PEM" && -n "$PROJECT_ID" ]] || {
+            echo "Missing Nebius credentials; no actions performed." >&2
+            exit 3
+          }
+          [[ "$SA_ID" == "serviceaccount-e04afk1xvsf8pwvd58" ]] || {
+            echo "Wrong service account; aborting." >&2
+            exit 3
+          }
+          if [[ "$PROJECT_ID" == "e04p7wefbc00y3c7de0pcn" ]]; then
+            PROJECT_ID="project-$PROJECT_ID"
+          fi
+          [[ "$PROJECT_ID" == "project-e04p7wefbc00y3c7de0pcn" ]] || exit 3
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          printf '%s\n' "$PRIVATE_PEM" > "$tmp/private.pem"
+          openssl pkey -in "$tmp/private.pem" -noout 2>/dev/null
+
+          curl --fail --silent --show-error --location \
+            https://storage.eu-north1.nebius.cloud/cli/install.sh -o "$tmp/install.sh"
+          bash "$tmp/install.sh" >/dev/null
+          if ! command -v nebius >/dev/null 2>&1; then
+            cli="$(find "$HOME" -maxdepth 5 -type f -name nebius -perm -u+x -print -quit 2>/dev/null)"
+            [[ -n "$cli" ]] || exit 5
+            export PATH="$(dirname "$cli"):$PATH"
+          fi
+          nebius profile create --endpoint api.nebius.cloud \
+            --service-account-id "$SA_ID" \
+            --public-key-id "$KEY_ID" \
+            --private-key-file "$tmp/private.pem" \
+            --profile musitu-watchdog --parent-id "$PROJECT_ID" >/dev/null
+
+          # A SCHEDULED run intentionally stays AUDIT-ONLY until an operator sets
+          # NEBIUS_WATCHDOG_ENABLE_STOP=true in GitHub repository Variables.
+          # No VM provisioning workflows are enabled by this watchdog.
+          mode="audit"
+          if [[ "$WATCHDOG_STOP_ENABLE_FLAG" == "true" ]]; then
+            if [[ "$EVENT" == "schedule" ]]; then
+              mode="stop-expired"
+            elif [[ "$EVENT" == "workflow_dispatch" &&
+                    "$WATCHDOG_MODE" == "stop-expired" && "$ACTOR" == "evansmusitu" ]]; then
+              mode="stop-expired"
+            fi
+          fi
+          if [[ "$mode" == "stop-expired" ]]; then
+            export MUSITU_WATCHDOG_STOP_ALLOWED=true
+          fi
+          nebius iam project list --parent-id tenant-e00tpcsv2jp7n3t544 --all \
+            --profile musitu-watchdog --format json > "$tmp/projects.json"
+          python -m scripts.nebius_vm_watchdog --projects "$tmp/projects.json" \
+            --profile musitu-watchdog --mode "$mode"
+          echo "Watchdog never starts or deletes resources."
