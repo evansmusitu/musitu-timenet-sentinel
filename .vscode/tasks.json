@@ -18,7 +18,11 @@
         "echo": false,
         "clear": true
       },
-      "detail": "Creates a private RSA key outside Git, stores it via GitHub CLI as encrypted Actions Secret, and publishes ONLY its public PEM. Does not provision cloud resources."
+      "detail": "Creates a private RSA key outside Git, stores it via GitHub CLI as encrypted Actions Secret, and publishes ONLY its public PEM. Does not provision cloud resources.",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }
