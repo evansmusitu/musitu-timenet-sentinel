@@ -124,8 +124,12 @@ jobs:
               def count_items(payload):
                   if isinstance(payload,list):
                       return len(payload)
-                  if isinstance(payload,dict) and isinstance(payload.get("items"),list):
-                      return len(payload["items"])
+                  if isinstance(payload,dict):
+                      for collection in ("items","instances","platforms","subnets"):
+                          if isinstance(payload.get(collection),list):
+                              return len(payload[collection])
+                      if not payload or all(v in (None, "", [], {}) for v in payload.values()):
+                          return 0
                   return -1
               subnet_count=count_items(reports["subnets"])
               instance_count=count_items(reports["instances"])
