@@ -3,7 +3,7 @@
 ## Verified live results
 The following GitHub Actions run completed successfully, with **no cloud write operations**:
 
-https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44958783291
+https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44958977628
 
 - Nebius IAM service-account credentials: **PASS** using existing encrypted Actions secrets.
 - Canonical project parent: `project-e04p7wefbc00y3c7de0pcn`. Note the existing `NEBIUS_PROJECT_ID` secret contains the console's short ID without the `project-` prefix; the preflight normalizes and checks it against the exact expected project. The smoke test had not validated project-scoped calls.
@@ -11,7 +11,7 @@ https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44958783291
 - Configured VPC subnet exists: **YES**.
 - Existing VMs: **0**.
 - RTX PRO 6000 96 GB GPU: **NOT advertised in the existing eu-west2 project**. Do not use its lower hourly rate to estimate running in this project.
-- B300 GPU quota, real-time available capacity, usable preset, GPU image, actual per-account pricing and total balance/expiry: **NOT yet verified from the authenticated API**.
+- Project quota-allowance API list: **accessible** with the GitHub Actions service account (read-only); the returned records were not interpreted into an effective B300 limit, so **B300 GPU quota remains unverified**.\n- Real-time available capacity, usable preset, GPU image, actual per-account pricing and total balance/expiry: **NOT yet verified from the authenticated API**.
 - No new VM, disk, public IP, or cloud resource was created.
 
 ## Cost plan — not a billing guarantee
