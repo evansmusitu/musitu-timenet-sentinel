@@ -1,0 +1,53 @@
+name: Nebius GitHub OIDC preflight (no cloud access)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  oidc-preflight:
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Request GitHub OIDC identity, validate claims locally, never print token
+        env:
+          EXPECTED_REPOSITORY: evansmusitu/musitu-timenet-sentinel
+          EXPECTED_REF: refs/heads/main
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +x
+          umask 077
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          curl --fail --silent --show-error --get \
+            --data-urlencode "audience=nebius-musitu-timenet-sentinel" \
+            --header "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}" > "$response"
+          python - "$response" <<'PY'
+          import base64
+          import json
+          import sys
+          with open(sys.argv[1], encoding="utf-8") as f:
+              token = json.load(f)["value"]
+          parts = token.split(".")
+          if len(parts) != 3:
+              raise SystemExit("Invalid GitHub-issued OIDC token format")
+          payload = json.loads(base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4)))
+          expected = {
+              "iss": "https://token.actions.githubusercontent.com",
+              "aud": "nebius-musitu-timenet-sentinel",
+              "repository": "evansmusitu/musitu-timenet-sentinel",
+              "ref": "refs/heads/main",
+              "sub": "repo:evansmusitu/musitu-timenet-sentinel:ref:refs/heads/main",
+          }
+          for key, value in expected.items():
+              if payload.get(key) != value:
+                  raise SystemExit(f"OIDC preflight failed: unexpected {key} claim")
+          print("GitHub OIDC issuer, audience and repository/main subject claims: PASS")
+          print("This does not prove Nebius accepts the token; no Nebius API request was made.")
+          PY
