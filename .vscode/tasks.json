@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "MUSITU: Configure Nebius GitHub private key",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "scripts/bootstrap-nebius-github.sh"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "echo": false,
+        "clear": true
+      },
+      "detail": "Creates a private RSA key outside Git, stores it via GitHub CLI as encrypted Actions Secret, and publishes ONLY its public PEM. Does not provision cloud resources."
+    }
+  ]
+}
