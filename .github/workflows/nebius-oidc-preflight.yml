@@ -43,11 +43,16 @@ jobs:
               "aud": "nebius-musitu-timenet-sentinel",
               "repository": "evansmusitu/musitu-timenet-sentinel",
               "ref": "refs/heads/main",
-              "sub": "repo:evansmusitu/musitu-timenet-sentinel:ref:refs/heads/main",
           }
+          subject = payload.get("sub")
+          if not isinstance(subject, str) or not subject:
+              raise SystemExit("OIDC preflight failed: missing sub claim")
+          # GitHub lets organizations customize sub formats; rely on signed repository+ref
+          # claims for this read-only check and configure Nebius WIF separately.
           for key, value in expected.items():
               if payload.get(key) != value:
                   raise SystemExit(f"OIDC preflight failed: unexpected {key} claim")
-          print("GitHub OIDC issuer, audience and repository/main subject claims: PASS")
+          print("GitHub OIDC issuer, audience, repository/main ref and subject presence: PASS")
+          print("Subject uses default branch format:", subject == "repo:evansmusitu/musitu-timenet-sentinel:ref:refs/heads/main")
           print("This does not prove Nebius accepts the token; no Nebius API request was made.")
           PY
