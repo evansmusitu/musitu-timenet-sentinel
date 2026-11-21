@@ -65,6 +65,15 @@ jobs:
           set -Eeuo pipefail
           set +x
           umask 077
+          # Existing GitHub secret was configured with the console's short ID.
+          # Nebius project-scoped APIs require the canonical 'project-' prefix.
+          if [[ "$PROJECT_ID" == "e04p7wefbc00y3c7de0pcn" ]]; then
+            PROJECT_ID="project-$PROJECT_ID"
+          fi
+          if [[ "$PROJECT_ID" != "project-e04p7wefbc00y3c7de0pcn" ]]; then
+            echo "Unexpected Nebius project ID; refusing to query another project." >&2
+            exit 4
+          fi
           tmp="$(mktemp -d)"
           trap 'rm -rf "$tmp"' EXIT
           printf '%s\n' "$PRIVATE_PEM" > "$tmp/private.pem"
