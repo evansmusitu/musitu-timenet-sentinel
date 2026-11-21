@@ -1,0 +1,108 @@
+name: Nebius cheaper-region discovery (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/nebius_region_catalog.py
+      - tests/test_nebius_region_catalog.py
+      - .github/workflows/nebius-region-discovery.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nebius-region-inventory
+  cancel-in-progress: false
+
+jobs:
+  catalog-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate catalog parser
+        run: python -m unittest discover -s tests -p 'test_nebius_region_catalog.py' -v
+
+  discover:
+    needs: catalog-tests
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: List accessible tenant projects and advertised GPU platforms without any writes
+        env:
+          SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+          KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+          PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+          PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }}
+          TENANT_ID: tenant-e00tpcsv2jp7n3t544
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          set +x
+          umask 077
+          if [[ -z "$SA_ID" || -z "$KEY_ID" || -z "$PRIVATE_PEM" || -z "$PROJECT_ID" ]]; then
+            echo "Credentials missing. No cloud change attempted." >&2
+            exit 3
+          fi
+          [[ "$SA_ID" == "serviceaccount-e04afk1xvsf8pwvd58" ]] || { echo "Unexpected service-account ID"; exit 3; }
+          if [[ "$PROJECT_ID" == "e04p7wefbc00y3c7de0pcn" ]]; then
+            PROJECT_ID="project-$PROJECT_ID"
+          fi
+          [[ "$PROJECT_ID" == "project-e04p7wefbc00y3c7de0pcn" ]] || { echo "Unexpected project ID"; exit 3; }
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          printf '%s\n' "$PRIVATE_PEM" > "$tmp/private.pem"
+          openssl pkey -in "$tmp/private.pem" -noout 2>/dev/null
+          curl --fail --silent --show-error --location \
+            https://storage.eu-north1.nebius.cloud/cli/install.sh -o "$tmp/install.sh"
+          bash "$tmp/install.sh" >/dev/null
+          if ! command -v nebius >/dev/null 2>&1; then
+            nebius_bin="$(find "$HOME" -maxdepth 5 -type f -name nebius -perm -u+x -print -quit 2>/dev/null)"
+            [[ -n "$nebius_bin" ]] || { echo "Nebius CLI missing"; exit 5; }
+            export PATH="$(dirname "$nebius_bin"):$PATH"
+          fi
+          nebius profile create --endpoint api.nebius.cloud \
+            --service-account-id "$SA_ID" \
+            --public-key-id "$KEY_ID" \
+            --private-key-file "$tmp/private.pem" \
+            --profile musitu-regions \
+            --parent-id "$PROJECT_ID" >/dev/null
+
+          # Only read methods; project discovery may legitimately be permission-denied.
+          if nebius iam project list --parent-id "$TENANT_ID" --all \
+             --profile musitu-regions --format json > "$tmp/projects.json" 2>/dev/null; then
+             echo "Tenant project enumeration: accessible"
+          else
+             echo "Tenant project enumeration: permission denied or unavailable; using the known project only"
+             printf '{"items":[{"metadata":{"id":"%s","name":"default-project-eu-west2"},"status":{"region":"eu-west2"}}]}\n' "$PROJECT_ID" > "$tmp/projects.json"
+          fi
+
+          # Never print project identifiers or keys into public CI logs.
+          python - "$tmp/projects.json" "$tmp" <<'PY'
+          import json, subprocess, sys
+          from pathlib import Path
+          from scripts.nebius_region_catalog import summarize, summarize_platforms
+
+          projects=summarize(json.loads(Path(sys.argv[1]).read_text(encoding="utf-8")))
+          print("Accessible project records:",len(projects))
+          for item in projects[:10]:
+              pid=item["id"]
+              if not pid.startswith("project-"):
+                  continue
+              args=["nebius","compute","platform","list","--parent-id",pid,"--all",
+                    "--profile","musitu-regions","--format","json"]
+              result=subprocess.run(args,capture_output=True,text=True,timeout=40)
+              if result.returncode:
+                  print("Project region",item["region"],": platform discovery denied or unavailable")
+                  continue
+              try:
+                  gpu=summarize_platforms(json.loads(result.stdout))
+              except (ValueError, TypeError):
+                  gpu=[]
+              print("Project region",item["region"],": advertised GPU platforms",", ".join(gpu) or "none")
+          print("Cloud writes: NONE. GPU quota and capacity: NOT verified.")
+          PY
