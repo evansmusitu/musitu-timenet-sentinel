@@ -1,0 +1,39 @@
+name: Verify Nebius service-account key (no cloud access)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check secret matches published public key without revealing it
+        env:
+          NEBIUS_PRIVATE_KEY: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          set +x
+          umask 077
+          if [[ -z "${NEBIUS_PRIVATE_KEY}" ]]; then
+            echo "ERROR: NEBIUS_PRIVATE_KEY repository secret is not configured." >&2
+            exit 1
+          fi
+          if [[ ! -f nebius/musitu-timenet-github-public.pem ]]; then
+            echo "ERROR: Public key file has not been published yet." >&2
+            exit 1
+          fi
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "$tmpdir"' EXIT
+          printf '%s\n' "$NEBIUS_PRIVATE_KEY" > "$tmpdir/private.pem"
+          openssl pkey -in "$tmpdir/private.pem" -pubout -out "$tmpdir/derived.pem" 2>/dev/null
+          openssl pkey -pubin -in nebius/musitu-timenet-github-public.pem -pubout -out "$tmpdir/expected.pem" 2>/dev/null
+          if ! cmp -s "$tmpdir/derived.pem" "$tmpdir/expected.pem"; then
+            echo "ERROR: Stored private key does not match committed public key." >&2
+            exit 1
+          fi
+          echo "OK: Nebius private and public key match. This did not validate Nebius API authorization."
