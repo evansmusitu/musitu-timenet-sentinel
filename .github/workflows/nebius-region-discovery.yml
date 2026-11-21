@@ -89,20 +89,55 @@ jobs:
 
           projects=summarize(json.loads(Path(sys.argv[1]).read_text(encoding="utf-8")))
           print("Accessible project records:",len(projects))
-          for item in projects[:10]:
+          # Inspect only the three advertised low-cost RTX projects.
+          targets={"eu-south1","uk-south2","us-central1"}
+          for item in projects[:20]:
+              if item["region"] not in targets:
+                  continue
               pid=item["id"]
               if not pid.startswith("project-"):
                   continue
-              args=["nebius","compute","platform","list","--parent-id",pid,"--all",
-                    "--profile","musitu-regions","--format","json"]
-              result=subprocess.run(args,capture_output=True,text=True,timeout=40)
-              if result.returncode:
-                  print("Project region",item["region"],": platform discovery denied or unavailable")
-                  continue
-              try:
-                  gpu=summarize_platforms(json.loads(result.stdout))
-              except (ValueError, TypeError):
-                  gpu=[]
-              print("Project region",item["region"],": advertised GPU platforms",", ".join(gpu) or "none")
+              base=["--parent-id",pid,"--all","--profile","musitu-regions","--format","json"]
+              checks={
+                 "platforms":["compute","platform","list"],
+                 "subnets":["vpc","subnet","list"],
+                 "instances":["compute","instance","list"],
+                 "quotas":["quotas","quota-allowance","list"],
+              }
+              reports={}
+              for name,parts in checks.items():
+                  cmd=["nebius"]+parts+base
+                  try:
+                      result=subprocess.run(cmd,capture_output=True,text=True,timeout=55)
+                      reports[name] = json.loads(result.stdout) if result.returncode==0 else None
+                  except (ValueError, subprocess.TimeoutExpired):
+                      reports[name] = None
+              platform_report=reports["platforms"]
+              gpu=summarize_platforms(platform_report) if platform_report is not None else []
+              def count_items(payload):
+                  if isinstance(payload,list):
+                      return len(payload)
+                  if isinstance(payload,dict) and isinstance(payload.get("items"),list):
+                      return len(payload["items"])
+                  return -1
+              subnet_count=count_items(reports["subnets"])
+              instance_count=count_items(reports["instances"])
+              quota_count=count_items(reports["quotas"])
+              rtx=[name for name in gpu if "rtx" in name.lower()]
+              print("Region:",item["region"])
+              print(" RTX platforms:",", ".join(rtx) if rtx else "none")
+              print(" Subnet count:",subnet_count,"(negative = inaccessible)")
+              print(" Instance count:",instance_count,"(negative = inaccessible)")
+              print(" Quota records:",quota_count,"(negative = inaccessible)")
+              # Quota records are permissioned and may be pool-specific. Never equate
+              # a nonzero count to usable GPU quota or capacity.
+              if isinstance(reports["quotas"],dict):
+                  quota_names=[]
+                  for q in reports["quotas"].get("items",[]):
+                      label=str((q.get("metadata") or {}).get("name",""))
+                      if "rtx" in label.lower() or "gpu" in label.lower():
+                          quota_names.append(label[:100])
+                  print(" GPU quota record names:",", ".join(quota_names[:10]) or "not unambiguously labeled")
+              print(" Runtime readiness:", "UNVERIFIED (quota/capacity/price/image/watchdog)")
           print("Cloud writes: NONE. GPU quota and capacity: NOT verified.")
           PY
