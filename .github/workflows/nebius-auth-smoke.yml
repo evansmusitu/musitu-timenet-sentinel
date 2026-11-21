@@ -1,0 +1,76 @@
+name: Nebius service-account auth smoke test (read only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nebius-auth-smoke
+  cancel-in-progress: false
+
+jobs:
+  auth:
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/main' && github.actor == 'evansmusitu'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check required secrets exist without displaying them
+        env:
+          SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+          KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+          PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+          PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +x
+          if [[ -z "$SA_ID" || -z "$KEY_ID" || -z "$PRIVATE_PEM" || -z "$PROJECT_ID" ]]; then
+            echo "MISSING_SECRETS: configure the four NEBIUS_* Actions repository secrets before running this check." >&2
+            exit 3
+          fi
+          [[ "$SA_ID" == serviceaccount-* ]] || { echo "Invalid service-account identifier format." >&2; exit 3; }
+          [[ "$KEY_ID" == publickey-* ]] || { echo "Invalid authorized-key identifier format." >&2; exit 3; }
+          echo "Required secret identifiers are present. No resource creation will occur."
+
+      - name: Configure Nebius CLI with the authorized key and check service-account read access
+        env:
+          SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+          KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+          PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+          PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +x
+          umask 077
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          printf '%s\n' "$PRIVATE_PEM" > "$tmp/private.pem"
+          openssl pkey -in "$tmp/private.pem" -noout 2>/dev/null || {
+            echo "Invalid RSA private key format." >&2
+            exit 4
+          }
+
+          # Official Nebius CLI installer; fetch into a private temp file before execution.
+          curl --fail --silent --show-error --location \
+            https://storage.eu-north1.nebius.cloud/cli/install.sh -o "$tmp/install.sh"
+          bash "$tmp/install.sh" >/dev/null
+          if ! command -v nebius >/dev/null 2>&1; then
+            path="$(find "$HOME" -maxdepth 5 -type f -name nebius -perm -u+x -print -quit 2>/dev/null)"
+            [[ -n "$path" ]] || { echo "Nebius CLI installation missing." >&2; exit 5; }
+            export PATH="$(dirname "$path"):$PATH"
+          fi
+          nebius profile create \
+            --endpoint api.nebius.cloud \
+            --service-account-id "$SA_ID" \
+            --public-key-id "$KEY_ID" \
+            --private-key-file "$tmp/private.pem" \
+            --profile musitu-ci-readonly \
+            --parent-id "$PROJECT_ID" >/dev/null
+
+          # Read-only IAM query. Never start compute, create keys or change permissions.
+          nebius iam service-account get --id "$SA_ID" --profile musitu-ci-readonly >/dev/null
+          echo "Nebius service-account API authentication: PASS (read-only)."
+          echo "No Nebius compute resources created."
