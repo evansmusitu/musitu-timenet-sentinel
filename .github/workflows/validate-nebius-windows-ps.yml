@@ -1,0 +1,41 @@
+name: Validate Windows Nebius setup script
+
+on:
+  push:
+    paths:
+      - scripts/setup-nebius-windows.ps1
+      - .github/workflows/validate-nebius-windows-ps.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check PowerShell script parses without executing credentials logic
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $env:GITHUB_WORKSPACE 'scripts/setup-nebius-windows.ps1'),
+            [ref]$tokens, [ref]$errors
+          ) | Out-Null
+          if ($errors -and $errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+          Write-Host 'PowerShell parser: PASS (credentials not generated)'
+          $script = Get-Content -Raw 'scripts/setup-nebius-windows.ps1'
+          if ($script -notmatch 'gh secret set NEBIUS_PRIVATE_KEY' -and $script -notmatch 'secret set NEBIUS_PRIVATE_KEY') {
+            throw 'Missing encrypted private key secret operation'
+          }
+          if ($script -match '(?i)nebius\s+compute\s+.*create|nebius\s+ai\s+job\s+create') {
+            throw 'Unexpected Nebius compute creation in credential script'
+          }
+          Write-Host 'No compute provisioning in credential script: PASS'
