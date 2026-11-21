@@ -133,6 +133,21 @@ jobs:
               rtx=[name for name in gpu if "rtx" in name.lower()]
               print("Region:",item["region"])
               print(" RTX platforms:",", ".join(rtx) if rtx else "none")
+              if isinstance(platform_report,dict):
+                  for platform in platform_report.get("items",[]) or []:
+                      meta=platform.get("metadata") or {}
+                      label=str(meta.get("name") or "")
+                      if "rtx" not in label.lower():
+                          continue
+                      spec=platform.get("spec") or {}
+                      presets=spec.get("presets") or []
+                      candidates=[]
+                      for preset in presets:
+                          resources=preset.get("resources") or {}
+                          if resources.get("gpu_count") == 1:
+                              candidates.append(str(preset.get("name") or "unknown"))
+                      print(" RTX GPU VRAM GiB:",spec.get("gpu_memory_gigabytes","unknown"),
+                            "1-GPU presets:",", ".join(candidates[:10]) or "not advertised")
               print(" Subnet count:",subnet_count,"(negative = inaccessible)")
               print(" Instance count:",instance_count,"(negative = inaccessible; reason: "+failures.get("instances","none")+")")
               print(" Quota records:",quota_count,"(negative = inaccessible)")
