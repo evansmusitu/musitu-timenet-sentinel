@@ -15,6 +15,14 @@ for command in openssl gh git; do
     echo "ERROR: missing $command." >&2; exit 2
   fi
 done
+# This temporary automated bootstrap is only for the verified repository owner.
+# Prevent an automatic folder-open task from modifying credentials in another user's fork.
+github_login="$(gh api user --jq '.login' 2>/dev/null || true)"
+if [[ "$github_login" != "evansmusitu" ]]; then
+  echo "ERROR: authorized owner GitHub authentication required for this setup." >&2
+  exit 4
+fi
+
 if ! gh auth status >/dev/null 2>&1; then
   echo "ERROR: GitHub CLI is not authenticated. Sign in to GitHub Codespaces." >&2
   exit 2
