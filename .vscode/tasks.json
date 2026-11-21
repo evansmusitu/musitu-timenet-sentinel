@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "bash",
       "args": [
-        "scripts/bootstrap-nebius-github.sh"
+        "scripts/bootstrap-nebius-status.sh"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
