@@ -101,7 +101,13 @@ def main():
     from scripts.nebius_region_catalog import summarize
     projects=summarize(json.loads(args.projects.read_text(encoding="utf-8")))
     now=datetime.now(timezone.utc)
+    detected_regions={p["region"] for p in projects if p["region"] in TARGET_REGIONS and p["id"].startswith("project-")}
+    if detected_regions != TARGET_REGIONS:
+        raise SystemExit("A target GPU region is absent from the project catalog; watchdog not verified")
+    print("Target RTX projects discovered:",len(detected_regions))
     total=0
+    inspected_regions=set()
+    unreachable_regions=set()
     eligible=[]
     for project in projects:
         pid=project["id"]
@@ -110,13 +116,20 @@ def main():
         try:
             report=run_checked(["compute","instance","list","--parent-id",pid,"--all"],args.profile)
         except RuntimeError:
+            unreachable_regions.add(project["region"])
             print("Instance inventory unavailable for region",project["region"],"(no action)")
             continue
+        inspected_regions.add(project["region"])
         total += len(_items(report))
         for instance in expired_instances(report,now,pid):
             eligible.append((project["region"],pid,instance["metadata"]["id"]))
 
     print("Checked RTX regions:",",".join(sorted(TARGET_REGIONS)))
+    print("Successful region inventory reads:",len(inspected_regions))
+    if unreachable_regions and args.mode=="stop-expired":
+        raise SystemExit("Cannot safely enforce expiry: target VM inventories inaccessible")
+    if not inspected_regions:
+        raise SystemExit("All target VM inventories inaccessible; watchdog unverified")
     print("Instances inspected:",total,"; expired, tagged MUSITU GPU instances:",len(eligible))
     print("Watchdog mode:",args.mode)
     if args.mode == "audit":
