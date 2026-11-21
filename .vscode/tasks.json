@@ -18,13 +18,10 @@
         "echo": false,
         "clear": true
       },
-      "detail": "Creates a private RSA key outside Git, stores it via GitHub CLI as encrypted Actions Secret, and publishes ONLY its public PEM. Does not provision cloud resources. One-time owner-only auto-run on trusted workspace open; remove after setup.",
+      "detail": "Manual owner-only configuration task. Does not provision any cloud resources.",
       "group": {
         "kind": "build",
         "isDefault": true
-      },
-      "runOptions": {
-        "runOn": "folderOpen"
       }
     }
   ]
