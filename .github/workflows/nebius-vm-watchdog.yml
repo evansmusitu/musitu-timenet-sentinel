@@ -2,7 +2,7 @@ name: Nebius MUSITU GPU expiry watchdog (audit by default)
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
       mode:
@@ -83,7 +83,7 @@ jobs:
             --private-key-file "$tmp/private.pem" \
             --profile musitu-watchdog --parent-id "$PROJECT_ID" >/dev/null
 
-          # A SCHEDULED run intentionally stays AUDIT-ONLY until an operator sets
+          # A SCHEDULED hourly pre-launch run intentionally stays AUDIT-ONLY until an operator sets
           # NEBIUS_WATCHDOG_ENABLE_STOP=true in GitHub repository Variables.
           # No VM provisioning workflows are enabled by this watchdog.
           mode="audit"
