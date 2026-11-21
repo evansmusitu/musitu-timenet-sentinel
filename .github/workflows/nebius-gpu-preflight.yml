@@ -118,7 +118,8 @@ jobs:
 
           python scripts/nebius_gpu_plan.py --inventory-dir "$tmp" --gpu-minutes 45 > "$tmp/report.json"
           python - "$tmp/report.json" <<'PY'
-          import json, sys
+          import json, os, sys
+          quota_api_status = os.environ.get("quota_api_status", "UNAVAILABLE_OR_DENIED")
           report=json.load(open(sys.argv[1],encoding="utf-8"))
           info=report["inventory"]
           text=[
