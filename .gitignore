@@ -10,3 +10,4 @@ artifacts/
 *.pem
 *.key
 !nebius/musitu-timenet-github-public.pem
+.setup-status/
