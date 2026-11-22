@@ -1,0 +1,119 @@
+{
+  "baseline": {
+    "confusion": {
+      "fn": 5,
+      "fp": 0,
+      "tn": 75,
+      "tp": 20
+    },
+    "rul_mae_cycles": 19.40247665823967,
+    "rul_rmse_cycles": 27.23191988128876,
+    "warning_30": {
+      "f1": 0.8888888888888888,
+      "precision": 1.0,
+      "recall": 0.8
+    }
+  },
+  "bootstrap_uncertainty": {
+    "baseline_minus_temporal_mae_cycles": {
+      "lower": -2.9392524684288106,
+      "upper": 3.6233631230128354
+    },
+    "important": "Intervals include uncertainty from the 100 test engines only; they do not measure dataset shift, deployment safety or model training variance.",
+    "method": "paired engine-level percentile bootstrap; 95% interval",
+    "resamples": 10000,
+    "seed": 20261122,
+    "temporal_minus_baseline_warning_f1": {
+      "lower": -0.04134366925064603,
+      "upper": 0.20000413564929684
+    }
+  },
+  "compact_temporal_qa": {
+    "confusion": {
+      "fn": 1,
+      "fp": 1,
+      "tn": 74,
+      "tp": 24
+    },
+    "risk_probability_brier_score": 0.022930531578985457,
+    "rul_mae_cycles": 19.04361652851105,
+    "rul_rmse_cycles": 26.446250519280017,
+    "warning_30": {
+      "f1": 0.96,
+      "precision": 0.96,
+      "recall": 0.96
+    }
+  },
+  "dataset": "NASA C-MAPSS FD001 simulated engines",
+  "fixed_operating_point": {
+    "compact_warning_head_probability_threshold": 0.5,
+    "test_labels_used_for_threshold_selection": false,
+    "warning_horizon_cycles": 30
+  },
+  "illustrative_penalty_scenarios": [
+    {
+      "baseline_penalty_units": 5,
+      "compact_penalty_units": 2,
+      "false_alarm_cost_units_per_engine": 1,
+      "miss_cost_units_per_engine": 1
+    },
+    {
+      "baseline_penalty_units": 10,
+      "compact_penalty_units": 3,
+      "false_alarm_cost_units_per_engine": 1,
+      "miss_cost_units_per_engine": 2
+    },
+    {
+      "baseline_penalty_units": 25,
+      "compact_penalty_units": 6,
+      "false_alarm_cost_units_per_engine": 1,
+      "miss_cost_units_per_engine": 5
+    },
+    {
+      "baseline_penalty_units": 50,
+      "compact_penalty_units": 11,
+      "false_alarm_cost_units_per_engine": 1,
+      "miss_cost_units_per_engine": 10
+    },
+    {
+      "baseline_penalty_units": 100,
+      "compact_penalty_units": 21,
+      "false_alarm_cost_units_per_engine": 1,
+      "miss_cost_units_per_engine": 20
+    }
+  ],
+  "limitations": [
+    "Both evaluated models are independent CPU-trained systems, NOT the organizer's OpenTime 5B model.",
+    "This is a simulated NASA FD001 benchmark, not real industrial validation or a cross-dataset test.",
+    "The benchmark contains one final endpoint per test engine, not continuous streaming warning lead times.",
+    "The penalty ratios are illustrative dimensionless choices, not measured downtime, costs or savings.",
+    "The paired bootstrap interval is descriptive; crossing zero means the apparent advantage is uncertain.",
+    "No underlying NASA source data, per-engine labels or model weights are included in this aggregate report."
+  ],
+  "paired_observed_difference": {
+    "additional_false_alarms": 1,
+    "additional_true_warnings": 4,
+    "fewer_missed_warnings": 4,
+    "rul_mae_baseline_minus_temporal_cycles": 0.35886012972862247,
+    "warning_f1_temporal_minus_baseline": 0.07111111111111112
+  },
+  "project": "MUSITU AXIOM Sentinel",
+  "provenance": {
+    "baseline_prediction_file": "official_test_predictions.csv",
+    "baseline_predictions_sha256": "eb6ba0cbc4007ea32c8da1ce27b8e4818ae3a53f217129975aa9c638bf5cccd3",
+    "baseline_workflow": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482",
+    "both_artifacts_matched_by": [
+      "unit",
+      "observed_cycle",
+      "official_test_rul"
+    ],
+    "compact_prediction_file": "temporal_qa_predictions.csv",
+    "compact_predictions_sha256": "bbc89e6a15a5fca61165466808202d0a5924aa55218660b8c581ed6022f890ec",
+    "compact_temporal_workflow": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819987425"
+  },
+  "test_population": {
+    "independent_engine_endpoints": 100,
+    "rul_above_30": 75,
+    "rul_at_most_30": 25
+  }
+}
