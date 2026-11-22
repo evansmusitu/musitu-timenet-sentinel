@@ -36,6 +36,8 @@ OpenTime v2 beats the classical baseline in all three seeds (20 → 21–23 of 2
 
 **Practical impact:** demonstrate the workflow for detecting end-of-life risk in multivariate telemetry with a clean provenance trail and no training/test engine overlap. All evidence derives from simulation; not validated for real aviation maintenance.
 
+**Harder subset, FD004** (237 official test engines, 53 at risk): OpenTime 5B F1 **0.875 / 0.912 / 0.943** across three seeds (mean 0.910); a classical model on the same FD004 split scores 0.889, so OpenTime is ahead in 2 of 3 seeds. [Evidence](evidence/opentime-fd004/summary.json).
+
 ## OpenTime evidence and limitations
 
 Each v2 seed ran as one Nebius Serverless AI Job on a 96 GB RTX PRO 6000 with a 90-minute cloud timeout and automatic cancellation on failure, using an immutable checkpoint revision. The seeds trained on 1,568, 1,190 and 1,418 examples, because the script fits the training set to a 40-minute budget from its measured speed. The model gives a binary 30-cycle warning, not remaining life in cycles. The Gemma model license applies to the checkpoint; no weights are redistributed. All data is NASA simulation.

@@ -1,0 +1,68 @@
+{
+  "checkpoint": "opentime/tslm-nov26",
+  "revision": "5e030b001fb8d4be6d10ebb3a8b9bc3e6ef80983",
+  "helper_revision": "b83a9901d401e9e872ee9048fe61e6c9df9a5b78",
+  "helper_sha256": "c19db31d2ce6e84a4ce02c9a0fdfe0869c53775f77b04dd4be5c893afd8335e2",
+  "dataset": "NASA C-MAPSS FD004 (simulated)",
+  "subset_info": {
+    "train_engines": 199,
+    "val_engines": 50,
+    "official_test_engines": 248,
+    "eligible_test_engines": 237,
+    "excluded_short_history": 11,
+    "normalisation": "per operating condition, development-train statistics only"
+  },
+  "protocol": "full past-only history, 14 varying sensors, cycle count in prompt; epoch by validation loss; threshold by F1 on validation-engine truncations; one test pass",
+  "train_examples": 1406,
+  "val_loss_examples": 96,
+  "val_threshold_examples": 500,
+  "train_engines": 199,
+  "val_engines": 50,
+  "epochs": 3,
+  "training_seed": 99,
+  "seconds_per_example_probe": 0.49443650245666504,
+  "train_seconds": 1105.7437274456024,
+  "threshold_from_validation": 3.125001020729542,
+  "validation_f1_at_threshold": 0.9115646258503401,
+  "validation_auroc": 0.9929411764705882,
+  "test": {
+    "count": 237,
+    "positives": 53,
+    "auroc": 0.9936936013125512,
+    "validation_threshold": {
+      "tp": 50,
+      "fp": 3,
+      "fn": 3,
+      "tn": 181,
+      "precision": 0.9433962264150944,
+      "recall": 0.9433962264150944,
+      "f1": 0.9433962264150944,
+      "accuracy": 0.9746835443037974
+    },
+    "untuned_argmax": {
+      "tp": 51,
+      "fp": 10,
+      "fn": 2,
+      "tn": 174,
+      "precision": 0.8360655737704918,
+      "recall": 0.9622641509433962,
+      "f1": 0.8947368421052632,
+      "accuracy": 0.9493670886075949
+    },
+    "greedy_generation": {
+      "tp": 51,
+      "fp": 10,
+      "fn": 2,
+      "tn": 174,
+      "precision": 0.8360655737704918,
+      "recall": 0.9622641509433962,
+      "f1": 0.8947368421052632,
+      "accuracy": 0.9493670886075949,
+      "invalid_outputs": 0
+    }
+  },
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "torch": "2.9.0+cu128",
+  "total_seconds": 1513.4725632667542,
+  "limits": "Simulated engines; binary 30-cycle warning; invalid generations scored as errors."
+}

@@ -47,6 +47,15 @@ Demo: https://evansmusitu.github.io/musitu-timenet-sentinel/ · Repo: https://gi
 
 Feedback welcome, especially on harder subsets like FD004.
 
+## Follow-up post (X and LinkedIn reply or second post): FD004
+
+Harder test: NASA FD004, 6 operating conditions, 2 fault modes, 237 test engines.
+
+Same OpenTime 5B recipe: F1 0.875 / 0.912 / 0.943 over 3 seeds (mean 0.91). Classical model on the same split: 0.889. Ahead in 2 of 3 seeds.
+
+Evidence: https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/evidence/opentime-fd004/summary.json
+#TimeNet #OpenTime
+
 ## Screenshots to take (organizers ask for metric screenshots)
 
 1. **Demo, OpenTime section:** https://evansmusitu.github.io/musitu-timenet-sentinel/#opentime — the "100 official test engines · 25 at risk" panel with the three seeds and the baseline. Use this one on X and LinkedIn.
@@ -54,6 +63,7 @@ Feedback welcome, especially on harder subsets like FD004.
 3. **Results table on GitHub:** the table near the top of https://github.com/evansmusitu/musitu-timenet-sentinel (README).
 4. **Proof of the GPU run:** https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45021536671 showing both seed jobs green.
 5. **Evidence file:** https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/evidence/opentime-v2/summary.json (scroll to `f1_threshold` and `caveats`).
-6. **TimeNet PR:** https://github.com/OpenTSLM/TimeNet/pull/836 header.
+6. **FD004 result:** the FD004 lines in the demo's OpenTime panel, plus https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45052882650 with all three seed jobs green.
+7. **TimeNet PR:** https://github.com/OpenTSLM/TimeNet/pull/836 header.
 
 Take them after the PR into `main` has merged and GitHub Pages has redeployed (refresh the demo and check that it says 0.943).
