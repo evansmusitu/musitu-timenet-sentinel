@@ -5,11 +5,17 @@ on:
     paths:
       - 'sentinel/sensor_sensitivity.py'
       - 'tests/test_sensor_sensitivity.py'
+      - 'tests/test_sensor_sensitivity_evidence.py'
+      - 'docs/sensor-sensitivity.html'
+      - 'docs/evidence/sensor_sensitivity.json'
       - '.github/workflows/sensor-sensitivity.yml'
   push:
     paths:
       - 'sentinel/sensor_sensitivity.py'
       - 'tests/test_sensor_sensitivity.py'
+      - 'tests/test_sensor_sensitivity_evidence.py'
+      - 'docs/sensor-sensitivity.html'
+      - 'docs/evidence/sensor_sensitivity.json'
       - '.github/workflows/sensor-sensitivity.yml'
 permissions:
   contents: read
@@ -28,7 +34,7 @@ jobs:
           python -m pip install -r requirements.txt pytest
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Verify perturbation invariants and frozen-model test contracts
-        run: python -m pytest -q tests/test_sensor_sensitivity.py tests/test_sequence_integrity.py tests/test_longitudinal_replay.py
+        run: python -m pytest -q tests/test_sensor_sensitivity.py tests/test_sensor_sensitivity_evidence.py tests/test_sequence_integrity.py tests/test_longitudinal_replay.py
       - name: Fetch immutable original November 20 compact checkpoint and prediction file
         uses: actions/download-artifact@v4
         with:
@@ -42,6 +48,24 @@ jobs:
             --artifact-dir artifacts/frozen_compact \
             --replay-report docs/evidence/longitudinal_replay.json \
             --output artifacts/sensor_sensitivity.json
+      - name: Verify public results match freshly reproduced model output exactly
+        run: |
+          cmp artifacts/sensor_sensitivity.json docs/evidence/sensor_sensitivity.json
+          sha256sum docs/evidence/sensor_sensitivity.json
+      - name: Check judges' sensitivity page script and evidence contract
+        run: |
+          node - <<'JS'
+          const fs=require('fs'),vm=require('vm'),assert=require('assert');
+          const html=fs.readFileSync('docs/sensor-sensitivity.html','utf8');
+          const match=html.match(/<script>([\\s\\S]*?)<\\/script>/);
+          assert(match,'Missing inspectable inline source');
+          new vm.Script(match[1],{filename:'docs/sensor-sensitivity.html'});
+          const result=JSON.parse(fs.readFileSync('docs/evidence/sensor_sensitivity.json'));
+          assert(result.frozen_endpoint_predictions_reproduced&&result.recorded_case_predictions_reproduced);
+          assert.equal(result.channels.length,24);
+          assert.equal(result.recorded_cases.length,6);
+          console.log('PASS: inspectable sensor sensitivity page and six authentic case records');
+          JS
       - name: Upload audited aggregate and previously documented six cases
         if: success()
         uses: actions/upload-artifact@v4
