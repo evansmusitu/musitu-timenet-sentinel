@@ -1,0 +1,38 @@
+{
+  "model": "Classical HistGradientBoostingClassifier, not OpenTime",
+  "purpose": "like-for-like baseline for the OpenTime FD004 run (same FD004 split and normalisation)",
+  "source_md5": "79a22f36e80606c69d0e9e4da5bb2b7a",
+  "subset_info": {
+    "train_engines": 199,
+    "val_engines": 50,
+    "official_test_engines": 248,
+    "eligible_test_engines": 237,
+    "excluded_short_history": 11,
+    "normalisation": "per operating condition, development-train statistics only"
+  },
+  "feature_count": 97,
+  "train_windows": 8825,
+  "validation_windows": 2076,
+  "threshold_from_validation": 0.30000000000000004,
+  "validation": {
+    "tp": 283,
+    "fp": 43,
+    "fn": 31,
+    "tn": 1719,
+    "precision": 0.8680981595092024,
+    "recall": 0.9012738853503185,
+    "f1": 0.884375,
+    "accuracy": 0.964354527938343
+  },
+  "official_fd004_test": {
+    "tp": 48,
+    "fp": 7,
+    "fn": 5,
+    "tn": 177,
+    "precision": 0.8727272727272727,
+    "recall": 0.9056603773584906,
+    "f1": 0.8888888888888888,
+    "accuracy": 0.9493670886075949
+  },
+  "test_labels_used_for_training_or_threshold": false
+}

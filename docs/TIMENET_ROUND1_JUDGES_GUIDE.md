@@ -54,6 +54,8 @@ This is **evidence of input-sequence sensitivity** on NASA simulated engines. It
 | **OpenTime November 2026 5B v2 fine-tune** (3 seeds) | Not measured (binary QA only) | **0.958 / 0.958 / 0.913** (mean 0.943) | Actual organizer checkpoint, 80 training engines, 3 epochs |
 | OpenTime 5B first pilot (superseded) | Not measured | 0.3243 | 16 training examples, 1 epoch |
 
+**Harder subset, FD004** (six operating conditions, two fault modes, 237 official test engines, 53 at risk): the same OpenTime recipe with per-condition sensor standardisation scores **F1 0.875 / 0.912 / 0.943** across three seeds (mean 0.910). A classical model trained on the same FD004 split scores 0.889, so OpenTime is ahead in 2 of 3 seeds; only seed 99's bootstrap interval excludes zero. Our earlier classical model that never saw FD004 scores 0.816. [FD004 evidence](https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/evidence/opentime-fd004/summary.json) · [GPU runs](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45052882650).
+
 ## Exploratory simulated cross-domain follow-up — classical and compact models
 
 [Open the public NASA FD001–FD004 robustness lab](https://evansmusitu.github.io/musitu-timenet-sentinel/robustness-lab.html). It reports failure as well as improvement:

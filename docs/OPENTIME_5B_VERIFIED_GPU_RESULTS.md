@@ -55,6 +55,24 @@ The checkpoint rescales every series to mean 0 and standard deviation 1. With a 
 - Binary 30-cycle warning only; the 5B model does not predict remaining life in cycles, so no MAE comparison.
 - The compact temporal Transformer (F1 0.960) is a separate non-OpenTime model. OpenTime v2 is on par with it, not ahead of it.
 
+## Harder test: FD004 (six operating conditions, two fault modes)
+
+Same recipe and checkpoint, plus one change: each sensor is standardised within its operating condition using statistics from the FD004 development-train engines only. 199 train / 50 validation development engines. Test: the 237 official FD004 test engines with at least 30 cycles (11 shorter ones excluded, as in our earlier classical FD004 audit), 53 of them at risk. Each seed scored once.
+
+| System | Caught | False alarms | Missed | Warning F1 |
+|---|---:|---:|---:|---:|
+| Classical, trained on FD001–FD003 only (never saw FD004) | 40 | 5 | 13 | 0.816 |
+| Classical, same FD004 split and normalisation (like-for-like) | 48 | 7 | 5 | 0.889 |
+| **OpenTime 5B, seed 42** | 49 | 10 | 4 | **0.875** |
+| **OpenTime 5B, seed 7** | 52 | 9 | 1 | **0.912** |
+| **OpenTime 5B, seed 99** | 50 | 3 | 3 | **0.943** |
+
+- Mean F1 **0.910**; test AUROC 0.981–0.994; generated answers F1 0.833–0.895 with 0 invalid outputs; 1,406–1,440 training examples per seed.
+- Against the like-for-like classical model, OpenTime is ahead in 2 of 3 seeds and behind in 1. Paired bootstrap 95% intervals on the F1 gain: seed 42 [−0.074, +0.044], seed 7 [−0.040, +0.088], seed 99 [+0.009, +0.108].
+- OpenTime catches more at-risk engines than the like-for-like classical model in every seed (49–52 vs 48), at the cost of more false alarms in two seeds.
+- The like-for-like classical baseline (`sentinel/fd004_classical_same_split.py`) was built after the first FD004 seed finished, with settings copied unchanged from `multidomain_classifier.py`.
+- Evidence: [GPU runs, all three seeds](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45052882650) (Nebius jobs `aijob-e07zp93htraq7xbvx3`, `aijob-e07tmgqm7ycnphfy1r`, `aijob-e07nw1dn37mka833ta`), [summary](evidence/opentime-fd004/summary.json), [per-seed metrics and classical baseline](evidence/opentime-fd004/).
+
 ---
 
 ## Superseded: first pilot (16 examples, one epoch)
