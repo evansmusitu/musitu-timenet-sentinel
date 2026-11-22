@@ -22,8 +22,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: Install TimeNet workspace packages
         run: |
-          uv sync --all-packages --no-dev
-          uv pip install 'pandas>=2.2'
+          uv sync --locked --all-packages --no-dev
       - name: Verify import and metadata against exact PR source
         run: |
           uv run --no-sync python - <<'PY'
