@@ -1,0 +1,86 @@
+{
+  "evaluated_utc": "2026-11-22T08:47:00.030529+00:00",
+  "experiment": "exploratory leave-FD004-combination-out simulated-domain generalization",
+  "fd004_data_used_in_fit_or_validation": false,
+  "feature_count": 97,
+  "fixed_hyperparameters": {
+    "early_stopping": false,
+    "l2_regularization": 2.0,
+    "max_iter": 180,
+    "max_leaf_nodes": 15,
+    "random_state": 42,
+    "warning_horizon_cycles": 30
+  },
+  "heldout_target_cohort": "FD004",
+  "independent_development_validation": {
+    "count": 3390,
+    "rul_mae_cycles": 29.19568023883524,
+    "rul_rmse_cycles": 42.17850354870115,
+    "warning_30_f1": 0.832089552238806,
+    "warning_30_precision": 0.8849206349206349,
+    "warning_30_prevalence": 0.16755162241887905,
+    "warning_30_recall": 0.7852112676056338
+  },
+  "limitations": [
+    "This experiment was conceived after observing poor FD001-only transfer; it is exploratory, not preregistered.",
+    "Although FD004 was entirely withheld from training, this is not real-world OEM transfer: all cohorts share NASA's simulated engine family.",
+    "Only target engines with >=30 cycles are scored; excluded short histories are separately counted.",
+    "The single operating threshold of 30 cycles and model hyperparameters were fixed before this experiment's FD004 evaluation.",
+    "Engine ID grouping is applied within each source cohort; numeric engine identifiers across different datasets are unrelated.",
+    "We cannot infer operational maintenance savings, aviation safety, or continuous streaming warning lead times.",
+    "No raw NASA dataset rows, individual engine RUL labels or trained model weights are republished."
+  ],
+  "model": "HistGradientBoostingRegressor classical CPU baseline; NOT OpenTime 5B",
+  "motivation": "Post-hoc response to measured zero-shot FD001-to-FD004 transfer failure",
+  "official_fd004_heldout_test": {
+    "confusion": {
+      "fn": 26,
+      "fp": 4,
+      "tn": 180,
+      "tp": 27
+    },
+    "count": 237,
+    "excluded_due_to_fewer_than_30_observations": 11,
+    "heldout_test_engines": 237,
+    "official_test_engines_total": 248,
+    "rul_mae_cycles": 30.40872861926752,
+    "rul_rmse_cycles": 37.992921152581665,
+    "warning_30_f1": 0.6428571428571429,
+    "warning_30_precision": 0.8709677419354839,
+    "warning_30_prevalence": 0.22362869198312235,
+    "warning_30_recall": 0.5094339622641509
+  },
+  "project": "MUSITU AXIOM Sentinel",
+  "source_md5": "79a22f36e80606c69d0e9e4da5bb2b7a",
+  "source_url": "https://zenodo.org/records/15346912/files/CMAPSSData.zip?download=1",
+  "target_fault_modes": 2,
+  "target_operating_conditions": 6,
+  "training_cohort_counts": [
+    {
+      "cohort": "FD001",
+      "train_engines": 80,
+      "train_windows": 2873,
+      "validation_engines": 20,
+      "validation_windows": 713
+    },
+    {
+      "cohort": "FD002",
+      "train_engines": 208,
+      "train_windows": 7528,
+      "validation_engines": 52,
+      "validation_windows": 1810
+    },
+    {
+      "cohort": "FD003",
+      "train_engines": 80,
+      "train_windows": 3539,
+      "validation_engines": 20,
+      "validation_windows": 867
+    }
+  ],
+  "training_cohorts": [
+    "FD001",
+    "FD002",
+    "FD003"
+  ]
+}

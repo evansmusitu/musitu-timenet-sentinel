@@ -1,0 +1,112 @@
+{
+  "evaluated_utc": "2026-11-22T08:42:30.747123+00:00",
+  "experiment": "Zero-shot FD001-to-other-C-MAPSS-cohort transfer of original trained compact temporal QA model",
+  "limitations": [
+    "FD002/FD003/FD004 are NASA simulations, not physically distinct OEMs or operational deployments.",
+    "The compact model is separate from the actual organizer OpenTime 5B pilot, whose FD001 warning F1 was 0.3243.",
+    "A single frozen FD001 checkpoint was evaluated without adapting to new fault modes or multiple operating conditions.",
+    "Results are one endpoint per engine with at least 30 observations; short trajectories are explicitly counted as excluded. No validated continuous online warnings are shown.",
+    "Do not infer aviation maintenance safety, economic savings or performance on real hardware.",
+    "The source archive and model weights are never redistributed by this report."
+  ],
+  "model_identity": "Original independent 48-wide prompt-limited temporal QA Transformer; NOT OpenTime 5B",
+  "no_test_time_hyperparameter_or_threshold_selection": true,
+  "official_test_evaluations": {
+    "FD001": {
+      "confusion": {
+        "fn": 1,
+        "fp": 1,
+        "tn": 74,
+        "tp": 24
+      },
+      "excluded_due_to_fewer_than_30_observations": 0,
+      "fault_modes": 1,
+      "heldout_test_engines": 100,
+      "official_test_engines_total": 100,
+      "operating_conditions": 1,
+      "rul_mae_cycles": 19.04361652851105,
+      "rul_rmse_cycles": 26.446250519280017,
+      "trained_warning_head": {
+        "f1": 0.96,
+        "precision": 0.96,
+        "recall": 0.96
+      },
+      "warning_prevalence": 0.25,
+      "warning_probability_brier": 0.022930532837259834
+    },
+    "FD002": {
+      "confusion": {
+        "fn": 2,
+        "fp": 69,
+        "tn": 123,
+        "tp": 59
+      },
+      "excluded_due_to_fewer_than_30_observations": 6,
+      "fault_modes": 1,
+      "heldout_test_engines": 253,
+      "official_test_engines_total": 259,
+      "operating_conditions": 6,
+      "rul_mae_cycles": 37.32348120542383,
+      "rul_rmse_cycles": 52.133787572956024,
+      "trained_warning_head": {
+        "f1": 0.6243386243386243,
+        "precision": 0.4609375,
+        "recall": 0.9672131147540983
+      },
+      "warning_prevalence": 0.24110671936758893,
+      "warning_probability_brier": 0.2138708477409756
+    },
+    "FD003": {
+      "confusion": {
+        "fn": 0,
+        "fp": 28,
+        "tn": 52,
+        "tp": 20
+      },
+      "excluded_due_to_fewer_than_30_observations": 0,
+      "fault_modes": 2,
+      "heldout_test_engines": 100,
+      "official_test_engines_total": 100,
+      "operating_conditions": 1,
+      "rul_mae_cycles": 36.94696239948273,
+      "rul_rmse_cycles": 52.02695867191181,
+      "trained_warning_head": {
+        "f1": 0.5882352941176471,
+        "precision": 0.4166666666666667,
+        "recall": 1.0
+      },
+      "warning_prevalence": 0.2,
+      "warning_probability_brier": 0.2493166081131945
+    },
+    "FD004": {
+      "confusion": {
+        "fn": 1,
+        "fp": 112,
+        "tn": 72,
+        "tp": 52
+      },
+      "excluded_due_to_fewer_than_30_observations": 11,
+      "fault_modes": 2,
+      "heldout_test_engines": 237,
+      "official_test_engines_total": 248,
+      "operating_conditions": 6,
+      "rul_mae_cycles": 52.416578341133985,
+      "rul_rmse_cycles": 69.55018620752008,
+      "trained_warning_head": {
+        "f1": 0.4792626728110599,
+        "precision": 0.3170731707317073,
+        "recall": 0.9811320754716981
+      },
+      "warning_prevalence": 0.22362869198312235,
+      "warning_probability_brier": 0.38703496866353615
+    }
+  },
+  "original_checkpoint_evidence": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819987425",
+  "original_checkpoint_sha256": "6f085be7015a48d48d6c1fed28dae9e888ee19dec495fcba085f375edbc6847c",
+  "project": "MUSITU AXIOM Sentinel",
+  "reference_fd001_checkpoint_reproduced": true,
+  "source": "https://zenodo.org/records/15346912/files/CMAPSSData.zip?download=1",
+  "source_md5": "79a22f36e80606c69d0e9e4da5bb2b7a",
+  "trained_warning_probability_threshold": 0.5,
+  "zero_target_cohort_training": true
+}

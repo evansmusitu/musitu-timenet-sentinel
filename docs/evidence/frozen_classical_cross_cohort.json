@@ -1,0 +1,108 @@
+{
+  "evaluated_utc": "2026-11-22T08:40:48.677038+00:00",
+  "experiment": "zero-shot cross-cohort transfer of frozen FD001-trained classical CPU baseline",
+  "feature_count": 97,
+  "limitations": [
+    "All four cohorts are NASA C-MAPSS SIMULATIONS, not distinct physical hardware manufacturers or independent real-world operators.",
+    "The target subsets have different fault-mode/operating-condition mixes; model transfer failure is expected and scientifically informative.",
+    "No new data was used to fit or tune the frozen FD001 model for FD002, FD003 or FD004.",
+    "Only one end-of-observation endpoint is scored for each engine with at least 30 observed cycles; engines with fewer are explicitly counted as excluded; no streaming warning lead times are inferred.",
+    "These test results are descriptive and provide no real-aircraft operational safety certification.",
+    "No original NASA raw source records or target-engine individual labels are redistributed.",
+    "The trained model is a classical CPU baseline, NOT the organizer's 5B TSLM."
+  ],
+  "model": "HistGradientBoostingRegressor (not OpenTime 5B or the compact QA model)",
+  "official_test_evaluations": {
+    "FD001": {
+      "confusion": {
+        "fn": 5,
+        "fp": 0,
+        "tn": 75,
+        "tp": 20
+      },
+      "count": 100,
+      "excluded_due_to_fewer_than_30_observations": 0,
+      "fault_modes": 1,
+      "heldout_test_engines": 100,
+      "official_test_engines_total": 100,
+      "operating_conditions": 1,
+      "rul_mae_cycles": 19.40247665823967,
+      "rul_rmse_cycles": 27.23191988128876,
+      "warning_30_f1": 0.8888888888888888,
+      "warning_30_precision": 1.0,
+      "warning_30_prevalence": 0.25,
+      "warning_30_recall": 0.8
+    },
+    "FD002": {
+      "confusion": {
+        "fn": 61,
+        "fp": 0,
+        "tn": 192,
+        "tp": 0
+      },
+      "count": 253,
+      "excluded_due_to_fewer_than_30_observations": 6,
+      "fault_modes": 1,
+      "heldout_test_engines": 253,
+      "official_test_engines_total": 259,
+      "operating_conditions": 6,
+      "rul_mae_cycles": 33.85254103151913,
+      "rul_rmse_cycles": 40.911925524746906,
+      "warning_30_f1": 0.0,
+      "warning_30_precision": 0.0,
+      "warning_30_prevalence": 0.24110671936758893,
+      "warning_30_recall": 0.0
+    },
+    "FD003": {
+      "confusion": {
+        "fn": 13,
+        "fp": 1,
+        "tn": 79,
+        "tp": 7
+      },
+      "count": 100,
+      "excluded_due_to_fewer_than_30_observations": 0,
+      "fault_modes": 2,
+      "heldout_test_engines": 100,
+      "official_test_engines_total": 100,
+      "operating_conditions": 1,
+      "rul_mae_cycles": 28.031224189188656,
+      "rul_rmse_cycles": 34.573390679118475,
+      "warning_30_f1": 0.5,
+      "warning_30_precision": 0.875,
+      "warning_30_prevalence": 0.2,
+      "warning_30_recall": 0.35
+    },
+    "FD004": {
+      "confusion": {
+        "fn": 53,
+        "fp": 0,
+        "tn": 184,
+        "tp": 0
+      },
+      "count": 237,
+      "excluded_due_to_fewer_than_30_observations": 11,
+      "fault_modes": 2,
+      "heldout_test_engines": 237,
+      "official_test_engines_total": 248,
+      "operating_conditions": 6,
+      "rul_mae_cycles": 39.52851891393773,
+      "rul_rmse_cycles": 47.9131608956496,
+      "warning_30_f1": 0.0,
+      "warning_30_precision": 0.0,
+      "warning_30_prevalence": 0.22362869198312235,
+      "warning_30_recall": 0.0
+    }
+  },
+  "project": "MUSITU AXIOM Sentinel",
+  "reference_fd001_reproduced": true,
+  "source_md5": "79a22f36e80606c69d0e9e4da5bb2b7a",
+  "source_url": "https://zenodo.org/records/15346912/files/CMAPSSData.zip?download=1",
+  "target_cohort_training_or_retraining": false,
+  "target_test_used_to_select_parameters": false,
+  "training_cohort_only": "FD001",
+  "training_engine_count": 80,
+  "training_random_state": 42,
+  "validation_engine_count": 20,
+  "warning_horizon_cycles": 30
+}

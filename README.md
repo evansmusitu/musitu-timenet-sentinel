@@ -8,6 +8,7 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 
 - **90-second judges' walkthrough:** [Concrete engine demo, evidence links, comparison and limitations](docs/TIMENET_ROUND1_JUDGES_GUIDE.md).
 - **Verified 100-engine decision audit:** [Confusion matrices, uncertainty intervals and an interactive maintenance-warning trade-off](docs/decision-audit.html).
+- **Cross-cohort robustness lab (new):** [Independent FD001-frozen model transfer across four NASA simulated cohorts, and exploratory FD004-heldout multi-domain models](docs/robustness-lab.html). Experiments use CPU-only models **not OpenTime 5B**.
 - **Competition submission pack:** [Technical pitch, TimeNet PR, evaluation evidence and limitations](docs/TIMENET_ROUND1_FINAL_SUBMISSION.md).
 - **Completed organizer OpenTime 5B pilot:** [Verified model metrics and limitations](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md) · [successful Nebius run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462) · [recovered job logs](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44984604004).
 - **Real-time GPU capacity:** [Nebius RTX 6000 96 GiB quota-clipped availability](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44982965639).
@@ -28,6 +29,14 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 - **Upstream PR ready for review:** https://github.com/OpenTSLM/TimeNet/pull/836
 - Fork branch: https://github.com/evansmusitu/TimeNet/tree/feat/musitu-cmapss-fd001
 - PR is open and ready for upstream review, not merged. Added [11 synthetic fixture tests and strict source-data validation](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45002805232), verified passing in TimeNet's actual locked environment alongside real-source NASA conversion. Maintainer review and source-data license clarification remain open. No raw data redistributed.
+
+## Exploratory cross-domain simulated warning research (separate CPU-only models)
+
+This additional research exposed meaningful domain shift rather than hiding negative results. Frozen FD001-only models were tested without retraining against FD002, FD003 and FD004 official NASA **simulated** engine cohorts. The original compact temporal model's warning F1 on FD004 was 0.479 with 112 false alarms among 237 eligible engines; the classical FD001-only warning F1 was 0.000. The evidence warns against deploying FD001-only models on unfamiliar operating conditions.
+
+We then explored separate CPU classical models trained on **FD001/FD002/FD003 development engines**, with FD004 held entirely out of fitting and threshold selection. The gradient-boosted regression warning F1 on eligible official FD004 engines was **0.643**. A direct-warning classifier selected its probability threshold 0.40 using only independent development validation engine groups and obtained **F1 0.8163** (40 true warnings, 5 false alarms, 13 misses, 179 true nonwarnings) on the same **237 eligible FD004 engines**, excluding 11 test trajectories shorter than the required 30 cycles. This is a **post-hoc, exploratory simulation experiment, not a preregistered or operational safety study**. It is **not** the organizer's 5B checkpoint or evidence of cross-manufacturer transfer.
+
+[Open the public, aggregate-only robustness lab](https://evansmusitu.github.io/musitu-timenet-sentinel/robustness-lab.html) · [Original classical transfer CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45003875499) · [Original compact checkpoint transfer CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45003991598) · [Multi-domain classifier CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45004601674).
 
 ## Experimental OpenTime checkpoint adaptation (small GPU pilot completed)
 
