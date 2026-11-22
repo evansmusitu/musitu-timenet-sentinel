@@ -1,0 +1,432 @@
+{
+  "project": "MUSITU AXIOM Sentinel",
+  "experiment": "Frozen compact-model channel-wise training-mean replacement sensitivity",
+  "not_opentime_5b": true,
+  "benchmark": "NASA C-MAPSS FD001 simulated, all 100 official held-out endpoints",
+  "method": "Replace one full 30-cycle input channel with its training-only mean from the pinned checkpoint; compare frozen warning probabilities, holding all other channels fixed.",
+  "frozen_checkpoint_sha256": "6f085be7015a48d48d6c1fed28dae9e888ee19dec495fcba085f375edbc6847c",
+  "original_predictions_sha256": "bbc89e6a15a5fca61165466808202d0a5924aa55218660b8c581ed6022f890ec",
+  "frozen_endpoint_predictions_reproduced": true,
+  "recorded_case_predictions_reproduced": true,
+  "heldout_engines_scored": 100,
+  "channels": [
+    {
+      "channel": "sensor_13",
+      "mean_absolute_probability_change_percentage_points": 6.707050375693143,
+      "median_absolute_probability_change_percentage_points": 0.049778872198658064,
+      "mean_signed_probability_change_percentage_points": 6.596130534928307,
+      "endpoint_warning_decision_flips": 9
+    },
+    {
+      "channel": "sensor_12",
+      "mean_absolute_probability_change_percentage_points": 6.109282789346253,
+      "median_absolute_probability_change_percentage_points": 0.04227838071528822,
+      "mean_signed_probability_change_percentage_points": 6.067465691927282,
+      "endpoint_warning_decision_flips": 8
+    },
+    {
+      "channel": "sensor_15",
+      "mean_absolute_probability_change_percentage_points": 5.640732232468508,
+      "median_absolute_probability_change_percentage_points": 0.11473059712443501,
+      "mean_signed_probability_change_percentage_points": 5.473282991400993,
+      "endpoint_warning_decision_flips": 7
+    },
+    {
+      "channel": "sensor_11",
+      "mean_absolute_probability_change_percentage_points": 5.586962963921906,
+      "median_absolute_probability_change_percentage_points": 0.03718784137163311,
+      "mean_signed_probability_change_percentage_points": 5.524947052877906,
+      "endpoint_warning_decision_flips": 8
+    },
+    {
+      "channel": "sensor_2",
+      "mean_absolute_probability_change_percentage_points": 5.453402107299553,
+      "median_absolute_probability_change_percentage_points": 0.03574808652047068,
+      "mean_signed_probability_change_percentage_points": 5.348628279569311,
+      "endpoint_warning_decision_flips": 8
+    },
+    {
+      "channel": "sensor_5",
+      "mean_absolute_probability_change_percentage_points": 5.407041354128523,
+      "median_absolute_probability_change_percentage_points": 0.24381132097914815,
+      "mean_signed_probability_change_percentage_points": -5.407041354128523,
+      "endpoint_warning_decision_flips": 4
+    },
+    {
+      "channel": "sensor_1",
+      "mean_absolute_probability_change_percentage_points": 4.59839154772817,
+      "median_absolute_probability_change_percentage_points": 0.3048760932870209,
+      "mean_signed_probability_change_percentage_points": -4.59839154772817,
+      "endpoint_warning_decision_flips": 4
+    },
+    {
+      "channel": "sensor_8",
+      "mean_absolute_probability_change_percentage_points": 3.4168941102379904,
+      "median_absolute_probability_change_percentage_points": 0.0355956144630909,
+      "mean_signed_probability_change_percentage_points": 3.3860986471499928,
+      "endpoint_warning_decision_flips": 5
+    },
+    {
+      "channel": "sensor_21",
+      "mean_absolute_probability_change_percentage_points": 3.1599946508631547,
+      "median_absolute_probability_change_percentage_points": 0.04188182938378304,
+      "mean_signed_probability_change_percentage_points": 2.7063754107821296,
+      "endpoint_warning_decision_flips": 2
+    },
+    {
+      "channel": "sensor_14",
+      "mean_absolute_probability_change_percentage_points": 3.1021912201194937,
+      "median_absolute_probability_change_percentage_points": 0.0262806595856091,
+      "mean_signed_probability_change_percentage_points": 1.320441733341795,
+      "endpoint_warning_decision_flips": 3
+    },
+    {
+      "channel": "sensor_7",
+      "mean_absolute_probability_change_percentage_points": 2.9685479677264084,
+      "median_absolute_probability_change_percentage_points": 0.032336576259694993,
+      "mean_signed_probability_change_percentage_points": 2.916153884043524,
+      "endpoint_warning_decision_flips": 4
+    },
+    {
+      "channel": "sensor_9",
+      "mean_absolute_probability_change_percentage_points": 2.3186748521566187,
+      "median_absolute_probability_change_percentage_points": 0.028259659302420914,
+      "mean_signed_probability_change_percentage_points": 1.3176070460776828,
+      "endpoint_warning_decision_flips": 2
+    },
+    {
+      "channel": "setting_2",
+      "mean_absolute_probability_change_percentage_points": 2.1097843667430425,
+      "median_absolute_probability_change_percentage_points": 0.02398962387815118,
+      "mean_signed_probability_change_percentage_points": -1.4547918684311298,
+      "endpoint_warning_decision_flips": 1
+    },
+    {
+      "channel": "sensor_20",
+      "mean_absolute_probability_change_percentage_points": 2.1074252372618503,
+      "median_absolute_probability_change_percentage_points": 0.038460735231637955,
+      "mean_signed_probability_change_percentage_points": 0.21874366273004853,
+      "endpoint_warning_decision_flips": 3
+    },
+    {
+      "channel": "sensor_4",
+      "mean_absolute_probability_change_percentage_points": 1.8632109468871931,
+      "median_absolute_probability_change_percentage_points": 0.029175044619478285,
+      "mean_signed_probability_change_percentage_points": 1.3927443557058723,
+      "endpoint_warning_decision_flips": 3
+    },
+    {
+      "channel": "setting_1",
+      "mean_absolute_probability_change_percentage_points": 1.458998933174371,
+      "median_absolute_probability_change_percentage_points": 0.038318109000101686,
+      "mean_signed_probability_change_percentage_points": -1.1165744110494416,
+      "endpoint_warning_decision_flips": 2
+    },
+    {
+      "channel": "sensor_3",
+      "mean_absolute_probability_change_percentage_points": 0.9066085115282476,
+      "median_absolute_probability_change_percentage_points": 0.021956545242574066,
+      "mean_signed_probability_change_percentage_points": 0.8107851010045124,
+      "endpoint_warning_decision_flips": 1
+    },
+    {
+      "channel": "sensor_17",
+      "mean_absolute_probability_change_percentage_points": 0.9057059594961174,
+      "median_absolute_probability_change_percentage_points": 0.018405416631139815,
+      "mean_signed_probability_change_percentage_points": -0.8266456640812976,
+      "endpoint_warning_decision_flips": 0
+    },
+    {
+      "channel": "sensor_6",
+      "mean_absolute_probability_change_percentage_points": 0.20956682399082638,
+      "median_absolute_probability_change_percentage_points": 0.008153775706887245,
+      "mean_signed_probability_change_percentage_points": 0.20504435268048837,
+      "endpoint_warning_decision_flips": 0
+    },
+    {
+      "channel": "sensor_16",
+      "mean_absolute_probability_change_percentage_points": 0.06993103862441785,
+      "median_absolute_probability_change_percentage_points": 0.001604994758963585,
+      "mean_signed_probability_change_percentage_points": -0.0694030668510095,
+      "endpoint_warning_decision_flips": 0
+    },
+    {
+      "channel": "sensor_10",
+      "mean_absolute_probability_change_percentage_points": 0.0,
+      "median_absolute_probability_change_percentage_points": 0.0,
+      "mean_signed_probability_change_percentage_points": 0.0,
+      "endpoint_warning_decision_flips": 0
+    },
+    {
+      "channel": "sensor_18",
+      "mean_absolute_probability_change_percentage_points": 0.0,
+      "median_absolute_probability_change_percentage_points": 0.0,
+      "mean_signed_probability_change_percentage_points": 0.0,
+      "endpoint_warning_decision_flips": 0
+    },
+    {
+      "channel": "sensor_19",
+      "mean_absolute_probability_change_percentage_points": 0.0,
+      "median_absolute_probability_change_percentage_points": 0.0,
+      "mean_signed_probability_change_percentage_points": 0.0,
+      "endpoint_warning_decision_flips": 0
+    },
+    {
+      "channel": "setting_3",
+      "mean_absolute_probability_change_percentage_points": 0.0,
+      "median_absolute_probability_change_percentage_points": 0.0,
+      "mean_signed_probability_change_percentage_points": 0.0,
+      "endpoint_warning_decision_flips": 0
+    }
+  ],
+  "recorded_cases": [
+    {
+      "engine_id": 18,
+      "cycle": 133,
+      "category": "caught_risk",
+      "actual_rul_cycles_revealed_after_benchmark": 28,
+      "model_rul_prediction_cycles": 33.165279388427734,
+      "model_warning_probability_before": 0.5746912956237793,
+      "most_sensitive_channels": [
+        {
+          "channel": "sensor_8",
+          "risk_after_channel_mean_replacement": 0.03534505516290665,
+          "risk_change_percentage_points": 53.934624046087265,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_12",
+          "risk_after_channel_mean_replacement": 0.04896269738674164,
+          "risk_change_percentage_points": 52.572859823703766,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_13",
+          "risk_after_channel_mean_replacement": 0.1194285973906517,
+          "risk_change_percentage_points": 45.52626982331276,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_11",
+          "risk_after_channel_mean_replacement": 0.15489184856414795,
+          "risk_change_percentage_points": 41.979944705963135,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_5",
+          "risk_after_channel_mean_replacement": 0.9886003136634827,
+          "risk_change_percentage_points": -41.39090180397034,
+          "warning_decision_flips": false
+        }
+      ]
+    },
+    {
+      "engine_id": 40,
+      "cycle": 133,
+      "category": "missed_risk",
+      "actual_rul_cycles_revealed_after_benchmark": 28,
+      "model_rul_prediction_cycles": 37.585453033447266,
+      "model_warning_probability_before": 0.11383477598428726,
+      "most_sensitive_channels": [
+        {
+          "channel": "sensor_5",
+          "risk_after_channel_mean_replacement": 0.7120864391326904,
+          "risk_change_percentage_points": -59.82516631484032,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_1",
+          "risk_after_channel_mean_replacement": 0.6310656070709229,
+          "risk_change_percentage_points": -51.72308310866356,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_20",
+          "risk_after_channel_mean_replacement": 0.30150431394577026,
+          "risk_change_percentage_points": -18.7669537961483,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_2",
+          "risk_after_channel_mean_replacement": 0.007902183569967747,
+          "risk_change_percentage_points": 10.593259241431952,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_13",
+          "risk_after_channel_mean_replacement": 0.007927636615931988,
+          "risk_change_percentage_points": 10.590713936835527,
+          "warning_decision_flips": false
+        }
+      ]
+    },
+    {
+      "engine_id": 91,
+      "cycle": 230,
+      "category": "premature_alert",
+      "actual_rul_cycles_revealed_after_benchmark": 42,
+      "model_rul_prediction_cycles": 28.540447235107422,
+      "model_warning_probability_before": 0.8049305081367493,
+      "most_sensitive_channels": [
+        {
+          "channel": "sensor_2",
+          "risk_after_channel_mean_replacement": 0.03301859647035599,
+          "risk_change_percentage_points": 77.19119116663933,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_13",
+          "risk_after_channel_mean_replacement": 0.04520417004823685,
+          "risk_change_percentage_points": 75.97263380885124,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_15",
+          "risk_after_channel_mean_replacement": 0.06593365222215652,
+          "risk_change_percentage_points": 73.89968559145927,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_11",
+          "risk_after_channel_mean_replacement": 0.17645515501499176,
+          "risk_change_percentage_points": 62.84753531217575,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_21",
+          "risk_after_channel_mean_replacement": 0.1793840378522873,
+          "risk_change_percentage_points": 62.5546470284462,
+          "warning_decision_flips": true
+        }
+      ]
+    },
+    {
+      "engine_id": 1,
+      "cycle": 31,
+      "category": "clean_monitoring",
+      "actual_rul_cycles_revealed_after_benchmark": 112,
+      "model_rul_prediction_cycles": 149.849853515625,
+      "model_warning_probability_before": 0.0003150383708998561,
+      "most_sensitive_channels": [
+        {
+          "channel": "sensor_15",
+          "risk_after_channel_mean_replacement": 0.0008523814612999558,
+          "risk_change_percentage_points": -0.053734309040009975,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_2",
+          "risk_after_channel_mean_replacement": 0.0008096871897578239,
+          "risk_change_percentage_points": -0.049464881885796785,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_1",
+          "risk_after_channel_mean_replacement": 0.0007013226859271526,
+          "risk_change_percentage_points": -0.038628431502729654,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_7",
+          "risk_after_channel_mean_replacement": 0.0006830283091403544,
+          "risk_change_percentage_points": -0.03679899382404983,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_5",
+          "risk_after_channel_mean_replacement": 0.0006561400950886309,
+          "risk_change_percentage_points": -0.03411017241887748,
+          "warning_decision_flips": false
+        }
+      ]
+    },
+    {
+      "engine_id": 20,
+      "cycle": 170,
+      "category": "caught_risk",
+      "actual_rul_cycles_revealed_after_benchmark": 30,
+      "model_rul_prediction_cycles": 28.318696975708008,
+      "model_warning_probability_before": 0.8230534195899963,
+      "most_sensitive_channels": [
+        {
+          "channel": "sensor_15",
+          "risk_after_channel_mean_replacement": 0.049251288175582886,
+          "risk_change_percentage_points": 77.38021314144135,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_12",
+          "risk_after_channel_mean_replacement": 0.084001325070858,
+          "risk_change_percentage_points": 73.90520945191383,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_7",
+          "risk_after_channel_mean_replacement": 0.15904594957828522,
+          "risk_change_percentage_points": 66.40074700117111,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_11",
+          "risk_after_channel_mean_replacement": 0.2180102914571762,
+          "risk_change_percentage_points": 60.50431281328201,
+          "warning_decision_flips": true
+        },
+        {
+          "channel": "sensor_2",
+          "risk_after_channel_mean_replacement": 0.3254762291908264,
+          "risk_change_percentage_points": 49.75771903991699,
+          "warning_decision_flips": true
+        }
+      ]
+    },
+    {
+      "engine_id": 2,
+      "cycle": 49,
+      "category": "clean_monitoring",
+      "actual_rul_cycles_revealed_after_benchmark": 98,
+      "model_rul_prediction_cycles": 148.1524658203125,
+      "model_warning_probability_before": 0.004832401406019926,
+      "most_sensitive_channels": [
+        {
+          "channel": "sensor_1",
+          "risk_after_channel_mean_replacement": 0.026934541761875153,
+          "risk_change_percentage_points": -2.2102140355855227,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_5",
+          "risk_after_channel_mean_replacement": 0.018510188907384872,
+          "risk_change_percentage_points": -1.3677787501364946,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "setting_1",
+          "risk_after_channel_mean_replacement": 0.009055495262145996,
+          "risk_change_percentage_points": -0.422309385612607,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_9",
+          "risk_after_channel_mean_replacement": 0.001685292343609035,
+          "risk_change_percentage_points": 0.3147109062410891,
+          "warning_decision_flips": false
+        },
+        {
+          "channel": "sensor_14",
+          "risk_after_channel_mean_replacement": 0.002179814502596855,
+          "risk_change_percentage_points": 0.2652586903423071,
+          "warning_decision_flips": false
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Sensitivity to input replacement is NOT verified physical fault diagnosis or causal explanation.",
+    "A constant training mean replacement can create out-of-distribution input and break cross-channel physical relationships.",
+    "Post-hoc exploration on the same 100 simulated held-out engines, not new independent validation.",
+    "Only the independent compact temporal model; NOT the organizer OpenTime 5B checkpoint.",
+    "No real aircraft safety, maintenance savings, or unobserved future data claims.",
+    "No raw NASA sensor trajectories are included in this aggregate and selected-case JSON."
+  ]
+}

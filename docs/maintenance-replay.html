@@ -99,7 +99,13 @@ footer{border-top:1px solid var(--line);padding:23px 0 40px;color:var(--muted);f
 <p>The compact model detected four eligible engines the baseline missed; the baseline detected one the compact missed. These are only five discordant eligible engines (two-sided exact sign test p=0.375); the result is <strong>not statistically conclusive</strong> and does not prove performance on operational machinery. The compact model uses its trained binary warning head (p≥0.5); the classical comparator uses predicted remaining life ≤30 cycles.</p>
 <p class="help"><a href="evidence/paired_replay_comparison.json">Reproduced paired aggregate evidence</a> · <a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45038541024">Successful real-data comparison run</a> · <a href="https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/sentinel/replay_baseline_compare.py">Source</a></p>
 </section>
-<section class="content">
+<section class="card" style="margin:24px 0" aria-label="New model input sensitivity">
+ <div class="eyebrow">NEW · FROZEN SENSOR-CHANNEL AUDIT</div>
+ <h2>What changes the warning score?</h2>
+ <p>Open six genuine recorded maintenance decisions, including an accurate warning, a miss and an early false alarm. See which of the 24 sensor/setting channels changed the frozen model's risk score when replaced by its training-set mean. This is model sensitivity—not physical fault causation or OpenTime 5B reasoning.</p>
+ <a href="./sensor-sensitivity.html" style="font-weight:800">Inspect recorded sensor sensitivity and reveal the outcome →</a>
+ </section>
+ <section class="content">
 <div class="card"><h2>What this measures</h2>
 <ul>
 <li>A correct risk warning must happen while the official remaining life is at most 30 cycles.</li>
