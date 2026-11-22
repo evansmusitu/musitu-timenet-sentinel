@@ -29,14 +29,10 @@ def helper(path):
     return module,hashlib.sha256(data).hexdigest()
 
 def balanced(rows,limit,seed):
-    rng=random.Random(seed)
-    groups=[[x for x in rows if x["answer"]==label] for label in ("Yes","No")]
-    take=min(limit//2,*(len(g) for g in groups))
-    if not take:
-        raise ValueError("Both warning classes required")
-    selected=[x for g in groups for x in rng.sample(g,take)]
-    rng.shuffle(selected)
-    return selected
+    # V2 training-only protocol: spread each class across distinct engines first.
+    # Past GPU pilot used uniform row sampling and its published metrics are unchanged.
+    from .opentime_sampling import balanced_engine_diverse
+    return balanced_engine_diverse(rows,limit,seed=seed)
 
 def main():
     p=argparse.ArgumentParser()
@@ -100,6 +96,9 @@ def main():
     report={"checkpoint":MODEL_ID,"revision":args.revision,"helper_revision":HELPER_REV,"helper_sha256":sha,
         "dataset":"NASA C-MAPSS FD001","train_examples":len(tr),"validation_examples":len(va),
         "train_engine_count":int(a.unit.nunique()),"validation_engine_count":int(b.unit.nunique()),
+        "training_sampling_protocol":"balanced-engine-diverse-v1 (after the original 16-example pilot)",
+        "selected_train_unique_engines":len({row["unit"] for row in t}),
+        "selected_validation_unique_engines":len({row["unit"] for row in v}),
         "before":before,"after":after,"gpu":torch.cuda.get_device_name(0),"torch":torch.__version__,
         "epochs":args.epochs,"seconds":time.time()-started,
         "limits":"Simulation only; binary warning QA; invalid outputs scored as errors."}
