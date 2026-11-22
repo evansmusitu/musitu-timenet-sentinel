@@ -8,7 +8,7 @@
 
 ## Official deliverable links (verified)
 
-- **TimeNet dataset connector pull request:** https://github.com/OpenTSLM/TimeNet/pull/836 — currently open as a **draft**, pending the upstream schema and metadata review.
+- **TimeNet dataset connector pull request:** https://github.com/OpenTSLM/TimeNet/pull/836 — **open and ready for upstream review**, not merged; full builder and metadata review remain open.
 - **Project GitHub repo:** https://github.com/evansmusitu/musitu-timenet-sentinel
 - **Live interactive demo:** https://evansmusitu.github.io/musitu-timenet-sentinel/
 - **NASA FD001 reproducible classical benchmark:** https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482
@@ -58,3 +58,28 @@ The official TimeNet hackathon requires public X and LinkedIn URLs and a Discord
 - Do not claim NASA's dataset has an SPDX license not verified from its record.
 - Do not claim PR #836 is merged or approved; it remains an open draft.
 - Do not claim a Tally submission receipt until the form confirms it.
+
+
+## Copy-ready organizer social posts
+
+**X / Twitter — under 280 characters:**
+
+🚀 MUSITU AXIOM Sentinel is live for #TimeNet! Predictive-maintenance AI on NASA simulated engines, with reproducible results from 100 held-out engines. Try our demo: https://evansmusitu.github.io/musitu-timenet-sentinel/ #OpenTime
+
+**LinkedIn:**
+
+We built MUSITU AXIOM Sentinel for the TimeNet / OpenTime Hackathon.
+
+Using NASA C-MAPSS simulated engine histories, our TimeNet connector assembles leak-aware multivariate windows with 21 sensors and three operating settings. A reproducible classical baseline achieves 19.40-cycle remaining-useful-life MAE and F1 0.889 for early warnings on 100 official held-out engines. A separate compact temporal QA Transformer reaches F1 0.960 (not the OpenTime 5B model).
+
+Our actual OpenTime 5B GPU experiment is running on Nebius; its results are not yet verified.
+
+🌐 Demo: https://evansmusitu.github.io/musitu-timenet-sentinel/
+🧪 Code: https://github.com/evansmusitu/musitu-timenet-sentinel
+🔀 TimeNet PR: https://github.com/OpenTSLM/TimeNet/pull/836
+
+#TimeNet #OpenTime #PredictiveMaintenance #AI #MUSITU
+
+**Discord showcase:**
+
+MUSITU AXIOM Sentinel — TimeNet Hackathon. We've built a NASA C-MAPSS FD001 leak-aware connector, a live demo and reproducible 100-engine predictive-maintenance benchmarks. The organizer OpenTime 5B pilot is running on a time-limited Nebius RTX PRO 6000 and we will publish its verified outcomes separately. Feedback welcome! Demo: https://evansmusitu.github.io/musitu-timenet-sentinel/ | Repo: https://github.com/evansmusitu/musitu-timenet-sentinel | PR: https://github.com/OpenTSLM/TimeNet/pull/836.
