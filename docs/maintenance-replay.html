@@ -86,6 +86,19 @@ footer{border-top:1px solid var(--line);padding:23px 0 40px;color:var(--muted);f
 <div class="reveal" id="case-note">No hand-created model answers are displayed.</div>
 </div>
 </div>
+<section class="card" id="head-to-head" style="margin-top:26px">
+<div class="eyebrow">FAIR SAME-WINDOW COMPARISON · CLASSICAL VS COMPACT</div>
+<h2>More risks detected. A few more early alarms.</h2>
+<p class="lead">We independently reproduced the original classical gradient-boosting model's 100-engine endpoint predictions before evaluating it on the exact same 2,163 frozen history windows used by the compact temporal model. Neither model was retrained on official test engines.</p>
+<div class="stats">
+<div class="card stat"><small>Engines warned in observed risk horizon</small><strong>24 vs 21</strong><p>Compact vs classical · out of 25 eligible engines</p></div>
+<div class="card stat"><small>Engines with any premature warning</small><strong>8 vs 5</strong><p>Compact vs classical · out of 100 test engines</p></div>
+<div class="card stat"><small>Window-level warning F1</small><strong>0.855 vs 0.777</strong><p>Correlated windows · not independent-engine significance</p></div>
+<div class="card stat"><small>Window remaining-life MAE</small><strong>29.60 vs 31.93</strong><p>Cycles · compact vs classical</p></div>
+</div>
+<p>The compact model detected four eligible engines the baseline missed; the baseline detected one the compact missed. These are only five discordant eligible engines (two-sided exact sign test p=0.375); the result is <strong>not statistically conclusive</strong> and does not prove performance on operational machinery. The compact model uses its trained binary warning head (p≥0.5); the classical comparator uses predicted remaining life ≤30 cycles.</p>
+<p class="help"><a href="evidence/paired_replay_comparison.json">Reproduced paired aggregate evidence</a> · <a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45038541024">Successful real-data comparison run</a> · <a href="https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/sentinel/replay_baseline_compare.py">Source</a></p>
+</section>
 <section class="content">
 <div class="card"><h2>What this measures</h2>
 <ul>
