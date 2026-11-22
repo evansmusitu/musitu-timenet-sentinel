@@ -1,0 +1,37 @@
+name: Validate TimeNet submission PR connector
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/timenet-pr-compatibility.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-connector:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: evansmusitu/TimeNet
+          ref: feat/musitu-cmapss-fd001
+      - uses: astral-sh/setup-uv@v6
+      - name: Install TimeNet workspace packages
+        run: uv sync --all-packages --no-dev
+      - name: Verify import and metadata against exact PR source
+        run: |
+          uv run --no-sync python - <<'PY'
+          from timenet_connectors.datasets.musitu.cmapss_fd001.connector import CONNECTOR, SPEC, COLS
+          from timenet_connectors.datasets.musitu.cmapss_fd001.connector import CmapssFd001Connector
+          assert CONNECTOR is CmapssFd001Connector
+          assert len(COLS)==26
+          print("TimeNet NASA FD001 connector import: PASS")
+          print("Connector class:",CONNECTOR.__name__)
+          print("Channels:",len(COLS)-2)
+          PY
+      - name: Check project source compiles
+        run: uv run --no-sync python -m compileall -q packages/timenet-connectors/src/timenet_connectors/datasets/musitu/cmapss_fd001
