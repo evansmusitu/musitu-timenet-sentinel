@@ -121,8 +121,8 @@ def main():
         for row in test_rows:
             row["predicted_at_fixed_zero"]=("Yes" if row["yes_log_likelihood_margin"]>=0 else "No")
             row["predicted_at_validation_threshold"]=("Yes" if row["yes_log_likelihood_margin"]>=threshold else "No")
-        (args.output/"validation_likelihood_predictions.json").write_text(json.dumps(val_rows,indent=2)+"\\n")
-        (args.output/"official_test_likelihood_predictions.json").write_text(json.dumps(test_rows,indent=2)+"\\n")
+        (args.output/"validation_likelihood_predictions.json").write_text(json.dumps(val_rows,indent=2)+"\n")
+        (args.output/"official_test_likelihood_predictions.json").write_text(json.dumps(test_rows,indent=2)+"\n")
         likelihood_evaluation={
             "approach":"genuine OpenTime 5B conditional answer-token negative log-likelihood",
             "margin_definition":"NLL(No) minus NLL(Yes); positive favors Yes",
