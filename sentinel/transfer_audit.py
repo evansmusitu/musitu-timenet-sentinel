@@ -73,8 +73,13 @@ def _load_test_cohort(archive: ZipFile, cohort: str) -> tuple[pd.DataFrame, dict
 def _evaluate(model, features: list[str], train_empty: pd.DataFrame,
               test: pd.DataFrame, targets: dict[int, int]) -> dict:
     examples = build_examples(train_empty, test, targets)
-    if list(examples[features].columns) != features or len(examples) != test.unit.nunique():
-        raise ValueError("Unexpected test endpoint count or feature contract")
+    total_engines = int(test.unit.nunique())
+    eligible = set(int(x) for x in test.groupby("unit").size().loc[lambda sizes: sizes >= 30].index)
+    observed = set(int(x) for x in examples.unit.unique())
+    if observed != eligible or list(examples[features].columns) != features:
+        raise ValueError(f"Unexpected test endpoint or feature contract: {len(observed)} of {total_engines} engines, {len(features)} features")
+    if not eligible:
+        raise ValueError("No test engines have the required 30-cycle history")
     scores = np.maximum(0, model.predict(examples[features].to_numpy()))
     actual = examples.rul.to_numpy()
     truth = actual <= 30
@@ -86,7 +91,9 @@ def _evaluate(model, features: list[str], train_empty: pd.DataFrame,
         "fn": int(np.count_nonzero(truth & ~warning)),
         "tn": int(np.count_nonzero(~truth & ~warning)),
     }
-    result["heldout_test_engines"] = int(test.unit.nunique())
+    result["heldout_test_engines"] = len(examples)
+    result["official_test_engines_total"] = total_engines
+    result["excluded_due_to_fewer_than_30_observations"] = total_engines - len(examples)
     return result
 
 
@@ -153,7 +160,7 @@ def run(data_dir: Path, output_dir: Path, *, download: bool = False) -> dict:
             "All four cohorts are NASA C-MAPSS SIMULATIONS, not distinct physical hardware manufacturers or independent real-world operators.",
             "The target subsets have different fault-mode/operating-condition mixes; model transfer failure is expected and scientifically informative.",
             "No new data was used to fit or tune the frozen FD001 model for FD002, FD003 or FD004.",
-            "Only one end-of-observation endpoint per official test engine is scored; no continuous early-warning lead times are inferred.",
+            "Only one end-of-observation endpoint is scored for each engine with at least 30 observed cycles; engines with fewer are explicitly counted as excluded; no streaming warning lead times are inferred.",
             "These test results are descriptive and provide no real-aircraft operational safety certification.",
             "No original NASA raw source records or target-engine individual labels are redistributed.",
             "The trained model is a classical CPU baseline, NOT the organizer's 5B TSLM.",
