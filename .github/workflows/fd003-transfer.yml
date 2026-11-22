@@ -1,0 +1,65 @@
+name: FD001 to FD003 frozen cross-fault evaluation (CPU only)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/fd003-zero-shot-transfer-20261122
+    paths:
+      - 'sentinel/fd003_transfer.py'
+      - 'tests/test_fd003_transfer.py'
+      - '.github/workflows/fd003-transfer.yml'
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: fd003-frozen-transfer
+  cancel-in-progress: true
+jobs:
+  evaluate-zero-shot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only dependencies
+        run: |
+          python -m pip install -r requirements.txt pytest
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify synthetic no-leakage and archive-integrity tests
+        run: python -m pytest -q tests/test_fd003_transfer.py
+      - name: Recover frozen FD001 classical predictions from original successful run
+        uses: actions/download-artifact@v4
+        with:
+          name: nasa-cmapss-results
+          run-id: 44819062482
+          github-token: ${{ github.token }}
+          path: artifacts/frozen-classical
+      - name: Recover frozen FD001 compact model from original successful run
+        uses: actions/download-artifact@v4
+        with:
+          name: sentinel-temporal-qa-model-and-results
+          run-id: 44819987425
+          github-token: ${{ github.token }}
+          path: artifacts/frozen-compact
+      - name: Put original pinned artifacts in isolated input directory
+        run: |
+          mkdir -p artifacts/frozen
+          cp artifacts/frozen-classical/official_test_predictions.csv artifacts/frozen/
+          cp artifacts/frozen-compact/temporal_qa_predictions.csv artifacts/frozen/
+          cp artifacts/frozen-compact/temporal_qa_checkpoint.pt artifacts/frozen/
+      - name: Run frozen FD001 reference check then first FD003 evaluation
+        run: |
+          python -m sentinel.fd003_transfer --download \
+            --data-dir data/raw \
+            --artifact-dir artifacts/frozen \
+            --output artifacts/fd003_transfer_aggregate.json
+      - name: Publish only the aggregate evaluation report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fd003-zero-shot-aggregate-only
+          path: artifacts/fd003_transfer_aggregate.json
+          if-no-files-found: warn
+          retention-days: 30
