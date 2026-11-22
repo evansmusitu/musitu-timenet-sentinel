@@ -28,7 +28,7 @@ def test_static_report_renders_deterministically_and_mentions_limits():
     result=render(data,tmpl)
     assert result==render(data,tmpl)
     assert '<table' in result and '0.479' in result and '0.643' in result and '0.816' in result
-    assert 'post-hoc' in result and 'not</strong> different physical manufacturers' in result
+    assert 'post-hoc' in result and 'do not</strong> establish cross-manufacturer generalization' in result
     assert '$bars' not in result
     assert '<script' not in result
 
