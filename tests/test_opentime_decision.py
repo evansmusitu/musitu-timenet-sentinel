@@ -1,8 +1,8 @@
 """CPU unit tests of OpenTime option likelihoods and heldout-safe calibration."""
 import math
 from types import SimpleNamespace
-import torch
 import pytest
+torch = pytest.importorskip("torch", reason="Heavy OpenTime-specific CPU tests run in dedicated workflow")
 
 from sentinel.opentime_decision import (
     check_qa_rows, choose_validation_threshold, score_option_margin,
