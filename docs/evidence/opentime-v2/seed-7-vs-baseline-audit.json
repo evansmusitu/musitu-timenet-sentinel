@@ -1,0 +1,62 @@
+{
+  "dataset": "NASA C-MAPSS FD001 simulated engines, 100 official test engines (25 within 30 cycles)",
+  "opentime_v2": {
+    "checkpoint": "opentime/tslm-nov26",
+    "revision": "5e030b001fb8d4be6d10ebb3a8b9bc3e6ef80983",
+    "train_examples": 1190,
+    "train_engines": 80,
+    "epochs": 3,
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "threshold_from_validation": 2.2500033378601074,
+    "validation_threshold": {
+      "tp": 23,
+      "fp": 0,
+      "fn": 2,
+      "tn": 75,
+      "precision": 1.0,
+      "recall": 0.92,
+      "f1": 0.9583333333333334,
+      "accuracy": 0.98
+    },
+    "greedy_generation": {
+      "tp": 24,
+      "fp": 0,
+      "fn": 1,
+      "tn": 75,
+      "precision": 1.0,
+      "recall": 0.96,
+      "f1": 0.9795918367346939,
+      "accuracy": 0.99
+    },
+    "invalid_outputs": 0,
+    "test_auroc": 1.0
+  },
+  "classical_baseline": {
+    "tp": 20,
+    "fp": 0,
+    "fn": 5,
+    "tn": 75,
+    "precision": 1.0,
+    "recall": 0.8,
+    "f1": 0.8888888888888888,
+    "accuracy": 0.95
+  },
+  "paired_bootstrap_95": {
+    "opentime_threshold_minus_baseline_f1": {
+      "lower": 0.0,
+      "upper": 0.1630434782608695
+    },
+    "opentime_generation_minus_baseline_f1": {
+      "lower": 0.018867924528301883,
+      "upper": 0.19910403185664505
+    },
+    "resamples": 10000,
+    "seed": 20261122,
+    "note": "Engine-level resampling of the 100 test engines only; excludes training variance and dataset shift."
+  },
+  "provenance": {
+    "v2_predictions_sha256": "769ff5d5a44ea8982f8087fe88aaa66e7a8894c980988ffd4aed15896602fb48",
+    "baseline_predictions_sha256": "eb6ba0cbc4007ea32c8da1ce27b8e4818ae3a53f217129975aa9c638bf5cccd3",
+    "test_labels_used_for_training_or_threshold": false
+  }
+}
