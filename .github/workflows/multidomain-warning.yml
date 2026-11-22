@@ -1,0 +1,33 @@
+name: Exploratory multi-domain warning classifier against unseen FD004
+on:
+  push:
+    branches: [feat/multidomain-rul-20261122]
+    paths:
+      - 'sentinel/multidomain_classifier.py'
+      - 'tests/test_multidomain_classifier.py'
+      - '.github/workflows/multidomain-warning.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cross-domain-warning-cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only libraries
+        run: python -m pip install -r requirements.txt pytest
+      - name: Validate warning metrics and train-only threshold rules
+        run: python -m pytest -q tests/test_multidomain_classifier.py
+      - name: Train on FD001/FD002/FD003 development and score unseen official FD004 test
+        run: python -m sentinel.multidomain_classifier --download --data-dir data/raw --output-dir artifacts/multidomain-warning
+      - name: Upload aggregate only; no raw NASA rows or model weights
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nasa-fd004-multidomain-warning-classifier
+          path: artifacts/multidomain-warning/multidomain_warning_aggregate.json
+          retention-days: 30
