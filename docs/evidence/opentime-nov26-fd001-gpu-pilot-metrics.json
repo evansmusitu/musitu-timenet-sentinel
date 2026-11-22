@@ -1,0 +1,34 @@
+{
+  "checkpoint": "opentime/tslm-nov26",
+  "revision": "5e030b001fb8d4be6d10ebb3a8b9bc3e6ef80983",
+  "helper_revision": "b83a9901d401e9e872ee9048fe61e6c9df9a5b78",
+  "helper_sha256": "c19db31d2ce6e84a4ce02c9a0fdfe0869c53775f77b04dd4be5c893afd8335e2",
+  "dataset": "NASA C-MAPSS FD001",
+  "train_examples": 16,
+  "validation_examples": 8,
+  "train_engine_count": 80,
+  "validation_engine_count": 20,
+  "before": {
+    "count": 100,
+    "accuracy": 0.24,
+    "balanced_accuracy_invalid_as_error": 0.16,
+    "precision_invalid_as_error": 0,
+    "recall_invalid_as_error": 0,
+    "f1_invalid_as_error": 0,
+    "invalid_outputs": 64
+  },
+  "after": {
+    "count": 100,
+    "accuracy": 0.75,
+    "balanced_accuracy_invalid_as_error": 0.5800000000000001,
+    "precision_invalid_as_error": 0.5,
+    "recall_invalid_as_error": 0.24,
+    "f1_invalid_as_error": 0.32432432432432434,
+    "invalid_outputs": 0
+  },
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "torch": "2.9.0+cu128",
+  "epochs": 1,
+  "seconds": 321.9421191215515,
+  "limits": "Simulation only; binary warning QA; invalid outputs scored as errors."
+}
