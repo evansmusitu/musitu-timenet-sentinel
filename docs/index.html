@@ -25,17 +25,29 @@ ul{padding-left:19px;color:#b9c9dd}li{margin:8px 0}
 .caution{border-left:3px solid var(--gold);background:#f8c7780d;padding:18px 22px;color:#f4e2bd;margin-top:22px}
 footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
 @media(max-width:780px){.nav{display:none}.strip{grid-template-columns:repeat(2,1fr)}.dashboard,.grid2{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.hero{padding-top:65px}.panel{padding:18px}}
+
+/* Operator challenge: recorded historical predictions, not live model inference. */
+.challenge-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.challenge-box{padding:22px;border:1px solid var(--line);background:linear-gradient(135deg,#15283d,#0d1829);border-radius:14px}
+.challenge-box label{display:block;color:var(--muted);font-size:13px;margin-top:14px}
+.challenge-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.challenge-action{cursor:pointer;background:var(--cyan);color:#052b39;border:0;border-radius:10px;padding:13px 16px;font:inherit;font-weight:750}
+.challenge-action.secondary{background:transparent;color:var(--fg);border:1px solid #9ab0cb}
+.challenge-action:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.challenge-verdict{padding:16px;border:1px solid #59708d;border-radius:10px;min-height:74px;color:var(--fg)}
+.challenge-label{font-size:12px;letter-spacing:.09em;color:var(--muted);text-transform:uppercase}
+@media(max-width:780px){.challenge-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="logo">MUSITU <span>AXIOM</span> / SENTINEL</div><nav class="nav"><a href="#demo">Demo</a><a href="#evidence">Evidence</a><a href="./decision-audit.html">Decision audit</a><a href="./robustness-lab.html">Robustness lab</a><a href="#method">Methodology</a><a href="https://github.com/evansmusitu/musitu-timenet-sentinel">Source ↗</a></nav></div></header>
+<header><div class="wrap"><div class="logo">MUSITU <span>AXIOM</span> / SENTINEL</div><nav class="nav"><a href="#demo">Demo</a><a href="#operator">Operator challenge</a><a href="#evidence">Evidence</a><a href="./decision-audit.html">Decision audit</a><a href="./robustness-lab.html">Robustness lab</a><a href="#method">Methodology</a><a href="https://github.com/evansmusitu/musitu-timenet-sentinel">Source ↗</a></nav></div></header>
 <main class="wrap">
 <section class="hero">
 <span class="pill">TimeNet · OpenTime Hackathon 2026 · Evidence-first project</span>
 <h1>Detect the failure <em>before it happens.</em></h1>
 <p class="lead">MUSITU AXIOM Sentinel explores how multivariate time-series intelligence can turn complex machinery telemetry into explainable maintenance warnings. Our two trained, reproducible models—a classical baseline and a fixed-question temporal Transformer—have been evaluated on 100 held-out NASA simulated turbofan engines.</p>
 <div class="actions">
-<a class="btn" href="#demo">Explore the interactive evidence →</a>
+<a class="btn" href="#demo">Explore the interactive evidence →</a><a class="btn alt" href="#operator">Try an operator decision ↗</a>
 <a class="btn alt" href="https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/TIMENET_ROUND1_JUDGES_GUIDE.md">90-second judges' tour ↗</a>
 <a class="btn alt" href="./decision-audit.html">Full 100-engine decision audit ↗</a>
 <a class="btn alt" href="./robustness-lab.html">Cross-domain robustness lab ↗</a>
@@ -65,6 +77,43 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <div class="label">Ground truth versus model prediction</div><h3>Evidence, not a simulation of accuracy</h3>
 <svg id="scatter" viewBox="0 0 650 420" role="img" aria-label="Scatterplot of actual versus predicted remaining useful life for selected real benchmark engines"></svg>
 <p class="note">Each dot represents a selected official-test engine. Dashed diagonal = perfect forecast. Click a dot to inspect its outcome. Full CSVs for all 100 engines are in the corresponding successful workflow artifacts.</p>
+</div>
+</div>
+</section>
+<section class="section" id="operator" aria-labelledby="operator-heading">
+<h2 id="operator-heading">Take the night shift. Make the maintenance call.</h2>
+<p class="description">A recorded prediction is only useful if an operator can decide what to do with it. Choose a real held-out simulated-engine case and a model, make your inspection decision <strong>before revealing the official outcome</strong>, then see whether the alert was correct. These are deliberately selected examples, not a representative sample or a live monitoring system.</p>
+<div class="challenge-grid">
+<div class="challenge-box">
+<div class="challenge-label">01 / Review recorded telemetry outcome</div>
+<label for="challenge-case">Select a held-out engine</label>
+<select id="challenge-case">
+<option value="41">Engine 041 · model disagreement</option>
+<option value="91">Engine 091 · false-alarm challenge</option>
+<option value="31">Engine 031 · imminent risk</option>
+<option value="1">Engine 001 · long-life reference</option>
+</select>
+<label for="challenge-model">Review which model?</label>
+<select id="challenge-model">
+<option value="temporal">Compact temporal warning head (not OpenTime 5B)</option>
+<option value="baseline">Classical gradient-boosted baseline</option>
+</select>
+<div class="key"><span>Observed engine cycle</span><strong id="challenge-cycle">—</strong></div>
+<div class="key"><span>Estimated remaining life</span><strong id="challenge-prediction">—</strong></div>
+<div class="key"><span>Recorded model alarm</span><strong id="challenge-warning">—</strong></div>
+<p class="note" id="challenge-detail">Frozen predictions made before comparing with held-out truth. The compact classifier threshold was fixed at 0.5.</p>
+<div class="challenge-label">02 / Your human-review decision</div>
+<div class="challenge-actions">
+<button id="challenge-inspect" class="challenge-action" type="button">Request an inspection</button>
+<button id="challenge-monitor" class="challenge-action secondary" type="button">Keep monitoring</button>
+</div>
+</div>
+<div class="challenge-box">
+<div class="challenge-label">03 / Reveal the outcome</div>
+<h3>Did your decision catch a genuine risk?</h3>
+<div class="challenge-verdict" id="challenge-result" role="status" aria-live="polite">Select an action to reveal the official NASA held-out remaining-life label. The truth stays hidden here until you decide.</div>
+<p class="note">A true risk is an engine with ≤30 actual remaining cycles at the recorded endpoint. An unnecessary inspection is a false alarm; monitoring an at-risk engine is a missed warning. Neither choice represents actual preventive maintenance or monetary savings.</p>
+<p class="note">These cases come from the same original model-prediction records shown in the engine selector above. Do not generalize from four handpicked cases; <a href="./decision-audit.html">inspect the full 100-engine decision audit</a> including all misses and false alarms.</p>
 </div>
 </div>
 </section>
@@ -149,5 +198,39 @@ sample.forEach(d=>{const active=d.u===u;const dot=element("circle",{cx:X(d.a),cy
 }
 function update(){const d=sample.find(x=>x.u===Number(select.value));const temporal=modelSelect.value==="temporal";const prediction=temporal?d.t:d.p;document.getElementById("prediction").textContent=prediction.toFixed(2);document.getElementById("cycle").textContent=d.c;document.getElementById("actual").textContent=d.a+" cycles";document.getElementById("error").textContent=Math.abs(d.a-prediction).toFixed(2)+" cycles";const warn=document.getElementById("warning");const flag=temporal?d.r>=.5:d.p<=30;warn.textContent=flag?"⚠ Flagged: ≤30 cycles":"Above warning threshold";warn.className=flag?"badge danger":"badge";chart(d.u)}
 select.addEventListener("change",update);modelSelect.addEventListener("change",update);select.value=41;update();
+
+/* Offline human-decision replay using only already published, recorded sample values. */
+const challengeCase=document.getElementById("challenge-case");
+const challengeModel=document.getElementById("challenge-model");
+const challengeResult=document.getElementById("challenge-result");
+function renderChallenge(){
+  const d=sample.find(item=>item.u===Number(challengeCase.value));
+  if(!d)throw Error("Unknown recorded challenge engine");
+  const compact=challengeModel.value==="temporal";
+  const estimated=compact?d.t:d.p;
+  const alert=compact?d.r>=0.5:d.p<=30;
+  document.getElementById("challenge-cycle").textContent=String(d.c);
+  document.getElementById("challenge-prediction").textContent=estimated.toFixed(2)+" cycles";
+  document.getElementById("challenge-warning").textContent=alert?"WARNING ≤30":"NO WARNING";
+  document.getElementById("challenge-detail").textContent=compact
+    ?"Independent compact QA warning head; binary alert from its recorded risk score at 0.5 threshold, not the separate RUL estimate and not OpenTime 5B."
+    :"Classical baseline alert from its recorded remaining-life estimate at the fixed 30-cycle threshold.";
+  challengeResult.textContent="Make a decision before revealing the official held-out outcome.";
+}
+function chooseAction(action){
+  const d=sample.find(item=>item.u===Number(challengeCase.value));
+  if(!d)return;
+  const risk=d.a<=30;
+  const inspect=action==="inspect";
+  const result=inspect
+    ?(risk?"Correct call: human inspection requested for a genuine ≤30-cycle risk.":"False alarm: inspection requested when actual remaining life exceeds 30 cycles.")
+    :(risk?"Missed warning: you chose to monitor a genuinely at-risk engine.":"Correct call: continued monitoring for an engine above the warning horizon.");
+  challengeResult.textContent=result+" Official remaining life: "+d.a+" cycles. Selected engine "+String(d.u).padStart(3,"0")+". Historical simulated test outcome only.";
+}
+challengeCase.addEventListener("change",renderChallenge);
+challengeModel.addEventListener("change",renderChallenge);
+document.getElementById("challenge-inspect").addEventListener("click",()=>chooseAction("inspect"));
+document.getElementById("challenge-monitor").addEventListener("click",()=>chooseAction("monitor"));
+renderChallenge();
 </script>
 </body></html>
