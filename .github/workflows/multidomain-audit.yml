@@ -1,0 +1,35 @@
+name: Explore FD004 held-out simulated domain-combination generalization
+on:
+  push:
+    branches: [feat/multidomain-rul-20261122]
+    paths:
+      - 'sentinel/multidomain_audit.py'
+      - 'tests/test_multidomain_audit.py'
+      - '.github/workflows/multidomain-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exploratory-combination-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only dependencies
+        run: python -m pip install -r requirements.txt pytest
+      - name: Validate synthetic leave-one-domain-out safeguards
+        run: python -m pytest -q tests/test_multidomain_audit.py
+      - name: Run exploratory FD001/2/3 development training to held-out FD004 official test
+        run: |
+          python -m sentinel.multidomain_audit --download \
+            --data-dir data/raw --output-dir artifacts/multidomain
+      - name: Upload aggregate simulated-domain evidence only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nasa-fd004-exploratory-combination-transfer
+          path: artifacts/multidomain/multidomain_fd004_aggregate.json
+          retention-days: 30
