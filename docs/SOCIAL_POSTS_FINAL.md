@@ -49,7 +49,7 @@ Feedback welcome, especially on harder subsets like FD004.
 
 ## Follow-up post (X and LinkedIn reply or second post): FD004
 
-Harder test: NASA FD004, 6 operating conditions, 2 fault modes, 237 held-out engines.
+Harder test: NASA FD004, 6 operating conditions, 2 fault modes, 237 test engines.
 
 Same OpenTime 5B recipe: F1 0.875 / 0.912 / 0.943 over 3 seeds (mean 0.91). Classical model on the same split: 0.889. Ahead in 2 of 3 seeds.
 
