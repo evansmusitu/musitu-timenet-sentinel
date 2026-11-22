@@ -34,5 +34,19 @@ jobs:
           print("Connector class:",CONNECTOR.__name__)
           print("Channels:",len(COLS)-2)
           PY
+      - name: Build actual NASA FD001 TimeNet dataset using official API
+        run: |
+          uv run --no-sync python - <<'PY'
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+          from timenet_connectors.datasets.musitu.cmapss_fd001.connector import CmapssFd001Connector
+          with TemporaryDirectory() as tmp:
+              connector=CmapssFd001Connector()
+              source=connector.download(Path(tmp))
+              dataset=connector.convert(source)
+              assert dataset is not None
+              print("NASA C-MAPSS FD001 TimeNet dataset conversion: PASS")
+              print("Converted object:",type(dataset).__name__)
+          PY
       - name: Check project source compiles
         run: uv run --no-sync python -m compileall -q packages/timenet-connectors/src/timenet_connectors/datasets/musitu/cmapss_fd001
