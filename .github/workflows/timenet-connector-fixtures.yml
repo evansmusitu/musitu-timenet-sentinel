@@ -1,0 +1,67 @@
+name: TimeNet NASA FD001 synthetic connector acceptance
+
+on:
+  push:
+    branches: [feat/heldout-decision-audit-20261122]
+    paths:
+      - .github/workflows/timenet-connector-fixtures.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-upstream-connector:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out public TimeNet contribution fork
+        uses: actions/checkout@v4
+        with:
+          repository: evansmusitu/TimeNet
+          ref: feat/musitu-cmapss-fd001
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install locked TimeNet runtime environment
+        run: uv sync --locked --all-packages --no-dev
+
+      - name: Add isolated test runner
+        run: uv pip install --python .venv/bin/python 'pytest>=8,<10'
+
+      - name: Synthetic dataset conversion and validation tests
+        run: |
+          uv run --no-sync python -m pytest -q \
+            packages/timenet-connectors/src/timenet_connectors/datasets/musitu/cmapss_fd001/tests
+
+      - name: Verify connector Python compilation
+        run: |
+          uv run --no-sync python -m compileall -q \
+            packages/timenet-connectors/src/timenet_connectors/datasets/musitu/cmapss_fd001
+
+      - name: Convert the real, checksum-verified NASA FD001 dataset via official TimeNet APIs
+        run: |
+          uv run --no-sync python - <<'PY'
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+          from timenet_connectors.datasets.musitu.cmapss_fd001.connector import CmapssFd001Connector
+          with TemporaryDirectory() as tmp:
+              connector = CmapssFd001Connector()
+              source = connector.download(Path(tmp))
+              dataset = connector.convert(source)
+              assert dataset is not None
+              print("NASA FD001 real-source conversion passed:", type(dataset).__name__)
+          PY
+
+      - name: Check TimeNet metadata source stays unchanged
+        run: |
+          uv run --no-sync python - <<'PY'
+          from pathlib import Path
+          p = Path("packages/timenet-connectors/src/timenet_connectors/datasets/musitu/cmapss_fd001/dataset.yaml")
+          txt = p.read_text()
+          assert "license: OTHER" in txt
+          assert "musitu/cmapss-fd001" in txt
+          print("License uncertainty and dataset ID are preserved.")
+          PY
