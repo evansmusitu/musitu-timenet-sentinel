@@ -172,5 +172,39 @@ jobs:
                                 "region:",spec.get("region","unspecified"))
                   print(" GPU quota record names:",", ".join(quota_names[:10]) or "not unambiguously labeled")
               print(" Runtime readiness:", "UNVERIFIED (quota/capacity/price/image/watchdog)")
-          print("Cloud writes: NONE. GPU quota and capacity: NOT verified.")
+          print("Cloud writes: NONE. Per-project GPU quotas are still unverified.")
           PY
+
+          echo "Checking tenant-scoped, quota-clipped capacity advice for 1x RTX PRO 6000..."
+          if nebius capacity resource-advice list --parent-id "$TENANT_ID" --all \
+             --profile musitu-regions --format json > "$tmp/advice.json" 2>/dev/null; then
+             python - "$tmp/advice.json" <<'PY'
+          import json,sys
+          doc=json.load(open(sys.argv[1],encoding="utf-8"))
+          items=doc if isinstance(doc,list) else doc.get("items",[])
+          targets={"eu-south1","uk-south2","us-central1"}
+          n=0
+          for x in items:
+              spec=x.get("spec") or {}
+              cfg=spec.get("compute_instance") or {}
+              preset=cfg.get("preset") or {}
+              resources=preset.get("resources") or {}
+              region=spec.get("region","")
+              platform=cfg.get("platform","")
+              if region not in targets or "rtx6000" not in platform.lower():
+                  continue
+              if int(resources.get("gpu_count",0))!=1:
+                  continue
+              status=x.get("status") or {}
+              data={"region":region,"platform":platform,"preset":preset.get("name",""),
+                    "vram_gb":cfg.get("gpu_memory_gigabytes"),
+                    "on_demand":status.get("on_demand") or {},
+                    "preemptible":status.get("preemptible") or {}}
+              print("CAPACITY_ADVICE:",json.dumps(data,sort_keys=True))
+              n+=1
+          if n==0:
+              print("CAPACITY_ADVICE: no matching RTX one-GPU rows; launch NOT approved.")
+          PY
+          else
+             echo "CAPACITY_ADVICE: tenant query unavailable; launch NOT approved."
+          fi
