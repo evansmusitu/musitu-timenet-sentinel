@@ -34,6 +34,15 @@ def balanced(rows,limit,seed):
     from .opentime_sampling import balanced_engine_diverse
     return balanced_engine_diverse(rows,limit,seed=seed)
 
+def validation_sample(rows, limit, seed, mode):
+    if mode == "balanced":
+        return balanced(rows, limit, seed)
+    if mode == "prevalence_matched":
+        from .opentime_v2_sampler import prevalence_matched_engine_diverse
+        return prevalence_matched_engine_diverse(rows, limit, seed=seed)
+    raise ValueError("Unsupported validation sampling mode")
+
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--revision",required=True,help="Immutable Hugging Face checkpoint commit SHA")
@@ -41,6 +50,8 @@ def main():
     p.add_argument("--train-limit",type=int,default=48)
     p.add_argument("--val-limit",type=int,default=24)
     p.add_argument("--epochs",type=int,default=1)
+    p.add_argument("--validation-sampling", choices=["balanced", "prevalence_matched"],
+                   default="balanced", help="V2 uses prevalence_matched; never select by official test performance")
     args=p.parse_args()
     import re
     import torch
@@ -59,7 +70,12 @@ def main():
     train,test,labels=load_fd001(download_dataset(Path("data/raw")))
     a,b=partitions(train)
     t=balanced(examples(a),args.train_limit,42)
-    v=balanced(examples(b),args.val_limit,43)
+    v=validation_sample(examples(b),args.val_limit,43,args.validation_sampling)
+    from .opentime_sampling import audit_engine_groups
+    cohort=audit_engine_groups(t,v)
+    if len(t)!=args.train_limit or len(v)!=args.val_limit:
+        raise ValueError("Training/validation size shortfall: refuse to launch adaptation")
+
     held=examples(test,official_rul=labels)
     assert len(held)==len(labels)
     u,sha=helper(args.output/"reference_utils.py")
@@ -97,6 +113,9 @@ def main():
         "dataset":"NASA C-MAPSS FD001","train_examples":len(tr),"validation_examples":len(va),
         "train_engine_count":int(a.unit.nunique()),"validation_engine_count":int(b.unit.nunique()),
         "training_sampling_protocol":"balanced-engine-diverse-v1 (after the original 16-example pilot)",
+        "validation_sampling_protocol":args.validation_sampling,
+        "selected_train_class_counts":cohort["train_class_counts"],
+        "selected_validation_class_counts":cohort["validation_class_counts"],
         "selected_train_unique_engines":len({row["unit"] for row in t}),
         "selected_validation_unique_engines":len({row["unit"] for row in v}),
         "before":before,"after":after,"gpu":torch.cuda.get_device_name(0),"torch":torch.__version__,
