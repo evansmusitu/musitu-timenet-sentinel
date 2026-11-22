@@ -29,6 +29,9 @@ jobs:
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Run synthetic longitudinal and existing frozen tests
         run: python -m pytest -q tests/test_longitudinal_replay.py tests/test_sequence_integrity.py
+      - name: Verify offline replay page JavaScript syntax
+        run: |
+          node -e "const fs=require('fs');const html=fs.readFileSync('docs/maintenance-replay.html','utf8');const src=html.match(/<script>([\\s\\S]*?)<\\/script>/);if(!src)throw Error('Missing script');new Function(src[1]);"
       - name: Fetch immutable original compact-model evidence (no training)
         uses: actions/download-artifact@v4
         with:
@@ -56,6 +59,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Refresh the branch before committing: other reviewed doc changes may land
+          # while the CPU replay is running. Never force-push or overwrite them.
+          git fetch origin 'refs/heads/feat/longitudinal-warning-replay-20261122:refs/remotes/origin/feat/longitudinal-warning-replay-20261122'
+          git checkout -B feat/longitudinal-warning-replay-20261122 origin/feat/longitudinal-warning-replay-20261122
           mkdir -p docs/evidence
           cp artifacts/longitudinal/longitudinal_replay.json docs/evidence/longitudinal_replay.json
           git config user.name 'github-actions[bot]'
