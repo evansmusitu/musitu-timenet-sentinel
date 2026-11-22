@@ -1,5 +1,6 @@
 name: MUSITU OpenTime pilot independent cloud timeout monitor
 # Immediate authenticated status recheck for TimeNet Round 1
+# Verification pass: project submission and GPU pilot still monitored
 
 on:
   schedule:
