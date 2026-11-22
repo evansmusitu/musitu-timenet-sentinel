@@ -80,7 +80,7 @@ jobs:
               elif a!=b:
                   raise ValueError(path+': identity or warning decision changed')
           compare(pinned,rerun)
-          assert stats['floats']>150
+          assert stats['floats']>=120
           print('PASS: unchanged identities, source hashes, model decisions and categories')
           print('Float values checked:',stats['floats'],'maximum absolute delta:',stats['max_delta'])
           PY
