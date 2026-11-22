@@ -1,0 +1,83 @@
+name: Recover OpenTime 5B v2 full fine-tune logs (no compute)
+
+on:
+  push:
+    branches: [feat/opentime-full-finetune]
+    paths:
+      - .github/workflows/nebius-opentime-v2-log-recovery.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: musitu-nebius-opentime-v2-log-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover-logs:
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/feat/opentime-full-finetune'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+      KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+      PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+      JOB_ID: aijob-e07zev52b8dwkkyrb6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover final job logs and inspect evidence only
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          set +x
+          umask 077
+          mkdir -p artifacts/nebius-opentime
+          [[ "$SA_ID" == "serviceaccount-e04afk1xvsf8pwvd58" ]] || exit 3
+          [[ "$JOB_ID" == "aijob-e07zev52b8dwkkyrb6" ]] || exit 3
+          [[ -n "$KEY_ID" && -n "$PRIVATE_PEM" ]] || exit 3
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          printf '%s\n' "$PRIVATE_PEM" > "$tmp/private.pem"
+          openssl pkey -in "$tmp/private.pem" -noout 2>/dev/null
+          curl --fail --silent --show-error --location \
+            https://storage.eu-north1.nebius.cloud/cli/install.sh -o "$tmp/install.sh"
+          bash "$tmp/install.sh" >/dev/null
+          if ! command -v nebius >/dev/null 2>&1; then
+            cli="$(find "$HOME" -maxdepth 5 -type f -name nebius -perm -u+x -print -quit 2>/dev/null)"
+            [[ -n "$cli" ]] || exit 5
+            export PATH="$(dirname "$cli"):$PATH"
+          fi
+          nebius profile create --endpoint api.nebius.cloud \
+            --service-account-id "$SA_ID" --public-key-id "$KEY_ID" \
+            --private-key-file "$tmp/private.pem" --profile musitu-recover \
+            --parent-id project-e04p7wefbc00y3c7de0pcn >/dev/null
+          nebius ai job get --id "$JOB_ID" --profile musitu-recover --format json > "$tmp/job.json"
+          python - "$tmp/job.json" <<'PY'
+          import json,sys
+          data=json.load(open(sys.argv[1],encoding="utf-8"))
+          m=data.get("metadata") or {}
+          status=data.get("status") or {}
+          assert m.get("id")=="aijob-e07zev52b8dwkkyrb6"
+          assert m.get("name")=="musitu-opentime-fd001-v2-20261122"
+          print("Verified exact Nebius job:",m["name"])
+          print("Final state:",status.get("state","UNKNOWN"))
+          print("Started:",status.get("started_at","unknown"),"Finished:",status.get("finished_at","unknown"))
+          PY
+          cp "$tmp/job.json" artifacts/nebius-opentime/job-state.json
+          nebius ai job logs "$JOB_ID" --tail 1000 --since 6h \
+            --profile musitu-recover > artifacts/nebius-opentime/job.log
+          echo "Recovered Nebius job log successfully."
+          grep -o 'MUSITU_V2_METRICS .*' artifacts/nebius-opentime/job.log | head -1 | sed 's/^MUSITU_V2_METRICS //' > artifacts/nebius-opentime/metrics.json || true
+          grep -o 'MUSITU_V2_PRED .*' artifacts/nebius-opentime/job.log | sed 's/^MUSITU_V2_PRED //' > artifacts/nebius-opentime/test_predictions.jsonl || true
+          grep -E '"epoch"|best_epoch|train_plan|model_loaded|MUSITU_V2_DONE|MUSITU_V2_JOB_SUCCESS|CUDA|Traceback|Error' artifacts/nebius-opentime/job.log | cut -c1-300 || true
+          python -m json.tool artifacts/nebius-opentime/metrics.json
+          echo "Predictions recovered: $(wc -l < artifacts/nebius-opentime/test_predictions.jsonl)"
+
+      - name: Retain recovered logs even when parsing fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: musitu-opentime-5b-v2-recovered-logs
+          path: artifacts/nebius-opentime/
+          if-no-files-found: warn
+          retention-days: 60
