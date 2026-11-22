@@ -11,6 +11,7 @@ Using the pinned TimeNet workspace lockfile and the public NASA C-MAPSS FD001 so
 3. The **official** `timenet-build build` CLI created **release `musitu/cmapss-fd001@0.1.0`** from real source data.
 4. The resulting local registry contained four release files with **`.duckdb`, `.parquet` and `.json`** extensions.
 5. A second official CLI invocation recognized the existing 0.1.0 release and returned **"Nothing to do"**, demonstrating repeatable release resolution.
+6. A subsequent full-reader round-trip reopened that same release with official `TimeFReader.open()` and `reader.verify()`, checked the stored-file checksums and distinct record identifiers, and verified **970 TRAIN, 264 VALIDATION and 100 TEST tasks**, totaling **1,334 records / tasks**. [Full reader proof](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45044653193). The official test cohort remains 100 engines.
 
 Example reproducible commands, from the exact fork commit and its TimeNet workspace (the command uses an isolated local registry, not a public data upload):
 
