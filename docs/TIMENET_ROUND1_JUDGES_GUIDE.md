@@ -4,6 +4,21 @@
 Project: https://evansmusitu.github.io/musitu-timenet-sentinel/  
 TimeNet connector: https://github.com/OpenTSLM/TimeNet/pull/836 (open for review; **not merged**)
 
+
+## What the trained compact model uses — controlled sequence ablation (new evidence)
+
+A [CPU-only GitHub Actions experiment](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45018569313) reloaded our **pinned independent compact QA model** and first reproduced its original 100-engine predictions from the prior successful run. No retraining, threshold retuning or paid GPU run occurred.
+
+| Recorded-input condition | Warning F1 | Correct risk warnings / 25 | Missed warnings / 25 | Remaining-life MAE |
+|---|---:|---:|---:|---:|
+| Original 30-cycle history | **0.960** | 24 | 1 | 19.04 cycles |
+| Reverse time order | 0.684 | 13 | 12 | 28.00 cycles |
+| Shuffle time (same permutation across channels per engine) | 0.844 | 19 | 6 | 24.10 cycles |
+| Repeat only the last observed values | 0.833 | 20 | 5 | 23.67 cycles |
+| Repeat each channel's mean | 0.387 | 6 | 19 | 37.62 cycles |
+
+This is **evidence of input-sequence sensitivity** on NASA simulated engines. It does **not** validate causal explanations, prove the model is robust to real sensor faults, or refer to the separate organizer OpenTime 5B checkpoint. The ablations are exploratory post-hoc analyses of the held-out set, not fresh independent validation. [Full aggregate metrics and provenance](https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/evidence/frozen_sequence_integrity.json).
+
 ## The 90-second demonstration
 
 **0–15s — The problem.** "Imagine a maintenance analyst looking at a complex machine with 21 sensors and three operating settings. Can we identify an early warning without looking into its future? We use NASA C-MAPSS FD001 simulated engine histories to test that question. This is a research benchmark—not a deployed aviation system."
