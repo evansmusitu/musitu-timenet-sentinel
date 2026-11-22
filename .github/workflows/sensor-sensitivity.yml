@@ -1,0 +1,51 @@
+name: Frozen sensor-channel sensitivity (CPU evidence only)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'sentinel/sensor_sensitivity.py'
+      - 'tests/test_sensor_sensitivity.py'
+      - '.github/workflows/sensor-sensitivity.yml'
+  push:
+    paths:
+      - 'sentinel/sensor_sensitivity.py'
+      - 'tests/test_sensor_sensitivity.py'
+      - '.github/workflows/sensor-sensitivity.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-sensitivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies for original compact CPU checkpoint
+        run: |
+          python -m pip install -r requirements.txt pytest
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify perturbation invariants and frozen-model test contracts
+        run: python -m pytest -q tests/test_sensor_sensitivity.py tests/test_sequence_integrity.py tests/test_longitudinal_replay.py
+      - name: Fetch immutable original November 20 compact checkpoint and prediction file
+        uses: actions/download-artifact@v4
+        with:
+          name: sentinel-temporal-qa-model-and-results
+          run-id: 44819987425
+          github-token: ${{ github.token }}
+          path: artifacts/frozen_compact
+      - name: Reproduce held-out predictions, then compute mean-replacement sensitivity
+        run: |
+          python -m sentinel.sensor_sensitivity --download \
+            --artifact-dir artifacts/frozen_compact \
+            --replay-report docs/evidence/longitudinal_replay.json \
+            --output artifacts/sensor_sensitivity.json
+      - name: Upload audited aggregate and previously documented six cases
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: musitu-frozen-channel-sensitivity
+          path: artifacts/sensor_sensitivity.json
+          retention-days: 30
