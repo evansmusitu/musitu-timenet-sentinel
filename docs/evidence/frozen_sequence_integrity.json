@@ -1,0 +1,25 @@
+{
+  "experiment": "Frozen compact temporal model, sensor time-order ablations",
+  "not_opentime_5b": true,
+  "benchmark": "NASA C-MAPSS FD001 simulated, 100 final test endpoints",
+  "threshold_cycles": 30,
+  "warning_probability_threshold": 0.5,
+  "model_checkpoint_sha256": "6f085be7015a48d48d6c1fed28dae9e888ee19dec495fcba085f375edbc6847c",
+  "original_predictions_sha256": "bbc89e6a15a5fca61165466808202d0a5924aa55218660b8c581ed6022f890ec",
+  "seed": 20261122,
+  "conditions": {
+    "original": {"n": 100, "tp": 24, "fp": 1, "fn": 1, "tn": 74, "warning_precision": 0.96, "warning_recall": 0.96, "warning_f1": 0.96, "rul_mae_cycles": 19.04361652851105, "warning_probability_brier_score": 0.022930532837259834, "delta_warning_f1_from_original": 0.0, "delta_rul_mae_from_original_cycles": 0.0},
+    "reverse_time": {"n": 100, "tp": 13, "fp": 0, "fn": 12, "tn": 75, "warning_precision": 1.0, "warning_recall": 0.52, "warning_f1": 0.6842105263157895, "rul_mae_cycles": 27.995883226394653, "warning_probability_brier_score": 0.09875617327226152, "delta_warning_f1_from_original": -0.2757894736842105, "delta_rul_mae_from_original_cycles": 8.952266697883605},
+    "shuffle_time": {"n": 100, "tp": 19, "fp": 1, "fn": 6, "tn": 74, "warning_precision": 0.95, "warning_recall": 0.76, "warning_f1": 0.8444444444444444, "rul_mae_cycles": 24.09915428161621, "warning_probability_brier_score": 0.060774753465686296, "delta_warning_f1_from_original": -0.11555555555555552, "delta_rul_mae_from_original_cycles": 5.055537753105163},
+    "last_value_only": {"n": 100, "tp": 20, "fp": 3, "fn": 5, "tn": 72, "warning_precision": 0.8695652173913043, "warning_recall": 0.8, "warning_f1": 0.8333333333333334, "rul_mae_cycles": 23.671898913383483, "warning_probability_brier_score": 0.0700929319172446, "delta_warning_f1_from_original": -0.1266666666666666, "delta_rul_mae_from_original_cycles": 4.628282384872435},
+    "mean_value_only": {"n": 100, "tp": 6, "fp": 0, "fn": 19, "tn": 75, "warning_precision": 1.0, "warning_recall": 0.24, "warning_f1": 0.3870967741935484, "rul_mae_cycles": 37.622294445037845, "warning_probability_brier_score": 0.17352878491666954, "delta_warning_f1_from_original": -0.5729032258064516, "delta_rul_mae_from_original_cycles": 18.578677916526797}
+  },
+  "notes": [
+    "Exploratory post-hoc ablations; no retraining, calibration or threshold tuning.",
+    "Reference FD001 model predictions must reproduce before any perturbation is scored.",
+    "Time-order manipulations preserve each sensor channel's values; shuffle uses a shared time permutation across channels per engine.",
+    "Ablation score changes indicate sensitivity, not verified natural-language explanation or causality.",
+    "Model is an independently trained compact architecture; NOT the organizer's OpenTime 5B checkpoint.",
+    "No per-engine NASA observations or labels are published in this aggregate JSON."
+  ]
+}

@@ -1,0 +1,94 @@
+name: TimeNet FD001 full builder acceptance (actual CLI)
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/timenet-full-connector-build-20261122, main]
+    paths:
+      - .github/workflows/timenet-full-build.yml
+  pull_request:
+    paths:
+      - .github/workflows/timenet-full-build.yml
+
+permissions:
+  contents: read
+jobs:
+  build-through-actual-timenet-cli:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact submitted TimeNet connector fork
+        uses: actions/checkout@v4
+        with:
+          repository: evansmusitu/TimeNet
+          ref: 2eb9b5aea729d538e760e7601d863c8942bc4c6b
+          persist-credentials: false
+      - name: Set up locked Python and uv
+        uses: astral-sh/setup-uv@v6
+      - name: Install official TimeNet workspace without dependencies outside lock
+        run: uv sync --locked --all-packages --no-dev
+      - name: Install test runner only
+        run: uv pip install --python .venv/bin/python 'pytest>=8,<10'
+      - name: Verify expected connector source revision and license uncertainty
+        run: |
+          test "$(git rev-parse HEAD)" = "2eb9b5aea729d538e760e7601d863c8942bc4c6b"
+          uv run --no-sync python - <<'PY'
+          from timenet_connectors.discovery import known_ids
+          from pathlib import Path
+          assert "musitu/cmapss-fd001" in known_ids()
+          card=Path("packages/timenet-connectors/src/timenet_connectors/datasets/musitu/cmapss_fd001/dataset.yaml").read_text()
+          assert "license: OTHER" in card, "Do not invent dataset licensing"
+          print("Pinned submitted source and dataset metadata validated")
+          PY
+      - name: Run 11 standalone synthetic connector regression tests
+        run: |
+          uv run --no-sync python -m pytest -q \
+            packages/timenet-connectors/src/timenet_connectors/datasets/musitu/cmapss_fd001/tests
+      - name: Build the real checksum-verified NASA data through TimeNet official CLI
+        env:
+          REGISTRY: ${{ runner.temp }}/musitu-full-build-registry
+        run: |
+          set -euo pipefail
+          uv run --no-sync timenet-build build musitu/cmapss-fd001 \
+            --no-isolation --local-registry "$REGISTRY"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          registry=Path(os.environ["REGISTRY"])
+          items=[p for p in registry.rglob("*") if p.is_file()]
+          if not items:
+              raise SystemExit("FAILED: no real dataset release files written to registry")
+          print("PASS: full TimeNet dataset release files written", len(items))
+          print("Extensions:",sorted({p.suffix for p in items}))
+          PY
+      - name: Verify full release is readable and train/validation/test tasks survive serialization
+        env:
+          REGISTRY: ${{ runner.temp }}/musitu-full-build-registry
+        run: |
+          uv run --no-sync python - <<'PY'
+          from pathlib import Path
+          import os
+          from timenet.reader import TimeFReader
+          from timenet.types import Split
+          path=Path(os.environ["REGISTRY"])/"musitu"/"cmapss-fd001"/"0.1.0"
+          assert path.is_dir(), "Missing real release directory"
+          with TimeFReader.open(path) as reader:
+              reader.verify()
+              ids=reader.record_ids()
+              counts={}
+              for split in (Split.TRAIN, Split.VALIDATION, Split.TEST):
+                  counts[str(split)]=len(reader.read_tasks(split=split))
+              assert len(ids)==len(set(ids)), "Duplicated records in full release"
+              assert sum(counts.values())==len(ids), "Record/task mismatch after roundtrip"
+              assert all(n>0 for n in counts.values()), "Empty split after release serialization"
+              assert len(reader.read_tasks(split=Split.TEST))==100, "Official NASA test cohort not 100 engines"
+              print("PASS: TimeNet reader verified hashes, distinct records and all split task counts")
+              print("Full release train/validation/test counts:",counts)
+              print("Total original TimeNet records:",len(ids))
+          PY
+      - name: Prove completed build is reusable from the same official CLI
+        env:
+          REGISTRY: ${{ runner.temp }}/musitu-full-build-registry
+        run: |
+          uv run --no-sync timenet-build build musitu/cmapss-fd001 \
+            --no-isolation --local-registry "$REGISTRY"
+          echo 'PASS: built release can be resolved a second time by the official CLI'

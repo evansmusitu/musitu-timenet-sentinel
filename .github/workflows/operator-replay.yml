@@ -1,0 +1,25 @@
+name: Verify recorded operator decision replay
+on:
+  push:
+    paths:
+      - 'docs/index.html'
+      - 'tests/test_operator_replay.cjs'
+      - '.github/workflows/operator-replay.yml'
+  pull_request:
+    paths:
+      - 'docs/index.html'
+      - 'tests/test_operator_replay.cjs'
+      - '.github/workflows/operator-replay.yml'
+permissions:
+  contents: read
+jobs:
+  test-recorded-challenge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exercise actual page JavaScript with recorded engine outcomes
+        run: node tests/test_operator_replay.cjs

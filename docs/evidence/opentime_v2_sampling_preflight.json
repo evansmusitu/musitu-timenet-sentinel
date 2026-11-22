@@ -1,0 +1,27 @@
+{
+  "dataset": "NASA C-MAPSS FD001 development engines only",
+  "training_sampler": "balanced-engine-diverse-v1",
+  "seed": 42,
+  "requested_train_limit": 256,
+  "requested_validation_limit": 64,
+  "available": {
+    "train_unique_engines": 80,
+    "validation_unique_engines": 20,
+    "train_windows": 988,
+    "validation_windows": 246,
+    "train_class_counts": {"No": 818, "Yes": 170},
+    "validation_class_counts": {"No": 204, "Yes": 42}
+  },
+  "selected": {
+    "train_unique_engines": 80,
+    "validation_unique_engines": 20,
+    "train_windows": 256,
+    "validation_windows": 64,
+    "train_class_counts": {"No": 128, "Yes": 128},
+    "validation_class_counts": {"Yes": 32, "No": 32}
+  },
+  "heldout_evaluation_performed": false,
+  "checkpoint_loaded": false,
+  "gpu_or_paid_compute_used": false,
+  "note": "Planning only, no trained 5B performance. A future GPU run must be separately authorized and evaluated without selecting on the official test set."
+}

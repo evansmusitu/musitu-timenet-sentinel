@@ -1,0 +1,60 @@
+{
+  "study": "Same-window FD001 longitudinal warning comparison",
+  "dataset": "100 NASA simulated held-out engines, 2163 five-cycle-sampled windows",
+  "compact_model": "Original independent compact temporal QA warning head (NOT OpenTime 5B)",
+  "classical_model": "Original HistGradientBoostingRegressor reproduced from development engines only",
+  "baseline_original_100_endpoints_reproduced": true,
+  "compact_original_100_endpoints_reproduced_by_source_run": true,
+  "same_windows_and_labels": true,
+  "thresholds": "Compact p>=0.5; classical predicted RUL<=30; no test tuning",
+  "compact": {
+    "window_confusion": {
+      "tp": 74,
+      "fp": 11,
+      "fn": 14,
+      "tn": 2064
+    },
+    "window_warning_f1": 0.8554913294797688,
+    "window_rul_mae": 29.600635224120573,
+    "engines": {
+      "total": 100,
+      "eligible": 25,
+      "detected": 24,
+      "premature_alert": 8,
+      "never_observed_within_horizon": 75
+    }
+  },
+  "classical": {
+    "window_confusion": {
+      "tp": 61,
+      "fp": 8,
+      "fn": 27,
+      "tn": 2067
+    },
+    "window_warning_f1": 0.7770700636942676,
+    "window_rul_mae": 31.93040768302653,
+    "engines": {
+      "total": 100,
+      "eligible": 25,
+      "detected": 21,
+      "premature_alert": 5,
+      "never_observed_within_horizon": 75
+    }
+  },
+  "paired_engine_differences": {
+    "compact_only_risk_detection": 4,
+    "baseline_only_risk_detection": 1,
+    "both_detect_risk": 20,
+    "neither_detect_risk": 0,
+    "compact_only_premature_alert": 4,
+    "baseline_only_premature_alert": 1
+  },
+  "original_baseline_predictions_sha256": "eb6ba0cbc4007ea32c8da1ce27b8e4818ae3a53f217129975aa9c638bf5cccd3",
+  "original_compact_replay_predictions_sha256": "5c861bb149562571d3fefe72541ab38355596816184816c8a8b72c88d944114d",
+  "limitations": [
+    "Correlated windows are not 2163 independent engines.",
+    "75 test engines lack observations inside the final 30-cycle risk horizon.",
+    "Both evaluated models are independent CPU models, NOT the organizer OpenTime 5B.",
+    "Retrospective simulated FD001 histories, not real maintenance savings or safety validation."
+  ]
+}

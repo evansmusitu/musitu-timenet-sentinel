@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Evidence-linked sensor sensitivity for real frozen Sentinel model predictions, with honest limits on noncausal explanations.">
+<title>What Changed the Warning? · MUSITU Sentinel</title>
+<style>
+:root{color-scheme:dark;--bg:#07111f;--ink:#edf8ff;--muted:#acc2d7;--card:#102439;--line:#2e4f67;--mint:#69e4ce;--amber:#f3bf79}
+*{box-sizing:border-box}body{font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:radial-gradient(ellipse at 78% 0%,#1b465c,#07111f 68%);margin:0}
+main,.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+header{border-bottom:1px solid var(--line);padding:17px 0}header .wrap{display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{font-weight:850;letter-spacing:.1em;font-size:14px}.brand b{color:var(--mint)}
+nav{display:flex;gap:16px;flex-wrap:wrap;font-size:14px}a{color:#94ddff}
+h1{font-size:clamp(35px,6vw,65px);line-height:1.03;letter-spacing:-.05em;max-width:930px;margin:17px 0}
+h1 em{color:var(--mint);font-style:normal}
+.lead{font-size:clamp(16px,2vw,20px);color:#c4d8e8;max-width:900px}
+.overline{font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}
+section{margin-bottom:32px}.hero{padding:52px 0 12px}
+.card{background:linear-gradient(135deg,#142e45,#0c1c2e);border:1px solid var(--line);border-radius:15px;padding:22px}
+.grid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:15px}.duo{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+label{display:block;font-size:13px;color:var(--muted)}select{display:block;width:100%;background:#19364f;color:var(--ink);border:1px solid #4c718a;border-radius:10px;padding:12px;margin:12px 0 22px;font:inherit}
+select:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
+.key{display:flex;gap:12px;align-items:baseline;justify-content:space-between;border-bottom:1px solid #304960;padding:10px 0}.key span{color:var(--muted);font-size:13px}.key b{font-variant-numeric:tabular-nums;text-align:right}
+.pill{display:inline-block;font-weight:800;padding:7px 12px;border:1px solid #47716d;border-radius:24px;color:#a7ffe8;background:#1e393c;margin-top:16px}
+button{cursor:pointer;font:inherit;border:0;border-radius:10px;padding:11px 15px;background:var(--mint);color:#062831;font-weight:800;margin-top:12px}
+.reveal{font-size:14px;border:1px solid #446b7e;border-radius:10px;background:#123041;padding:13px;margin-top:13px;min-height:55px}
+#features{display:grid;gap:15px;margin-top:15px}.feature{padding:2px 0}.feature .name{display:flex;gap:8px;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:7px}
+.feature .name b{font-variant-numeric:tabular-nums}.track{height:11px;background:#243b4f;border-radius:8px;overflow:hidden}.fill{height:100%;background:var(--mint);border-radius:8px}.fill.negative{background:var(--amber)}
+.explain{font-size:14px;color:#bdd1df;margin:12px 0 0}
+.legend{display:flex;gap:15px;flex-wrap:wrap;color:var(--muted);font-size:13px}.legend i{display:inline-block;width:9px;height:9px;background:var(--mint);border-radius:3px;margin-right:5px}.legend .amber i{background:var(--amber)}
+.alert{border-left:3px solid var(--amber);padding:14px 18px;background:#272a29;color:#fae3bd;border-radius:8px;margin:20px 0;font-size:14px}
+h2{font-size:clamp(22px,3vw,33px);line-height:1.2;letter-spacing:-.03em}ul{padding-left:22px}li{margin:8px 0}
+footer{padding:23px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+@media(max-width:810px){.grid,.duo{grid-template-columns:1fr}.hero{padding-top:38px}.card{padding:18px}}
+</style></head>
+<body>
+<header><div class="wrap"><div class="brand">MUSITU <b>AXIOM</b> · SENTINEL</div><nav><a href="./">Main demo</a><a href="maintenance-replay.html">Maintenance replay</a><a href="decision-audit.html">100-engine audit</a><a href="https://github.com/OpenTSLM/TimeNet/pull/836">TimeNet PR #836</a></nav></div></header>
+<main>
+<section class="hero">
+<div class="overline">FROZEN MODEL · RECORDED PREDICTIONS · 24 CHANNELS · NO GENERATED DIAGNOSES</div>
+<h1>Which signals <em>change a warning?</em></h1>
+<p class="lead">When Sentinel issues a maintenance warning, which input channels actually influence its score? We reran the same frozen model with one 30-cycle sensor or operating-setting channel replaced by its <strong>training-set mean</strong>, then measured the change in predicted risk. Below are recorded outcomes and reproducible, <em>noncausal</em> perturbation results.</p>
+<div class="alert"><b>What this does NOT prove:</b> Changing a model input is not repairing a turbine or engine. Training-mean replacement can create physically unrealistic sensor combinations. A large score change is evidence of model sensitivity—not proof of a mechanical cause, safety readiness, or a trustworthy natural-language fault diagnosis.</div>
+</section>
+<section>
+<div class="grid">
+<div class="card">
+<div class="overline">Recorded operator case</div>
+<label for="case">Choose an actual observed engine/cycle</label>
+<select id="case"><option>Loading verified model evidence…</option></select>
+<div class="key"><span>Observed cycle</span><b id="cycle">—</b></div>
+<div class="key"><span>Predicted remaining life</span><b id="pred">—</b></div>
+<div class="key"><span>Warning probability</span><b id="risk">—</b></div>
+<div id="decision" class="pill">Waiting for original predictions</div>
+<button id="reveal" disabled>Reveal held-out result</button>
+<div class="reveal" id="outcome" aria-live="polite">The official outcome is hidden until you reveal it.</div>
+<p class="explain">The case was selected deterministically from an existing longitudinal replay, including real misses and premature alarms. No imagined sensor faults or generated textual diagnoses appear.</p>
+</div>
+<div class="card">
+<div class="overline">Five most sensitive input channels for this observation</div>
+<h2 id="case-title">Model input perturbations</h2>
+<p class="explain">Each bar measures the <b>absolute change in predicted warning probability</b> when that one channel's 30-cycle history is replaced with its training mean. Values show signed percentage points.</p>
+<div id="features" aria-live="polite">Loading measured channel effects…</div>
+<div class="legend"><span><i></i>Replacing channel lowers warning risk</span><span class="amber"><i></i>Replacing channel raises warning risk</span></div>
+<p class="explain" id="interpretation"></p>
+</div>
+</div>
+</section>
+<section class="duo">
+<div class="card">
+<div class="overline">100 official held-out endpoints</div>
+<h2>Across the test engines</h2>
+<p class="explain">These are the five highest average absolute warning-probability changes across 100 frozen endpoint predictions. Rankings do <b>not</b> identify physical causes of engine degradation.</p>
+<div id="global">Loading channel audit…</div>
+<p class="explain">All 24 scored channels and decision-flip counts are available in the JSON evidence, including sensors with little apparent effect.</p>
+</div>
+<div class="card">
+<div class="overline">Provenance & limitations</div>
+<h2>Model evidence, not storytelling</h2>
+<ul>
+<li><strong>Frozen reconstruction:</strong> the checkpoint and original 100 official endpoint predictions reproduce before any perturbation is scored.</li>
+<li><strong>Selected examples:</strong> six previously recorded real cases must reproduce at their exact cycle and score before their sensitivities are included.</li>
+<li><strong>Counterfactual input:</strong> only one channel changes; the model is not retrained and the original threshold remains 0.5.</li>
+<li><strong>OpenTime distinction:</strong> this independent compact temporal model is <strong>not</strong> the organizer's genuine OpenTime 5B model.</li>
+</ul>
+<p><a href="evidence/sensor_sensitivity.json">Complete aggregate and six case records</a> · <a href="https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/sentinel/sensor_sensitivity.py">Source code</a> · <a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions">Reproducible GitHub Actions</a></p>
+</div>
+</section>
+</main><footer><div class="wrap">MUSITU AXIOM Sentinel · NASA FD001 simulated research · Noncausal sensor sensitivity · No operational aircraft maintenance guidance.</div></footer>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const names={caught_risk:"Correct risk warning",missed_risk:"Missed risk",premature_alert:"Premature alarm",clean_monitoring:"Correct monitoring"};
+let study=null,selected=0,revealed=false;
+function featureRow(item,scale,global){
+ const row=document.createElement("div");row.className="feature";
+ const header=document.createElement("div");header.className="name";
+ const label=document.createElement("span");label.textContent=item.channel;
+ const value=document.createElement("b");
+ const change=global?item.mean_absolute_probability_change_percentage_points:item.risk_change_percentage_points;
+ value.textContent=(global?"":change>=0?"+":"")+change.toFixed(2)+" pp";
+ header.append(label,value);
+ const track=document.createElement("div");track.className="track";
+ const fill=document.createElement("div");fill.className="fill"+(!global&&change<0?" negative":"");
+ fill.style.width=Math.min(100,100*Math.abs(change)/(scale||1)).toFixed(1)+"%";
+ track.append(fill);row.append(header,track);
+ return row;
+}
+function refresh(){
+ if(!study)return;
+ const c=study.recorded_cases[selected];revealed=false;
+ $("cycle").textContent=c.cycle+" cycles";
+ $("pred").textContent=c.model_rul_prediction_cycles.toFixed(2)+" cycles";
+ $("risk").textContent=(c.model_warning_probability_before*100).toFixed(1)+"%";
+ $("decision").textContent=c.model_warning_probability_before>=.5?"Model recommends inspection":"Model recommends monitoring";
+ $("reveal").disabled=false;
+ $("outcome").textContent="Actual remaining life remains hidden until you reveal it.";
+ $("case-title").textContent="Engine "+String(c.engine_id).padStart(3,"0")+", cycle "+c.cycle;
+ const parent=$("features");parent.replaceChildren();
+ const biggest=Math.max(...c.most_sensitive_channels.map(x=>Math.abs(x.risk_change_percentage_points)),.01);
+ c.most_sensitive_channels.forEach(x=>parent.append(featureRow(x,biggest,false)));
+ const top=c.most_sensitive_channels[0];
+ if(top){
+  const verb=top.risk_change_percentage_points>=0?"lowers":"raises";
+  $("interpretation").textContent="In this recorded model evaluation, replacing "+top.channel+" with its training mean "+verb+" the warning probability by "+Math.abs(top.risk_change_percentage_points).toFixed(2)+" percentage points. This is model sensitivity, not a verified physical cause.";
+ }
+}
+$("case").addEventListener("change",e=>{selected=Number(e.target.value);refresh();});
+$("reveal").addEventListener("click",()=>{
+ if(!study||revealed)return;revealed=true;$("reveal").disabled=true;
+ const c=study.recorded_cases[selected],risk=c.actual_rul_cycles_revealed_after_benchmark<=30,flag=c.model_warning_probability_before>=.5;
+ $("outcome").textContent="Official remaining life: "+c.actual_rul_cycles_revealed_after_benchmark+" cycles. "+(names[c.category]||c.category)+". The recorded warning decision was "+(risk===flag?"correct":"incorrect")+" at this observation.";
+});
+fetch("evidence/sensor_sensitivity.json",{cache:"no-store"})
+.then(r=>{if(!r.ok)throw Error("Evidence unavailable");return r.json();})
+.then(data=>{
+ if(data.not_opentime_5b!==true||data.frozen_endpoint_predictions_reproduced!==true||data.recorded_case_predictions_reproduced!==true||data.heldout_engines_scored!==100||data.channels.length!==24||data.recorded_cases.length<4)throw Error("Evidence integrity check failed");
+ study=data;$("case").replaceChildren();
+ data.recorded_cases.forEach((c,i)=>{const option=document.createElement("option");option.value=String(i);option.textContent="Engine "+String(c.engine_id).padStart(3,"0")+" · cycle "+c.cycle;$("case").append(option);});
+ const parent=$("global");parent.replaceChildren();
+ const max=Math.max(...data.channels.map(c=>c.mean_absolute_probability_change_percentage_points),.01);
+ data.channels.slice(0,5).forEach(c=>parent.append(featureRow(c,max,true)));
+ refresh();
+})
+.catch(err=>{
+ $("case").replaceChildren();const option=document.createElement("option");option.textContent="Verified evidence unavailable";$("case").append(option);
+ $("features").textContent="The model experiment must complete before this page can display sensor sensitivity.";
+ $("global").textContent=String(err.message);
+});
+</script>
+</body></html>

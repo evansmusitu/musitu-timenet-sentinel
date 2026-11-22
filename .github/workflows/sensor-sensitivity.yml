@@ -1,0 +1,107 @@
+name: Frozen sensor-channel sensitivity (CPU evidence only)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'sentinel/sensor_sensitivity.py'
+      - 'tests/test_sensor_sensitivity.py'
+      - 'tests/test_sensor_sensitivity_evidence.py'
+      - 'docs/sensor-sensitivity.html'
+      - 'docs/evidence/sensor_sensitivity.json'
+      - '.github/workflows/sensor-sensitivity.yml'
+  push:
+    paths:
+      - 'sentinel/sensor_sensitivity.py'
+      - 'tests/test_sensor_sensitivity.py'
+      - 'tests/test_sensor_sensitivity_evidence.py'
+      - 'docs/sensor-sensitivity.html'
+      - 'docs/evidence/sensor_sensitivity.json'
+      - '.github/workflows/sensor-sensitivity.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-sensitivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU dependencies for frozen compact checkpoint
+        run: |
+          python -m pip install -r requirements.txt pytest
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify perturbation invariants and original model contracts
+        run: python -m pytest -q tests/test_sensor_sensitivity.py tests/test_sensor_sensitivity_evidence.py tests/test_sequence_integrity.py tests/test_longitudinal_replay.py
+      - name: Fetch immutable original November 20 compact checkpoint and predictions
+        uses: actions/download-artifact@v4
+        with:
+          name: sentinel-temporal-qa-model-and-results
+          run-id: 44819987425
+          github-token: ${{ github.token }}
+          path: artifacts/frozen_compact
+      - name: Reproduce held-out predictions then compute channel sensitivity
+        run: |
+          python -m sentinel.sensor_sensitivity --download \
+            --artifact-dir artifacts/frozen_compact \
+            --replay-report docs/evidence/longitudinal_replay.json \
+            --output artifacts/sensor_sensitivity.json
+      - name: Validate published results against fresh rerun with strict tolerance
+        run: |
+          python - <<'PY'
+          import json, math
+          from pathlib import Path
+          pinned=json.loads(Path('docs/evidence/sensor_sensitivity.json').read_text())
+          rerun=json.loads(Path('artifacts/sensor_sensitivity.json').read_text())
+          stats={'max_delta':0.0,'floats':0}
+          def compare(a,b,path="root"):
+              if type(a) is not type(b):
+                  raise ValueError(path+': type mismatch')
+              if isinstance(a,dict):
+                  if a.keys()!=b.keys():
+                      raise ValueError(path+': fields mismatch')
+                  for key in a:
+                      compare(a[key],b[key],path+'.'+key)
+              elif isinstance(a,list):
+                  if len(a)!=len(b):
+                      raise ValueError(path+': length mismatch')
+                  for i,(x,y) in enumerate(zip(a,b)):
+                      compare(x,y,path+'['+str(i)+']')
+              elif isinstance(a,float):
+                  if not (math.isfinite(a) and math.isfinite(b)):
+                      raise ValueError(path+': nonfinite result')
+                  delta=abs(a-b)
+                  stats['max_delta']=max(stats['max_delta'],delta)
+                  stats['floats']+=1
+                  if delta>0.0001:
+                      raise ValueError(path+': numeric drift exceeds 0.0001')
+              elif a!=b:
+                  raise ValueError(path+': identity or warning decision changed')
+          compare(pinned,rerun)
+          assert stats['floats']>=120
+          print('PASS: unchanged identities, source hashes, model decisions and categories')
+          print('Float values checked:',stats['floats'],'maximum absolute delta:',stats['max_delta'])
+          PY
+          sha256sum docs/evidence/sensor_sensitivity.json
+      - name: Parse browser script and verify case evidence shape
+        run: |
+          node - <<'JS'
+          const fs=require('fs'),vm=require('vm'),assert=require('assert');
+          const html=fs.readFileSync('docs/sensor-sensitivity.html','utf8');
+          const a=html.indexOf('<script>'),b=html.indexOf('</script>',a);
+          assert(a>=0&&b>a,'Missing inline browser source');
+          new vm.Script(html.slice(a+8,b),{filename:'docs/sensor-sensitivity.html'});
+          const report=JSON.parse(fs.readFileSync('docs/evidence/sensor_sensitivity.json'));
+          assert(report.frozen_endpoint_predictions_reproduced&&report.recorded_case_predictions_reproduced);
+          assert.equal(report.channels.length,24);assert.equal(report.recorded_cases.length,6);
+          console.log('PASS: browser source and six verified cases');
+          JS
+      - name: Upload CPU-only proof
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: musitu-frozen-channel-sensitivity
+          path: artifacts/sensor_sensitivity.json
+          retention-days: 30
