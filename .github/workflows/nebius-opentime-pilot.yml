@@ -120,7 +120,7 @@ jobs:
           PY
           SUBNET_ID="$(cat "$tmp/subnet")"
           # Fail closed if the fixed pilot job name exists from any earlier attempt.
-          nebius ai job list --parent-id "$PROJECT_ID" --all --profile musitu-pilot --format json > "$tmp/jobs.json"
+          nebius ai job list --parent-id "$PROJECT_ID" --profile musitu-pilot --format json > "$tmp/jobs.json"
           python - "$tmp/jobs.json" <<'PY'
           import json,sys
           d=json.load(open(sys.argv[1],encoding="utf-8"))
