@@ -99,7 +99,7 @@ jobs:
               if p.name in {".env","credentials.json","service-account.json"}:
                   raise SystemExit(f"Refusing to package credential file: {p}")
               data=p.read_bytes()
-              if b"-----BEGIN PRIVATE KEY-----" in data or b"-----BEGIN RSA PRIVATE KEY-----" in data:
+              if b"-----BEGIN " + b"PRIVATE KEY-----" in data or b"-----BEGIN RSA " + b"PRIVATE KEY-----" in data:
                   raise SystemExit(f"Refusing to package private key in file: {p}")
           version=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
           files={}
