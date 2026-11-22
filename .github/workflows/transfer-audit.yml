@@ -1,0 +1,36 @@
+name: NASA C-MAPSS frozen FD001 cross-cohort generalization audit
+
+on:
+  push:
+    branches: [feat/fault-mode-transfer-20261122]
+    paths:
+      - 'sentinel/transfer_audit.py'
+      - 'tests/test_transfer_audit.py'
+      - '.github/workflows/transfer-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-transfer-cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only dependencies and test runner
+        run: python -m pip install -r requirements.txt pytest
+      - name: Check all repository Python tests
+        run: python -m pytest -q
+      - name: Evaluate FD001-frozen model across four official NASA test cohorts
+        run: python -m sentinel.transfer_audit --download --data-dir data/raw --output-dir artifacts/transfer
+      - name: Publish only aggregate transfer evidence, never NASA rows or trained model weights
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: nasa-cmapss-frozen-fd001-transfer-aggregate
+          path: artifacts/transfer/cross_cohort_transfer.json
+          retention-days: 30
