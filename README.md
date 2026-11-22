@@ -12,13 +12,14 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 - **Completed organizer OpenTime 5B pilot:** [Verified model metrics and limitations](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md) · [successful Nebius run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462) · [recovered job logs](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44984604004).
 - **Real-time GPU capacity:** [Nebius RTX 6000 96 GiB quota-clipped availability](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44982965639).
 - **Independent cloud safety monitor:** [Read-only verification](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983644358) and time-limited native Nebius Job configuration.
-- **Official submission form:** https://tally.so/r/J1qbyK (deadline November 22, 2026, 11:59 PM PST). Social URLs and form confirmation still pending.
+- **Round 1 entry:** the team owner reports that the official [Tally project form](https://tally.so/r/J1qbyK) was submitted November 22, 2026. An independent organizer receipt has not been verified. Do not submit a duplicate entry.
 
 ## Live evidence
 
 - **Interactive demonstration:** https://evansmusitu.github.io/musitu-timenet-sentinel/
 - **Successful official NASA FD001 CPU benchmark:** https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482
 - **Download artifact:** open that run's Artifacts section and download `nasa-cmapss-results`.
+- **Decision-grade audit of both original 100-engine CSVs:** baseline TP20/FP0/FN5/TN75 versus separate compact temporal head TP24/FP1/FN1/TN74. The compact head caught four additional at-risk simulated engines with one additional false alarm. [Interactive dashboard](https://evansmusitu.github.io/musitu-timenet-sentinel/decision-audit.html) · [reproducible aggregate evidence](docs/evidence/heldout_decision_audit.json). Paired 95% bootstrap confidence intervals cross zero; superiority is not proven.
 - **Official test on 100 unseen engines:** 19.4025-cycle RUL MAE; 27.2319-cycle RMSE; 30-cycle warning F1 0.8889, precision 1.0, recall 0.8.
 - **Separate experimental fixed-prompt temporal QA Transformer:** source `sentinel/temporal_qa.py`, workflow `.github/workflows/temporal.yml`. The 12-epoch training run completed successfully: 19.0436-cycle RUL MAE, 26.4463-cycle RMSE, and F1 0.960 from its trained 30-cycle warning head on 100 official test engines. [Check training and model artifact](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819987425). This is **not** OpenTime's 5B model or a general-purpose TSLM.
 
@@ -26,7 +27,7 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 
 - **Upstream PR ready for review:** https://github.com/OpenTSLM/TimeNet/pull/836
 - Fork branch: https://github.com/evansmusitu/TimeNet/tree/feat/musitu-cmapss-fd001
-- PR is open and ready for upstream review, not merged. NASA dataset conversion on TimeNet's actual APIs passed in GitHub Actions; final upstream review and source-data license clarification remain open. No raw data redistributed.
+- PR is open and ready for upstream review, not merged. Added [11 synthetic fixture tests and strict source-data validation](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45002805232), verified passing in TimeNet's actual locked environment alongside real-source NASA conversion. Maintainer review and source-data license clarification remain open. No raw data redistributed.
 
 ## Experimental OpenTime checkpoint adaptation (small GPU pilot completed)
 
@@ -63,4 +64,4 @@ Archived source: https://zenodo.org/records/15346912 (MD5 `79a22f36e80606c69d0e9
 
 TimeNet: https://github.com/OpenTSLM/TimeNet . Current challenge: https://challenge.timenet.ai/ . Submission deadline 2026-11-22 11:59 p.m. PST, official form https://tally.so/r/J1qbyK .
 
-**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. The upstream PR is **open and ready for review, not merged**, and the demo is published. Remaining: upstream TimeNet review and dataset-license clarification, actual public X/LinkedIn and Discord project-specific posts, and a confirmed final Tally submission. The OpenTime GPU pilot has been completed and verified but needs larger training experiments to improve warning F1.
+**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. The upstream PR is **open and ready for review, not merged**, and the demo is published. Remaining: upstream TimeNet maintainer review and dataset-license clarification; independent verification of the user's reported Tally submission and public social-post permalinks. The OpenTime GPU pilot has been completed and verified but needs larger training experiments to improve warning F1.
