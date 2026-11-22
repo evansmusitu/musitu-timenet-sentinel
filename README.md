@@ -4,6 +4,14 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 
 **Status:** CPU benchmark and tests implemented. OpenTime 5B checkpoint is **not trained or verified** here. The current competition aims to integrate a real TimeNet/TimeF dataset and a trained or fine-tuned time-series language model.
 
+## TimeNet Round 1 evidence package
+
+- **Competition submission pack:** [Technical pitch, TimeNet PR, evaluation evidence and limitations](docs/TIMENET_ROUND1_FINAL_SUBMISSION.md).
+- **Live organizer OpenTime 5B checkpoint pilot:** [Nebius GPU run in progress](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462) — this is a real, timed serverless GPU job. Results are not claimed until it completes and its logs are verified.
+- **Real-time GPU capacity:** [Nebius RTX 6000 96 GiB quota-clipped availability](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44982965639).
+- **Independent cloud safety monitor:** [Read-only verification](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983644358) and time-limited native Nebius Job configuration.
+- **Official submission form:** https://tally.so/r/J1qbyK (deadline November 22, 2026, 11:59 PM PST). Social URLs and form confirmation still pending.
+
 ## Live evidence
 
 - **Interactive demonstration:** https://evansmusitu.github.io/musitu-timenet-sentinel/
