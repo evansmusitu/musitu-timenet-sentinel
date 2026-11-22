@@ -13,6 +13,7 @@ from .opentime_examples import examples, partitions, QUESTION
 
 MODEL_ID="opentime/tslm-nov26"
 HELPER_REV="b83a9901d401e9e872ee9048fe61e6c9df9a5b78"
+HELPER_SHA256="c19db31d2ce6e84a4ce02c9a0fdfe0869c53775f77b04dd4be5c893afd8335e2"
 HELPER_URL=f"https://raw.githubusercontent.com/aws-samples/generative-ai-on-amazon-sagemaker/{HELPER_REV}/examples/opentslm-finetune-arfbench/scripts/utils.py"
 
 def helper(path):
@@ -21,6 +22,9 @@ def helper(path):
         data=response.read(2_000_001)
     if len(data)>2_000_000:
         raise ValueError("Unexpected helper size")
+    actual_hash=hashlib.sha256(data).hexdigest()
+    if actual_hash!=HELPER_SHA256:
+        raise ValueError("Pinned OpenTSLM training helper SHA256 mismatch")
     path.write_bytes(data)
     spec=importlib.util.spec_from_file_location("opentime_reference",path)
     module=importlib.util.module_from_spec(spec)
