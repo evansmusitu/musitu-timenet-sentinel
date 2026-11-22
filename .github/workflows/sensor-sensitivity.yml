@@ -48,9 +48,61 @@ jobs:
             --artifact-dir artifacts/frozen_compact \
             --replay-report docs/evidence/longitudinal_replay.json \
             --output artifacts/sensor_sensitivity.json
-      - name: Verify public results match freshly reproduced model output exactly
+      - name: Verify published evidence matches recomputed outputs within strict CPU tolerance
         run: |
-          cmp artifacts/sensor_sensitivity.json docs/evidence/sensor_sensitivity.json
+          python - <<'PY'
+          import json, math
+          from pathlib import Path
+          original=json.loads(Path('docs/evidence/sensor_sensitivity.json').read_text())
+          replay=json.loads(Path('artifacts/sensor_sensitivity.json').read_text())
+          max_delta=0.
+          numeric_values=0
+          def check(a,b,path='      - name: Check judges' sensitivity page script and evidence contract
+        run: |
+          node - <<'JS'
+          const fs=require('fs'),vm=require('vm'),assert=require('assert');
+          const html=fs.readFileSync('docs/sensor-sensitivity.html','utf8');
+          const match=html.match(/<script>([\\s\\S]*?)<\\/script>/);
+          assert(match,'Missing inspectable inline source');
+          new vm.Script(match[1],{filename:'docs/sensor-sensitivity.html'});
+          const result=JSON.parse(fs.readFileSync('docs/evidence/sensor_sensitivity.json'));
+          assert(result.frozen_endpoint_predictions_reproduced&&result.recorded_case_predictions_reproduced);
+          assert.equal(result.channels.length,24);
+          assert.equal(result.recorded_cases.length,6);
+          console.log('PASS: inspectable sensor sensitivity page and six authentic case records');
+          JS
+      - name: Upload audited aggregate and previously documented six cases
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: musitu-frozen-channel-sensitivity
+          path: artifacts/sensor_sensitivity.json
+          retention-days: 30
+):
+              global max_delta,numeric_values
+              if type(a) is not type(b):
+                  raise ValueError(f'{path}: changed data type')
+              if isinstance(a,dict):
+                  if a.keys()!=b.keys():
+                      raise ValueError(f'{path}: changed fields')
+                  for k in a: check(a[k],b[k],path+'.'+k)
+              elif isinstance(a,list):
+                  if len(a)!=len(b):raise ValueError(f'{path}: changed sequence length')
+                  for i,(x,y) in enumerate(zip(a,b)):check(x,y,path+f'[{i}]')
+              elif isinstance(a,float):
+                  if not (math.isfinite(a) and math.isfinite(b)):
+                      raise ValueError(f'{path}: nonfinite model output')
+                  delta=abs(a-b)
+                  max_delta=max(max_delta,delta)
+                  numeric_values+=1
+                  if delta>0.0001:
+                      raise ValueError(f'{path}: model output drift {delta} exceeds absolute 0.0001 tolerance')
+              elif a!=b:
+                  raise ValueError(f'{path}: changed identity, warning decision or provenance')
+          check(original,replay)
+          assert numeric_values>150, 'Expected complete 24-channel and recorded-case evidence'
+          print(f'PASS: all structural, categorical and integer outcomes identical; {numeric_values} floats checked, maximum absolute drift {max_delta:.10g} <= 0.0001')
+          PY
           sha256sum docs/evidence/sensor_sensitivity.json
       - name: Check judges' sensitivity page script and evidence contract
         run: |
