@@ -5,11 +5,13 @@ on:
     paths:
       - 'sentinel/replay_baseline_compare.py'
       - 'tests/test_replay_baseline_compare.py'
+      - 'tests/test_paired_replay_evidence.py'
       - '.github/workflows/paired-longitudinal-baseline.yml'
   push:
     paths:
       - 'sentinel/replay_baseline_compare.py'
       - 'tests/test_replay_baseline_compare.py'
+      - 'tests/test_paired_replay_evidence.py'
       - '.github/workflows/paired-longitudinal-baseline.yml'
 permissions:
   contents: read
@@ -26,7 +28,7 @@ jobs:
       - name: Install CPU dependencies only
         run: python -m pip install -r requirements.txt pytest
       - name: Synthetic contracts
-        run: python -m pytest -q tests/test_replay_baseline_compare.py
+        run: python -m pytest -q tests/test_replay_baseline_compare.py tests/test_paired_replay_evidence.py
       - name: Fetch original official 100-engine gradient-boosted baseline
         uses: actions/download-artifact@v4
         with:
