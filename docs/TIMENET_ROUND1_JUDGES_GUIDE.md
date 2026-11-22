@@ -83,3 +83,17 @@ These findings support a **need for validation under distribution shift**, not a
 *NASA FD001 is simulated data, not live aircraft or real maintenance telemetry.* The demo displays selected held-out predictions from independent CPU-trained models; it does **not** execute the 5B checkpoint live. The OpenTime pilot predicts a binary warning response (no RUL MAE). Pilot size is too small for operational conclusions. No source NASA archive or licensed model weights are redistributed. The dataset license needs upstream clarification. PR #836 is still **open**, not merged.
 
 **Competition submission status:** the team owner reported submitting the official Tally Round 1 form on November 22, 2026. We have not independently obtained an organizer project receipt or public social post permalinks, so do not imply external receipt verification. The entry should not be resubmitted.
+
+
+## Additional verified longitudinal evidence — November 22 (post-submission)
+
+Open the [chronological maintenance operator replay](https://evansmusitu.github.io/musitu-timenet-sentinel/maintenance-replay.html) after the [original 100-engine endpoint audit](https://evansmusitu.github.io/musitu-timenet-sentinel/decision-audit.html).
+
+The CPU-only [frozen-model longitudinal experiment](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45037237604) reproduced the original compact-model endpoint artifact and then evaluated **2,163 past-only 30-cycle windows** across the official 100 NASA FD001 simulated test engines. At the unmodified 0.5 warning threshold and fixed five-cycle replay cadence:
+
+- **24 of 25 engines whose observed data entered the final 30-cycle risk horizon** received at least one correct within-horizon warning; one did not.
+- **Eight of 100 engines** received at least one premature warning with true RUL still above 30 cycles.
+- Across the correlated test windows: TP 74 / FP 11 / FN 14 / TN 2,064; descriptive window-level F1 **0.8555**. These overlapping windows are **not independent test engines**.
+- **75 engines did not have recorded observations within the last 30 cycles before failure**; they cannot be scored as successful or unsuccessful near-failure detections.
+
+This is the **same independently trained compact temporal QA Transformer**, **not** the genuine organizer OpenTime 5B model, which remained F1 **0.3243** after its 16-window GPU pilot. The replay is research-only, with no commercial uptime/savings figures, no unrecorded operational data, and no revised Tally submission. Use this evidence to discuss exactly when a warning arrives and how false alerts would affect a human inspection workflow.
