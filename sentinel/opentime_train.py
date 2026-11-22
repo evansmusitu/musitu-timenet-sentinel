@@ -50,6 +50,8 @@ def main():
     p.add_argument("--train-limit",type=int,default=48)
     p.add_argument("--val-limit",type=int,default=24)
     p.add_argument("--epochs",type=int,default=1)
+    p.add_argument("--option-likelihood", action="store_true",
+                   help="After training, calibrate exact Yes/No answer token likelihoods on validation engines only, then score untouched official test engines")
     p.add_argument("--validation-sampling", choices=["balanced", "prevalence_matched"],
                    default="balanced", help="V2 uses prevalence_matched; never select by official test performance")
     args=p.parse_args()
@@ -107,6 +109,29 @@ def main():
     before=evaluate(te,held,"before")
     u.train(model,tr,va,epochs=args.epochs,accumulation=4,seed=42)
     after=evaluate(te,held,"after")
+    likelihood_evaluation=None
+    if args.option_likelihood:
+        from .opentime_decision import choose_validation_threshold, score_examples, summarize
+        # Threshold is selected ONLY on disjoint development validation engines.
+        val_margins, val_rows=score_examples(model,va,v,phase="development_validation")
+        tuned=choose_validation_threshold(val_margins,[r["answer"] for r in v])
+        threshold=tuned["selected_threshold"]
+        # The official test labels are read only AFTER the threshold is frozen.
+        test_margins, test_rows=score_examples(model,te,held,phase="official_test")
+        for row in test_rows:
+            row["predicted_at_fixed_zero"]=("Yes" if row["yes_log_likelihood_margin"]>=0 else "No")
+            row["predicted_at_validation_threshold"]=("Yes" if row["yes_log_likelihood_margin"]>=threshold else "No")
+        (args.output/"validation_likelihood_predictions.json").write_text(json.dumps(val_rows,indent=2)+"\\n")
+        (args.output/"official_test_likelihood_predictions.json").write_text(json.dumps(test_rows,indent=2)+"\\n")
+        likelihood_evaluation={
+            "approach":"genuine OpenTime 5B conditional answer-token negative log-likelihood",
+            "margin_definition":"NLL(No) minus NLL(Yes); positive favors Yes",
+            "validation_engine_holdout":True,
+            "official_test_used_for_threshold_selection":False,
+            "validation_threshold_selection":tuned,
+            "test_uncalibrated_zero_threshold":summarize(test_margins,[r["answer"] for r in held],0.0),
+            "test_validation_selected_threshold":summarize(test_margins,[r["answer"] for r in held],threshold),
+        }
     weights={name:param.detach().cpu().contiguous() for name,param in model.named_parameters() if param.requires_grad}
     save_file(weights,args.output/"trained_parameters.safetensors")
     report={"checkpoint":MODEL_ID,"revision":args.revision,"helper_revision":HELPER_REV,"helper_sha256":sha,
@@ -118,7 +143,9 @@ def main():
         "selected_validation_class_counts":cohort["validation_class_counts"],
         "selected_train_unique_engines":len({row["unit"] for row in t}),
         "selected_validation_unique_engines":len({row["unit"] for row in v}),
-        "before":before,"after":after,"gpu":torch.cuda.get_device_name(0),"torch":torch.__version__,
+        "before":before,"after":after,
+        "likelihood_evaluation":likelihood_evaluation,
+        "gpu":torch.cuda.get_device_name(0),"torch":torch.__version__,
         "epochs":args.epochs,"seconds":time.time()-started,
         "limits":"Simulation only; binary warning QA; invalid outputs scored as errors."}
     (args.output/"metrics.json").write_text(json.dumps(report,indent=2)+"\n")
