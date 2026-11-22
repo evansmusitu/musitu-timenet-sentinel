@@ -112,7 +112,6 @@ def main():
     # Run both original and fine-tuned model on the locked test protocol. No test-driven selection.
     before=evaluate(te,held,"before")
     u.train(model,tr,va,epochs=args.epochs,accumulation=4,seed=42)
-    after=evaluate(te,held,"after")
     likelihood_evaluation=None
     if args.option_likelihood:
         from .opentime_decision import choose_validation_threshold, score_examples, summarize
@@ -136,6 +135,9 @@ def main():
             "test_uncalibrated_zero_threshold":summarize(test_margins,[r["answer"] for r in held],0.0),
             "test_validation_selected_threshold":summarize(test_margins,[r["answer"] for r in held],threshold),
         }
+    # Preserve standard generated-answer comparison; alternative likelihood threshold
+    # has already been selected from development validation labels, not test labels.
+    after=evaluate(te,held,"after")
     weights={name:param.detach().cpu().contiguous() for name,param in model.named_parameters() if param.requires_grad}
     save_file(weights,args.output/"trained_parameters.safetensors")
     report={"checkpoint":MODEL_ID,"revision":args.revision,"helper_revision":HELPER_REV,"helper_sha256":sha,
