@@ -2,12 +2,12 @@
 
 Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 simulated turbofan engine telemetry.
 
-**Status:** CPU benchmark and tests implemented. OpenTime 5B checkpoint is **not trained or verified** here. The current competition aims to integrate a real TimeNet/TimeF dataset and a trained or fine-tuned time-series language model.
+**Status:** NASA C-MAPSS FD001 CPU benchmarks reproduced and OpenTime November 2026 5B checkpoint **genuinely loaded, fine-tuned for one small epoch and evaluated** on an RTX PRO 6000 GPU. 100-engine held-out warning F1 increased from 0.000 to 0.324 (accuracy 24% to 75%); still below the separate CPU baselines. See [verified GPU evidence](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md).
 
 ## TimeNet Round 1 evidence package
 
 - **Competition submission pack:** [Technical pitch, TimeNet PR, evaluation evidence and limitations](docs/TIMENET_ROUND1_FINAL_SUBMISSION.md).
-- **Live organizer OpenTime 5B checkpoint pilot:** [Nebius GPU run in progress](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462) — this is a real, timed serverless GPU job. Results are not claimed until it completes and its logs are verified.
+- **Completed organizer OpenTime 5B pilot:** [Verified model metrics and limitations](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md) · [successful Nebius run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462) · [recovered job logs](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44984604004).
 - **Real-time GPU capacity:** [Nebius RTX 6000 96 GiB quota-clipped availability](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44982965639).
 - **Independent cloud safety monitor:** [Read-only verification](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983644358) and time-limited native Nebius Job configuration.
 - **Official submission form:** https://tally.so/r/J1qbyK (deadline November 22, 2026, 11:59 PM PST). Social URLs and form confirmation still pending.
@@ -22,13 +22,13 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 
 ## Official TimeNet connector contribution
 
-- **Upstream draft PR:** https://github.com/OpenTSLM/TimeNet/pull/836
+- **Upstream PR ready for review:** https://github.com/OpenTSLM/TimeNet/pull/836
 - Fork branch: https://github.com/evansmusitu/TimeNet/tree/feat/musitu-cmapss-fd001
-- PR is a draft pending CI, format integration and NASA data-license metadata review; no raw data redistributed.
+- PR is open and ready for upstream review, not merged. NASA dataset conversion on TimeNet's actual APIs passed in GitHub Actions; final upstream review and source-data license clarification remain open. No raw data redistributed.
 
-## Experimental OpenTime checkpoint adaptation (GPU run pending)
+## Experimental OpenTime checkpoint adaptation (small GPU pilot completed)
 
-A new GPU runner is checked in at `sentinel/opentime_train.py`. It uses the organizer-recommended AWS reference implementation pinned to commit `b83a9901d401e9e872ee9048fe61e6c9df9a5b78` and explicit immutable HF checkpoint revision. It constructs past-only 24-channel windows, freezes the base model according to the upstream recipe, selects the best epoch on development engines only, and logs before/after performance and raw predictions on the fixed 100-engine official test set. The data adapter was exercised with local regression tests; GPU compatibility and model results remain unverified.
+A new GPU runner is checked in at `sentinel/opentime_train.py`. It uses the organizer-recommended AWS reference implementation pinned to commit `b83a9901d401e9e872ee9048fe61e6c9df9a5b78` and explicit immutable HF checkpoint revision. It constructs past-only 24-channel windows, freezes the base model according to the upstream recipe, selects the best epoch on development engines only, and logs before/after performance and raw predictions on the fixed 100-engine official test set. The model was loaded on a genuine RTX PRO 6000 GPU and completed one epoch, with F1=0.324 on 100 held-out NASA official test engines. The data adapter was also exercised with regression tests. See [full reproducible GPU report](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md).
 
 ```bash
 # Run on CUDA-enabled PyTorch 2.9 GPU image; recommend one 80 GB GPU.
@@ -61,4 +61,4 @@ Archived source: https://zenodo.org/records/15346912 (MD5 `79a22f36e80606c69d0e9
 
 TimeNet: https://github.com/OpenTSLM/TimeNet . Current challenge: https://challenge.timenet.ai/ . Submission deadline 2026-11-22 11:59 p.m. PST, official form https://tally.so/r/J1qbyK .
 
-**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. The upstream PR is open in draft and the demo is published. Remaining: TimeNet integration and license review, actual OpenTime checkpoint evaluation, public social posts and final submission.
+**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. The upstream PR is open in draft and the demo is published. Remaining: upstream TimeNet review and dataset-license clarification, actual public X/LinkedIn and Discord project-specific posts, and a confirmed final Tally submission. The OpenTime GPU pilot has been completed and verified but needs larger training experiments to improve warning F1.
