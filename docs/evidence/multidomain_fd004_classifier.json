@@ -1,0 +1,95 @@
+{
+  "chosen_validation_threshold": 0.4,
+  "experiment": "post-hoc exploratory multi-domain direct-warning classifier held out FD004",
+  "feature_count": 97,
+  "heldout_test_cohort": "FD004",
+  "independent_development_validation": {
+    "brier": 0.03126973267983972,
+    "count": 3390,
+    "f1": 0.8717077315208156,
+    "fn": 55,
+    "fp": 96,
+    "precision": 0.8423645320197044,
+    "recall": 0.903169014084507,
+    "tn": 2726,
+    "tp": 513
+  },
+  "limitations": [
+    "This experiment was devised post-hoc after inspecting frozen FD001-only transfer failures; it is exploratory, not preregistered.",
+    "A classical CPU warning classifier trained with three NASA simulated development subsets, not the organizer's OpenTime TSLM.",
+    "FD004 data was strictly excluded from fitting and threshold selection, but another simulation population is not a real-world manufacturer shift.",
+    "Selection used the validation cohort engines and a fixed 0.1-0.9 probability grid; no official FD004 test label tuning was performed.",
+    "Short-history official FD004 engines (<30 cycles) were excluded and counted; no reliable claims for them.",
+    "No source NASA rows, individual engine labels, or trained model weights redistributed.",
+    "No financial savings, real aircraft safety or real-world operation inferred."
+  ],
+  "model": "Classical HistGradientBoostingClassifier, not temporal QA or OpenTime 5B",
+  "official_fd004_test": {
+    "brier": 0.057283091535058346,
+    "count": 237,
+    "eligible_engines": 237,
+    "excluded_due_to_short_history": 11,
+    "f1": 0.8163265306122449,
+    "fn": 13,
+    "fp": 5,
+    "precision": 0.8888888888888888,
+    "recall": 0.7547169811320755,
+    "tn": 179,
+    "total_official_test_engines": 248,
+    "tp": 40,
+    "warning_prevalence": 0.22362869198312235
+  },
+  "project": "MUSITU AXIOM Sentinel",
+  "source": "https://zenodo.org/records/15346912/files/CMAPSSData.zip?download=1",
+  "source_md5": "79a22f36e80606c69d0e9e4da5bb2b7a",
+  "target_fd004_data_used_to_fit_or_select_threshold": false,
+  "timestamp": "2026-11-22T08:50:35.217168+00:00",
+  "training_counts": [
+    {
+      "cohort": "FD001",
+      "train_engines": 80,
+      "train_windows": 2873,
+      "validation_engines": 20,
+      "validation_windows": 713
+    },
+    {
+      "cohort": "FD002",
+      "train_engines": 208,
+      "train_windows": 7528,
+      "validation_engines": 52,
+      "validation_windows": 1810
+    },
+    {
+      "cohort": "FD003",
+      "train_engines": 80,
+      "train_windows": 3539,
+      "validation_engines": 20,
+      "validation_windows": 867
+    }
+  ],
+  "training_only_cohorts": [
+    "FD001",
+    "FD002",
+    "FD003"
+  ],
+  "validation_threshold_candidates": [
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35,
+    0.4,
+    0.45000000000000007,
+    0.5,
+    0.55,
+    0.6,
+    0.65,
+    0.7000000000000001,
+    0.75,
+    0.8,
+    0.85,
+    0.9
+  ],
+  "warning_horizon_cycles": 30
+}

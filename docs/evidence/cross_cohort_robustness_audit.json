@@ -1,0 +1,154 @@
+{
+  "classifier_validation_threshold": 0.4,
+  "confidence_note": "Post-hoc exploratory domain-shift analysis; negative transfer is fully reported",
+  "experimental_multi_domain_training_sources": [
+    "FD001",
+    "FD002",
+    "FD003"
+  ],
+  "limitations": [
+    "All sets are NASA simulations, not real aircraft or wind turbines.",
+    "FD001/FD002/FD003 training differs from the organizer's OpenTime 5B checkpoint; all results on this page are separate CPU models.",
+    "FD001-only frozen models were not retuned on test sets; shifted data expose real generalization failures.",
+    "Short test histories under 30 cycles were excluded and visibly counted.",
+    "Exploratory FD001+FD002+FD003 to FD004 training and the dedicated warning classifier were decided after detecting shift failures; neither is preregistered.",
+    "Dataset metadata lacks a sufficiently specific source SPDX license; aggregate evaluation only, no raw rows or model weights redistributed."
+  ],
+  "multi_domain_fd004": {
+    "confusion": {
+      "fn": 26,
+      "fp": 4,
+      "tn": 180,
+      "tp": 27
+    },
+    "count": 237,
+    "excluded_due_to_fewer_than_30_observations": 11,
+    "heldout_test_engines": 237,
+    "official_test_engines_total": 248,
+    "rul_mae_cycles": 30.40872861926752,
+    "rul_rmse_cycles": 37.992921152581665,
+    "warning_30_f1": 0.6428571428571429,
+    "warning_30_precision": 0.8709677419354839,
+    "warning_30_prevalence": 0.22362869198312235,
+    "warning_30_recall": 0.5094339622641509
+  },
+  "multi_domain_warning_classifier_fd004": {
+    "brier": 0.057283091535058346,
+    "count": 237,
+    "eligible_engines": 237,
+    "excluded_due_to_short_history": 11,
+    "f1": 0.8163265306122449,
+    "fn": 13,
+    "fp": 5,
+    "precision": 0.8888888888888888,
+    "recall": 0.7547169811320755,
+    "tn": 179,
+    "total_official_test_engines": 248,
+    "tp": 40,
+    "warning_prevalence": 0.22362869198312235
+  },
+  "official_dataset_source": "https://zenodo.org/records/15346912",
+  "project": "MUSITU AXIOM Sentinel",
+  "provenance": {
+    "exploratory_classifier": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45004601674",
+    "exploratory_multidomain": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45004350622",
+    "original_classical": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45003875499",
+    "original_compact": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45003991598"
+  },
+  "rows": [
+    {
+      "classical_confusion": {
+        "fn": 5,
+        "fp": 0,
+        "tn": 75,
+        "tp": 20
+      },
+      "classical_f1": 0.8888888888888888,
+      "classical_mae": 19.40247665823967,
+      "cohort": "FD001",
+      "compact_confusion": {
+        "fn": 1,
+        "fp": 1,
+        "tn": 74,
+        "tp": 24
+      },
+      "compact_f1": 0.96,
+      "compact_mae": 19.04361652851105,
+      "description": "Familiar conditions and one fault mode",
+      "n": 100,
+      "official_total": 100,
+      "short_excluded": 0
+    },
+    {
+      "classical_confusion": {
+        "fn": 61,
+        "fp": 0,
+        "tn": 192,
+        "tp": 0
+      },
+      "classical_f1": 0.0,
+      "classical_mae": 33.85254103151913,
+      "cohort": "FD002",
+      "compact_confusion": {
+        "fn": 2,
+        "fp": 69,
+        "tn": 123,
+        "tp": 59
+      },
+      "compact_f1": 0.6243386243386243,
+      "compact_mae": 37.32348120542383,
+      "description": "Six conditions, one fault mode",
+      "n": 253,
+      "official_total": 259,
+      "short_excluded": 6
+    },
+    {
+      "classical_confusion": {
+        "fn": 13,
+        "fp": 1,
+        "tn": 79,
+        "tp": 7
+      },
+      "classical_f1": 0.5,
+      "classical_mae": 28.031224189188656,
+      "cohort": "FD003",
+      "compact_confusion": {
+        "fn": 0,
+        "fp": 28,
+        "tn": 52,
+        "tp": 20
+      },
+      "compact_f1": 0.5882352941176471,
+      "compact_mae": 36.94696239948273,
+      "description": "One condition, two fault modes",
+      "n": 100,
+      "official_total": 100,
+      "short_excluded": 0
+    },
+    {
+      "classical_confusion": {
+        "fn": 53,
+        "fp": 0,
+        "tn": 184,
+        "tp": 0
+      },
+      "classical_f1": 0.0,
+      "classical_mae": 39.52851891393773,
+      "cohort": "FD004",
+      "compact_confusion": {
+        "fn": 1,
+        "fp": 112,
+        "tn": 72,
+        "tp": 52
+      },
+      "compact_f1": 0.4792626728110599,
+      "compact_mae": 52.416578341133985,
+      "description": "Six conditions, two fault modes",
+      "n": 237,
+      "official_total": 248,
+      "short_excluded": 11
+    }
+  ],
+  "scientific_scope": "NASA simulated engine datasets, never actual OEM validation",
+  "source_md5": "79a22f36e80606c69d0e9e4da5bb2b7a"
+}
