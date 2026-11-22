@@ -44,3 +44,12 @@ def test_malformed_validation_fails_closed(rows, limit, match):
 def test_rejects_bool_limit():
     with pytest.raises(ValueError, match="integer"):
         sample(population(), True)
+
+
+def test_actual_gpu_trainer_uses_prevalence_matched_validation():
+    from sentinel.opentime_train import validation_sample
+    source=population()
+    v=validation_sample(source,24,43,"prevalence_matched")
+    assert Counter(r["answer"] for r in v)=={"Yes":4,"No":20}
+    with pytest.raises(ValueError,match="Unsupported"):
+        validation_sample(source,24,43,"unknown")
