@@ -1,0 +1,47 @@
+name: Frozen compact QA sequence-integrity audit (CPU only)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sentinel/sequence_integrity.py'
+      - 'tests/test_sequence_integrity.py'
+      - '.github/workflows/sequence-integrity.yml'
+  pull_request:
+    paths:
+      - 'sentinel/sequence_integrity.py'
+      - 'tests/test_sequence_integrity.py'
+      - '.github/workflows/sequence-integrity.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-sequence-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only dependencies
+        run: |
+          python -m pip install -r requirements.txt pytest
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Test frozen sequence ablation contracts
+        run: python -m pytest -q tests/test_sequence_integrity.py
+      - name: Retrieve original successful held-out checkpoint and reference predictions
+        uses: actions/download-artifact@v4
+        with:
+          name: sentinel-temporal-qa-model-and-results
+          run-id: 44819987425
+          github-token: ${{ github.token }}
+          path: artifacts/frozen_compact
+      - name: Reproduce original results before running no-train sensor ablations
+        run: python -m sentinel.sequence_integrity --download --artifact-dir artifacts/frozen_compact --output artifacts/sequence_integrity.json
+      - name: Upload aggregate-only audit results
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-sequence-integrity-aggregate
+          path: artifacts/sequence_integrity.json
+          retention-days: 30
