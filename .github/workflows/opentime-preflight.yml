@@ -5,13 +5,17 @@ on:
     paths:
       - 'sentinel/opentime_sampling.py'
       - 'sentinel/opentime_train.py'
+      - 'sentinel/opentime_v2_sampler.py'
       - 'tests/test_opentime_sampling.py'
+      - 'tests/test_opentime_v2_sampler.py'
       - '.github/workflows/opentime-preflight.yml'
   pull_request:
     paths:
       - 'sentinel/opentime_sampling.py'
       - 'sentinel/opentime_train.py'
+      - 'sentinel/opentime_v2_sampler.py'
       - 'tests/test_opentime_sampling.py'
+      - 'tests/test_opentime_v2_sampler.py'
       - '.github/workflows/opentime-preflight.yml'
 permissions:
   contents: read
@@ -27,7 +31,7 @@ jobs:
       - name: Install CPU dependencies only
         run: python -m pip install -r requirements.txt pytest
       - name: Verify engine-diverse sampler and actual GPU runner wiring
-        run: python -m pytest -q tests/test_opentime_sampling.py
+        run: python -m pytest -q tests/test_opentime_sampling.py tests/test_opentime_v2_sampler.py
       - name: Build FD001 train/validation-only sampling manifest
         run: python -m sentinel.opentime_sampling --download --train-limit 256 --val-limit 64
       - name: Publish planning-only manifest (not trained model results)
