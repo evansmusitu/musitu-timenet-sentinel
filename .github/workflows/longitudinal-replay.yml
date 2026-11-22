@@ -12,7 +12,7 @@ on:
       - 'tests/test_longitudinal_replay.py'
       - '.github/workflows/longitudinal-replay.yml'
 permissions:
-  contents: read
+  contents: write
   actions: read
 jobs:
   replay:
@@ -50,3 +50,20 @@ jobs:
             artifacts/longitudinal/longitudinal_replay.json
             artifacts/longitudinal/longitudinal_replay_full.csv
           retention-days: 30
+
+      - name: Commit validated aggregate and curated cases to this isolated branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/longitudinal-warning-replay-20261122'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/evidence
+          cp artifacts/longitudinal/longitudinal_replay.json docs/evidence/longitudinal_replay.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/evidence/longitudinal_replay.json
+          if git diff --cached --quiet; then
+            echo 'Report already current'
+          else
+            git commit -m 'data: publish checked frozen history results and curated cases'
+            git push origin HEAD:feat/longitudinal-warning-replay-20261122
+          fi
