@@ -1,0 +1,62 @@
+name: One-time verified sensor evidence transfer to review branch
+on:
+  push:
+    branches: [feat/frozen-channel-sensitivity-20261122]
+    paths:
+      - '.github/workflows/publish-sensor-evidence-once.yml'
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-verified-evidence:
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/feat/frozen-channel-sensitivity-20261122'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch only successful frozen CPU experiment artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: musitu-frozen-channel-sensitivity
+          run-id: 45040401171
+          github-token: ${{ github.token }}
+          path: artifacts/sensitivity
+      - name: Validate exact source hash, scope and experiment invariants
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, hashlib
+          src=Path('artifacts/sensitivity/sensor_sensitivity.json')
+          content=src.read_bytes()
+          expected='d429498ea5def642bffeeee4caa3f9d2c6663039ca1e45bd012cc68449770338'
+          if hashlib.sha256(content).hexdigest()!=expected:
+              raise SystemExit('BARRIER: frozen sensitivity artifact changed')
+          data=json.loads(content)
+          if (data.get('heldout_engines_scored')!=100 or
+              data.get('frozen_endpoint_predictions_reproduced') is not True or
+              data.get('recorded_case_predictions_reproduced') is not True or
+              data.get('not_opentime_5b') is not True or
+              len(data.get('channels',[]))!=24 or
+              len(data.get('recorded_cases',[]))!=6):
+              raise SystemExit('BARRIER: source result schema or verification failed')
+          if data.get('frozen_checkpoint_sha256')!='6f085be7015a48d48d6c1fed28dae9e888ee19dec495fcba085f375edbc6847c':
+              raise SystemExit('BARRIER: checkpoint mismatch')
+          print('VERIFIED: expected frozen output, 100 official endpoints, 24 channels, 6 authentic cases')
+          PY
+      - name: Publish exactly verified JSON to this branch only
+        run: |
+          set -euo pipefail
+          git fetch origin 'refs/heads/feat/frozen-channel-sensitivity-20261122:refs/remotes/origin/feat/frozen-channel-sensitivity-20261122'
+          git checkout -B feat/frozen-channel-sensitivity-20261122 origin/feat/frozen-channel-sensitivity-20261122
+          mkdir -p docs/evidence
+          cp artifacts/sensitivity/sensor_sensitivity.json docs/evidence/sensor_sensitivity.json
+          sha256sum docs/evidence/sensor_sensitivity.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/evidence/sensor_sensitivity.json
+          if git diff --cached --quiet; then
+            echo 'Evidence already committed'
+          else
+            git commit -m 'data: publish hash-verified frozen sensor sensitivity'
+            git push origin HEAD:feat/frozen-channel-sensitivity-20261122
+          fi
