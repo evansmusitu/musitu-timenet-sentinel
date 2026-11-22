@@ -6,6 +6,7 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 
 ## TimeNet Round 1 evidence package
 
+- **Next OpenTime training protocol (CPU-prepared, not run on GPU):** [Engine-diverse v2 sampling manifest](docs/evidence/opentime_v2_sampling_preflight.json) · [successful source-data preflight](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45019219005). The proposed 256 development-training windows cover 80 engines with a separate 64-window validation set across 20 other engines; this is **not** a new 5B score or a guaranteed improvement. The original pilot was 16 training windows and remains unchanged.
 - **Measured sequence dependence (new, CPU-only):** [Frozen compact temporal QA ablation results](docs/evidence/frozen_sequence_integrity.json) · [reproducible CI run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45018569313). Across 100 held-out simulated FD001 engines, warning F1 falls from 0.960 (original) to 0.684 (reversed time), 0.844 (shuffled time), and 0.387 (mean-only history). Exploratory post-hoc controls on the **separate compact model**, **not** OpenTime 5B or causal explanation verification.
 - **90-second judges' walkthrough:** [Concrete engine demo, evidence links, comparison and limitations](docs/TIMENET_ROUND1_JUDGES_GUIDE.md).
 - **Verified 100-engine decision audit:** [Confusion matrices, uncertainty intervals and an interactive maintenance-warning trade-off](docs/decision-audit.html).
