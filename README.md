@@ -6,6 +6,7 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 
 ## TimeNet Round 1 evidence package
 
+- **90-second judges' walkthrough:** [Concrete engine demo, evidence links, comparison and limitations](docs/TIMENET_ROUND1_JUDGES_GUIDE.md).
 - **Competition submission pack:** [Technical pitch, TimeNet PR, evaluation evidence and limitations](docs/TIMENET_ROUND1_FINAL_SUBMISSION.md).
 - **Completed organizer OpenTime 5B pilot:** [Verified model metrics and limitations](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md) · [successful Nebius run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462) · [recovered job logs](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44984604004).
 - **Real-time GPU capacity:** [Nebius RTX 6000 96 GiB quota-clipped availability](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44982965639).
@@ -61,4 +62,4 @@ Archived source: https://zenodo.org/records/15346912 (MD5 `79a22f36e80606c69d0e9
 
 TimeNet: https://github.com/OpenTSLM/TimeNet . Current challenge: https://challenge.timenet.ai/ . Submission deadline 2026-11-22 11:59 p.m. PST, official form https://tally.so/r/J1qbyK .
 
-**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. The upstream PR is open in draft and the demo is published. Remaining: upstream TimeNet review and dataset-license clarification, actual public X/LinkedIn and Discord project-specific posts, and a confirmed final Tally submission. The OpenTime GPU pilot has been completed and verified but needs larger training experiments to improve warning F1.
+**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. The upstream PR is **open and ready for review, not merged**, and the demo is published. Remaining: upstream TimeNet review and dataset-license clarification, actual public X/LinkedIn and Discord project-specific posts, and a confirmed final Tally submission. The OpenTime GPU pilot has been completed and verified but needs larger training experiments to improve warning F1.
