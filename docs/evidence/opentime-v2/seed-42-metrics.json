@@ -1,0 +1,60 @@
+{
+  "checkpoint": "opentime/tslm-nov26",
+  "revision": "5e030b001fb8d4be6d10ebb3a8b9bc3e6ef80983",
+  "helper_revision": "b83a9901d401e9e872ee9048fe61e6c9df9a5b78",
+  "helper_sha256": "c19db31d2ce6e84a4ce02c9a0fdfe0869c53775f77b04dd4be5c893afd8335e2",
+  "dataset": "NASA C-MAPSS FD001 (simulated)",
+  "protocol": "full past-only history, 14 varying sensors, cycle count in prompt; epoch by validation loss; threshold by F1 on validation-engine truncations; one test pass",
+  "train_examples": 1568,
+  "val_loss_examples": 96,
+  "val_threshold_examples": 200,
+  "train_engines": 80,
+  "val_engines": 20,
+  "epochs": 3,
+  "seconds_per_example_probe": 0.4434835910797119,
+  "train_seconds": 1162.32767868042,
+  "threshold_from_validation": 4.124999778345227,
+  "validation_f1_at_threshold": 0.9152542372881356,
+  "validation_auroc": 0.9947058823529411,
+  "test": {
+    "count": 100,
+    "positives": 25,
+    "auroc": 0.9989333333333333,
+    "validation_threshold": {
+      "tp": 23,
+      "fp": 0,
+      "fn": 2,
+      "tn": 75,
+      "precision": 1.0,
+      "recall": 0.92,
+      "f1": 0.9583333333333334,
+      "accuracy": 0.98
+    },
+    "untuned_argmax": {
+      "tp": 25,
+      "fp": 2,
+      "fn": 0,
+      "tn": 73,
+      "precision": 0.9259259259259259,
+      "recall": 1.0,
+      "f1": 0.9615384615384616,
+      "accuracy": 0.98
+    },
+    "greedy_generation": {
+      "tp": 25,
+      "fp": 2,
+      "fn": 0,
+      "tn": 73,
+      "precision": 0.9259259259259259,
+      "recall": 1.0,
+      "f1": 0.9615384615384616,
+      "accuracy": 0.98,
+      "invalid_outputs": 0
+    }
+  },
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "torch": "2.9.0+cu128",
+  "total_seconds": 1468.757389307022,
+  "limits": "Simulated engines; binary 30-cycle warning; invalid generations scored as errors.",
+  "training_seed": 42
+}

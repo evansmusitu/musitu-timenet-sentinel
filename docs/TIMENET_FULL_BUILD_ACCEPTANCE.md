@@ -29,5 +29,5 @@ The workflow source is [`.github/workflows/timenet-full-build.yml`](../.github/w
 
 - **Not upstream acceptance:** PR #836 is open and requires OpenTSLM maintainer review; the full build succeeded in our GitHub Actions environment, not in the official upstream merge gate.
 - **Not permission to redistribute:** the NASA/Zenodo record does not specify an unambiguous SPDX grant. The dataset metadata intentionally says `OTHER`; user-facing artifacts do not redistribute raw NASA telemetry. A local test registry was generated and discarded.
-- **Not an OpenTime model score:** the TimeNet builder tests dataset ingestion and serialization, not the organizer's 5B classifier. The original genuine OpenTime pilot's held-out F1 remains 0.3243.
+- **Not an OpenTime model score:** the TimeNet builder tests dataset ingestion and serialization, not the organizer's 5B classifier. OpenTime 5B results are in OPENTIME_5B_VERIFIED_GPU_RESULTS.md (v2: F1 0.913–0.958 across three seeds; the 0.3243 pilot is superseded).
 - **Not deployment validation:** NASA FD001 is simulated turbofan data, and no operational aircraft safety claim is made.

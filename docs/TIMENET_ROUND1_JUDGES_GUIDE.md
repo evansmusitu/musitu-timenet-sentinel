@@ -27,7 +27,7 @@ This is **evidence of input-sequence sensitivity** on NASA simulated engines. It
 
 **35–55s — Actual TimeNet build acceptance.** Open [TimeNet PR #836](https://github.com/OpenTSLM/TimeNet/pull/836), then show the [successful full official builder run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45044257045). The 30-cycle FD001 connector uses engine-disjoint training/validation, official test-only engine endpoints, source checksum and no raw data redistribution. All **11** fixture tests passed, and the **official `timenet-build` CLI produced release `musitu/cmapss-fd001@0.1.0`**, writing real `.parquet`, `.duckdb` and `.json` artifacts; a second build reused it. A [full official reader round-trip](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45044653193) then reopened the release, verified files and confirmed **970 train / 264 validation / 100 held-out test tasks (1,334 total records)**. [Exact reproducibility commands](https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/TIMENET_FULL_BUILD_ACCEPTANCE.md). Upstream PR review and NASA source-license clarification remain pending.
 
-**55–75s — Honest OpenTime experiment.** We loaded the organizer's actual **5.24B-parameter OpenTime November 2026 checkpoint** on one **Nebius RTX PRO 6000 Blackwell (96 GB)**, trained for **one epoch on 16 windows** with **eight validation windows**, and evaluated against **100 held-out official test engines**. The binary 30-cycle warning F1 improved from **0.0000 to 0.3243**; invalid answers fell **64 to zero**; warning recall after the run was only **0.24**. This is encouraging format adaptation, **not a competitive risk detector yet**. [Verified log and GPU evidence](https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md).
+**55–75s — The OpenTime 5B model, fine-tuned properly.** We fine-tuned the organizer's **5.24B-parameter OpenTime November 2026 checkpoint** on one **Nebius RTX PRO 6000 (96 GB)** using every FD001 development-train engine, the engine's **full past history**, the 14 sensors that vary, and the cycle count in the prompt. Epoch and warning threshold were chosen on 20 disjoint validation engines. On the **100 official test engines**, warning F1 is **0.958, 0.958 and 0.913** across three training seeds (mean 0.943), against **0.889** for the classical baseline, with **zero false alarms** in every seed. The model's own Yes/No answer scores 0.941–0.980 with no invalid outputs. Our earlier 16-example pilot scored 0.324; that is now superseded. Bootstrap intervals on the gain still touch zero, so we say "beats the baseline in every seed", not "proven superior". [Full GPU evidence](https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md).
 
 **75–90s — What actually changed the warning?** Open the [frozen sensor-sensitivity audit](https://evansmusitu.github.io/musitu-timenet-sentinel/sensor-sensitivity.html). Select **Engine 018, cycle 133**: the original risk was 57.5%; replacing sensor 8 with its training mean lowered that score by **53.93 percentage points**. The prior held-out prediction reproduces before the perturbation is scored. A model input response is **not** proof of a physical fault, and this is the separate compact architecture, not the organizer OpenTime 5B. The project demonstrates measurable time-history dependence, real operator decisions, inspectable mistakes and clearly bounded evidence.
 
@@ -51,9 +51,10 @@ This is **evidence of input-sequence sensitivity** on NASA simulated engines. It
 |---|---:|---:|---|
 | Classical gradient-boosted regression + warning threshold | 19.4025 | 0.8889 | Independent non-OpenTime baseline |
 | Compact trained temporal QA Transformer | 19.0436 | 0.9600 | Separate original architecture, **not** organizer checkpoint |
-| Genuine OpenTime November 2026 5B **after** small adaptation pilot | Not measured (binary QA only) | **0.3243** (before: 0.0000) | Actual organizer checkpoint, one epoch/16 training examples |
+| **OpenTime November 2026 5B v2 fine-tune** (3 seeds) | Not measured (binary QA only) | **0.958 / 0.958 / 0.913** (mean 0.943) | Actual organizer checkpoint, 80 training engines, 3 epochs |
+| OpenTime 5B first pilot (superseded) | Not measured | 0.3243 | 16 training examples, 1 epoch |
 
-## Exploratory simulated cross-domain follow-up — separate from the 5B pilot
+## Exploratory simulated cross-domain follow-up — classical and compact models
 
 [Open the public NASA FD001–FD004 robustness lab](https://evansmusitu.github.io/musitu-timenet-sentinel/robustness-lab.html). It reports failure as well as improvement:
 
@@ -74,13 +75,13 @@ These findings support a **need for validation under distribution shift**, not a
 - [Real TimeNet dataset contribution PR #836](https://github.com/OpenTSLM/TimeNet/pull/836)
 - [Successful classical benchmark](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819062482)
 - [Successful compact temporal training and benchmark](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44819987425)
-- [Original successful Nebius 5B job](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462)
-- [Verified GPU log recovery](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44984604004)
-- [Machine-readable OpenTime evidence](https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/evidence/opentime-nov26-fd001-gpu-pilot-metrics.json)
+- [OpenTime 5B v2 GPU run, seed 42](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45018761652) and [seeds 7 and 99](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45021536671)
+- [Machine-readable OpenTime v2 evidence](https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/evidence/opentime-v2/summary.json)
+- Superseded pilot: [Nebius job](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462), [log recovery](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44984604004)
 
 ### Boundaries of the claim
 
-*NASA FD001 is simulated data, not live aircraft or real maintenance telemetry.* The demo displays selected held-out predictions from independent CPU-trained models; it does **not** execute the 5B checkpoint live. The OpenTime pilot predicts a binary warning response (no RUL MAE). Pilot size is too small for operational conclusions. No source NASA archive or licensed model weights are redistributed. The dataset license needs upstream clarification. PR #836 is still **open**, not merged.
+*NASA FD001 is simulated data, not live aircraft or real maintenance telemetry.* The demo displays selected held-out predictions from independent CPU-trained models; it does **not** execute the 5B checkpoint live. The OpenTime model predicts a binary 30-cycle warning (no RUL MAE). 100 test engines are too few for operational conclusions, and the seeds trained on 1,568, 1,190 and 1,418 examples because the script fits the training set to a time budget. No source NASA archive or licensed model weights are redistributed. The dataset license needs upstream clarification. PR #836 is still **open**, not merged.
 
 **Competition submission status:** the team owner reported submitting the official Tally Round 1 form on November 22, 2026. We have not independently obtained an organizer project receipt or public social post permalinks, so do not imply external receipt verification. The entry should not be resubmitted.
 
@@ -96,7 +97,7 @@ The CPU-only [frozen-model longitudinal experiment](https://github.com/evansmusi
 - Across the correlated test windows: TP 74 / FP 11 / FN 14 / TN 2,064; descriptive window-level F1 **0.8555**. These overlapping windows are **not independent test engines**.
 - **75 engines did not have recorded observations within the last 30 cycles before failure**; they cannot be scored as successful or unsuccessful near-failure detections.
 
-This is the **same independently trained compact temporal QA Transformer**, **not** the genuine organizer OpenTime 5B model, which remained F1 **0.3243** after its 16-window GPU pilot. The replay is research-only, with no commercial uptime/savings figures, no unrecorded operational data, and no revised Tally submission. Use this evidence to discuss exactly when a warning arrives and how false alerts would affect a human inspection workflow.
+This is the **same independently trained compact temporal QA Transformer**, **not** the genuine organizer OpenTime 5B model, whose results are reported separately (v2 fine-tune: F1 0.913–0.958 across three seeds; the 0.3243 pilot is superseded). The replay is research-only, with no commercial uptime/savings figures, no unrecorded operational data, and no revised Tally submission. Use this evidence to discuss exactly when a warning arrives and how false alerts would affect a human inspection workflow.
 
 
 ## Additional same-history classical comparison — November 22

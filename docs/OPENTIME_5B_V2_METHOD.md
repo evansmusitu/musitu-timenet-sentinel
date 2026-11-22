@@ -1,4 +1,6 @@
-# OpenTime 5B v2: evaluation and training protocol (not yet run on GPU)
+# Alternative OpenTime protocol: 256/64 sampling and likelihood evaluation (not run on GPU)
+
+> **Status note (22 November 2026):** this alternative protocol was prepared but never run on a GPU. The completed OpenTime fine-tune on all 80 development engines, with the same Yes/No likelihood scoring idea, is reported in [OPENTIME_5B_VERIFIED_GPU_RESULTS.md](OPENTIME_5B_VERIFIED_GPU_RESULTS.md): F1 0.958 / 0.958 / 0.913 across three seeds. Statements below such as "no new 5B F1" describe this document's protocol only.
 
 **Objective:** Improve the genuine organizer-style `opentime/tslm-nov26` model's warning recall and F1, not confuse its scores with the independent compact temporal model.
 

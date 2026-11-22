@@ -1,0 +1,128 @@
+{
+  "dataset": "NASA C-MAPSS FD001 (simulated), 100 official test engines, 25 within 30 cycles",
+  "checkpoint": "opentime/tslm-nov26@5e030b001fb8d4be6d10ebb3a8b9bc3e6ef80983",
+  "classical_baseline": {
+    "tp": 20,
+    "fp": 0,
+    "fn": 5,
+    "tn": 75,
+    "precision": 1.0,
+    "recall": 0.8,
+    "f1": 0.8888888888888888,
+    "accuracy": 0.95
+  },
+  "seeds": [
+    {
+      "seed": 42,
+      "train_examples": 1568,
+      "threshold_from_validation": 4.124999778345227,
+      "validation_threshold": {
+        "tp": 23,
+        "fp": 0,
+        "fn": 2,
+        "tn": 75,
+        "precision": 1.0,
+        "recall": 0.92,
+        "f1": 0.9583333333333334,
+        "accuracy": 0.98
+      },
+      "greedy_generation": {
+        "tp": 25,
+        "fp": 2,
+        "fn": 0,
+        "tn": 73,
+        "precision": 0.9259259259259259,
+        "recall": 1.0,
+        "f1": 0.9615384615384616,
+        "accuracy": 0.98,
+        "invalid_outputs": 0
+      },
+      "test_auroc": 0.9989333333333333,
+      "paired_bootstrap_95_f1_gain_threshold": {
+        "lower": -0.025551684088269355,
+        "upper": 0.18648806909676466
+      },
+      "github_actions_run": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45018761652"
+    },
+    {
+      "seed": 7,
+      "train_examples": 1190,
+      "threshold_from_validation": 2.2500033378601074,
+      "validation_threshold": {
+        "tp": 23,
+        "fp": 0,
+        "fn": 2,
+        "tn": 75,
+        "precision": 1.0,
+        "recall": 0.92,
+        "f1": 0.9583333333333334,
+        "accuracy": 0.98
+      },
+      "greedy_generation": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 1,
+        "tn": 75,
+        "precision": 1.0,
+        "recall": 0.96,
+        "f1": 0.9795918367346939,
+        "accuracy": 0.99,
+        "invalid_outputs": 0
+      },
+      "test_auroc": 1.0,
+      "paired_bootstrap_95_f1_gain_threshold": {
+        "lower": 0.0,
+        "upper": 0.1630434782608695
+      },
+      "github_actions_run": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45021536671"
+    },
+    {
+      "seed": 99,
+      "train_examples": 1418,
+      "threshold_from_validation": 2.5000014156103134,
+      "validation_threshold": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 4,
+        "tn": 75,
+        "precision": 1.0,
+        "recall": 0.84,
+        "f1": 0.9130434782608695,
+        "accuracy": 0.96
+      },
+      "greedy_generation": {
+        "tp": 24,
+        "fp": 2,
+        "fn": 1,
+        "tn": 73,
+        "precision": 0.9230769230769231,
+        "recall": 0.96,
+        "f1": 0.9411764705882353,
+        "accuracy": 0.97,
+        "invalid_outputs": 0
+      },
+      "test_auroc": 0.9981333333333333,
+      "paired_bootstrap_95_f1_gain_threshold": {
+        "lower": -0.08424908424908428,
+        "upper": 0.13715408915408897
+      },
+      "github_actions_run": "https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45021536671"
+    }
+  ],
+  "f1_threshold": {
+    "min": 0.9130434782608695,
+    "max": 0.9583333333333334,
+    "mean": 0.9432367149758454
+  },
+  "f1_generation": {
+    "min": 0.9411764705882353,
+    "max": 0.9795918367346939,
+    "mean": 0.9607689229537968
+  },
+  "caveats": [
+    "Simulated engines only; not evidence for real aircraft maintenance.",
+    "100 test engines: paired bootstrap 95% intervals on the F1 gain over the baseline have a lower bound at or below zero for every seed (-0.084 to 0.000), so superiority is not statistically established.",
+    "The script sized the training set from a measured-speed time budget, so seeds trained on 1568, 1190 and 1418 examples.",
+    "Test labels were never used for training, epoch selection or thresholds."
+  ]
+}
