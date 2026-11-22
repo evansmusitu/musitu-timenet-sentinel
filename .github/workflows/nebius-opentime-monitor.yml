@@ -1,0 +1,107 @@
+name: MUSITU OpenTime pilot independent cloud timeout monitor
+
+on:
+  schedule:
+    - cron: '3,13,23,33,43,53 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/nebius-opentime-monitor.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: musitu-nebius-opentime-safety-monitor
+  cancel-in-progress: false
+
+jobs:
+  inspect-and-cancel-stale:
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+      KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+      PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+      EXPECTED_JOB: musitu-opentime-fd001-pilot-20261122
+    steps:
+      - name: Verify exact single job and enforce maximum age independent of launcher
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          set +x
+          umask 077
+          [[ -n "$SA_ID" && -n "$KEY_ID" && -n "$PRIVATE_PEM" ]] || { echo "Missing credentials"; exit 2; }
+          [[ "$SA_ID" == "serviceaccount-e04afk1xvsf8pwvd58" ]] || exit 3
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          printf '%s\n' "$PRIVATE_PEM" > "$tmp/key.pem"
+          openssl pkey -in "$tmp/key.pem" -noout 2>/dev/null
+          curl --fail --silent --show-error --location https://storage.eu-north1.nebius.cloud/cli/install.sh -o "$tmp/cli-install.sh"
+          bash "$tmp/cli-install.sh" >/dev/null
+          if ! command -v nebius >/dev/null 2>&1; then
+            path="$(find "$HOME" -maxdepth 5 -type f -name nebius -perm -u+x -print -quit 2>/dev/null)"
+            [[ -n "$path" ]] || exit 4
+            export PATH="$(dirname "$path"):$PATH"
+          fi
+          nebius profile create --endpoint api.nebius.cloud --service-account-id "$SA_ID" \
+            --public-key-id "$KEY_ID" --private-key-file "$tmp/key.pem" \
+            --profile musitu-monitor --parent-id project-e04p7wefbc00y3c7de0pcn >/dev/null
+          nebius iam project list --parent-id tenant-e00tpcsv2jp7n3t544 --all --profile musitu-monitor --format json > "$tmp/projects.json"
+          python - "$tmp/projects.json" "$tmp/project" <<'PY'
+          import json,sys
+          data=json.load(open(sys.argv[1],encoding="utf-8"))
+          projects=data.get("items",[]) if isinstance(data,dict) else data
+          matches=[p for p in projects if (p.get("status") or {}).get("region")=="eu-south1"]
+          if len(matches)!=1:
+              raise SystemExit("No unambiguous eu-south1 project; watchdog failed closed")
+          project=(matches[0].get("metadata") or {}).get("id","")
+          if not project.startswith("project-"):
+              raise SystemExit("Bad project ID")
+          open(sys.argv[2],"w",encoding="utf-8").write(project)
+          PY
+          PROJECT="$(cat "$tmp/project")"
+          if ! nebius ai job get-by-name --parent-id "$PROJECT" --name "$EXPECTED_JOB" \
+                 --profile musitu-monitor --format json > "$tmp/job.json" 2>/dev/null; then
+            echo "No accessible pilot job yet; no resources modified."
+            exit 0
+          fi
+          python - "$tmp/job.json" "$PROJECT" "$tmp/action" <<'PY'
+          import datetime,json,sys
+          doc=json.load(open(sys.argv[1],encoding="utf-8"))
+          meta=doc.get("metadata") or {}
+          status=doc.get("status") or {}
+          if meta.get("name")!="musitu-opentime-fd001-pilot-20261122" or meta.get("parent_id")!=sys.argv[2]:
+              raise SystemExit("Unexpected job identity: refusing cancellation")
+          jid=meta.get("id","")
+          if not jid.startswith(("job-","aijob-")):
+              raise SystemExit("Unexpected job ID: refusing cancellation")
+          state=status.get("state","UNKNOWN")
+          print("Nebius OpenTime pilot state:",state)
+          if state in ("COMPLETED","FAILED","CANCELLED","ERROR"):
+              print("Pilot terminal: no mutation")
+              open(sys.argv[3],"w").write("none")
+              raise SystemExit(0)
+          t=meta.get("created_at") or status.get("started_at")
+          if not t:
+              print("Creation timestamp missing: cannot determine age")
+              open(sys.argv[3],"w").write("none")
+              raise SystemExit(0)
+          created=datetime.datetime.fromisoformat(t.replace("Z","+00:00"))
+          age=(datetime.datetime.now(datetime.timezone.utc)-created).total_seconds()/60
+          print("Pilot age in minutes:",round(age,1))
+          if age>=72:
+              open(sys.argv[3],"w").write(jid)
+          else:
+              open(sys.argv[3],"w").write("none")
+          PY
+          action="$(cat "$tmp/action")"
+          if [[ "$action" == job-* || "$action" == aijob-* ]]; then
+            echo "Independent expiry limit exceeded: cancelling only the verified pilot job."
+            nebius ai job cancel --id "$action" --profile musitu-monitor >/dev/null
+            echo "Job cancellation accepted; verify terminal state."
+          else
+            echo "No cancellation required. Cloud job also has a native 1h timeout."
+          fi
