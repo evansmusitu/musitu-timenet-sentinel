@@ -23,7 +23,7 @@ This is **evidence of input-sequence sensitivity** on NASA simulated engines. It
 
 **0–15s — The problem.** "Imagine a maintenance analyst looking at a complex machine with 21 sensors and three operating settings. Can we identify an early warning without looking into its future? We use NASA C-MAPSS FD001 simulated engine histories to test that question. This is a research benchmark—not a deployed aviation system."
 
-**15–35s — A decision, not just a metric.** Open the [100-engine decision audit](https://evansmusitu.github.io/musitu-timenet-sentinel/decision-audit.html). The independent classical baseline identifies 20 of 25 at-risk engines, missing five, with no false alarms. Our separate compact temporal warning head identifies 24 of 25 at-risk engines, missing one, with one false alarm. Then select **Engine 041** in the [interactive engine demo](https://evansmusitu.github.io/musitu-timenet-sentinel/#demo): true remaining life 18 cycles; classical prediction 38.68 (missed), compact prediction 28.42 (warning). This is one deliberately selected held-out example, not a typical case. The complete evaluation spans 100 engines.
+**15–35s — Watch an operator decision, with genuine failure cases.** Open the [recorded maintenance-history replay](https://evansmusitu.github.io/musitu-timenet-sentinel/maintenance-replay.html). Select **Engine 018** (caught risk), advance through the frozen model's past-only observed windows, and reveal the actual remaining life only after making the call. Then switch to **Engine 091** (premature alert) or **Engine 040** (missed risk) to show genuine errors. Across all 100 held-out engines, **24 of 25 with observed final-30-cycle history were warned** and **eight engines had an early false alert**. The [full 100-engine endpoint audit](https://evansmusitu.github.io/musitu-timenet-sentinel/decision-audit.html) separately reports compact vs classical model decisions; do not conflate 0.855 window-F1 with 0.960 endpoint-F1.
 
 **35–55s — TimeNet contribution.** Point to [upstream PR #836](https://github.com/OpenTSLM/TimeNet/pull/836). It adds a real C-MAPSS FD001 dataset connector with **30-cycle past-only windows**, **engine-disjoint development splits**, separate official held-out test engines, source checksums and no raw-data redistribution. The connector now also has 11 purpose-built synthetic tests, strict source/label validation, and a [successful actual TimeNet environment acceptance job](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45002805232) including the real NASA dataset conversion. Upstream PR review and precise source license provenance remain unresolved.
 
@@ -83,3 +83,17 @@ These findings support a **need for validation under distribution shift**, not a
 *NASA FD001 is simulated data, not live aircraft or real maintenance telemetry.* The demo displays selected held-out predictions from independent CPU-trained models; it does **not** execute the 5B checkpoint live. The OpenTime pilot predicts a binary warning response (no RUL MAE). Pilot size is too small for operational conclusions. No source NASA archive or licensed model weights are redistributed. The dataset license needs upstream clarification. PR #836 is still **open**, not merged.
 
 **Competition submission status:** the team owner reported submitting the official Tally Round 1 form on November 22, 2026. We have not independently obtained an organizer project receipt or public social post permalinks, so do not imply external receipt verification. The entry should not be resubmitted.
+
+
+## Additional verified longitudinal evidence — November 22 (post-submission)
+
+Open the [chronological maintenance operator replay](https://evansmusitu.github.io/musitu-timenet-sentinel/maintenance-replay.html) after the [original 100-engine endpoint audit](https://evansmusitu.github.io/musitu-timenet-sentinel/decision-audit.html).
+
+The CPU-only [frozen-model longitudinal experiment](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45037237604) reproduced the original compact-model endpoint artifact and then evaluated **2,163 past-only 30-cycle windows** across the official 100 NASA FD001 simulated test engines. At the unmodified 0.5 warning threshold and fixed five-cycle replay cadence:
+
+- **24 of 25 engines whose observed data entered the final 30-cycle risk horizon** received at least one correct within-horizon warning; one did not.
+- **Eight of 100 engines** received at least one premature warning with true RUL still above 30 cycles.
+- Across the correlated test windows: TP 74 / FP 11 / FN 14 / TN 2,064; descriptive window-level F1 **0.8555**. These overlapping windows are **not independent test engines**.
+- **75 engines did not have recorded observations within the last 30 cycles before failure**; they cannot be scored as successful or unsuccessful near-failure detections.
+
+This is the **same independently trained compact temporal QA Transformer**, **not** the genuine organizer OpenTime 5B model, which remained F1 **0.3243** after its 16-window GPU pilot. The replay is research-only, with no commercial uptime/savings figures, no unrecorded operational data, and no revised Tally submission. Use this evidence to discuss exactly when a warning arrives and how false alerts would affect a human inspection workflow.

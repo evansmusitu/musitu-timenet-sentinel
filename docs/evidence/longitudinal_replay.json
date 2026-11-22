@@ -1,0 +1,835 @@
+{
+  "project": "MUSITU AXIOM Sentinel",
+  "study": "Post-hoc frozen compact-model history replay",
+  "dataset": "NASA C-MAPSS FD001, 100 held-out simulated engines",
+  "model": "Independent compact temporal QA Transformer; NOT OpenTime 5B",
+  "sample_stride_cycles": 5,
+  "window_length_cycles": 30,
+  "warning_horizon_cycles": 30,
+  "fixed_probability_threshold": 0.5,
+  "frozen_checkpoint_sha256": "6f085be7015a48d48d6c1fed28dae9e888ee19dec495fcba085f375edbc6847c",
+  "frozen_prediction_sha256": "bbc89e6a15a5fca61165466808202d0a5924aa55218660b8c581ed6022f890ec",
+  "original_endpoint_predictions_reproduced": true,
+  "heldout_frozen_model_no_retraining": true,
+  "metrics": {
+    "observed_windows": 2163,
+    "window_confusion": {
+      "tp": 74,
+      "fp": 11,
+      "fn": 14,
+      "tn": 2064
+    },
+    "window_warning_f1": 0.8554913294797688,
+    "engines": {
+      "total": 100,
+      "with_in_horizon_observations": 25,
+      "with_in_horizon_warning": 24,
+      "with_in_horizon_no_warning": 1,
+      "with_out_of_horizon_false_alert": 8,
+      "without_observed_in_horizon_data": 75
+    }
+  },
+  "cases": [
+    {
+      "engine_id": 18,
+      "category": "caught_risk",
+      "any_premature_alert": false,
+      "sampled_history": [
+        {
+          "cycle": 30,
+          "warning_probability": 0.00045,
+          "predicted_rul": 155.88,
+          "actual_rul": 131
+        },
+        {
+          "cycle": 35,
+          "warning_probability": 0.00017,
+          "predicted_rul": 144.23,
+          "actual_rul": 126
+        },
+        {
+          "cycle": 40,
+          "warning_probability": 0.00024,
+          "predicted_rul": 147.73,
+          "actual_rul": 121
+        },
+        {
+          "cycle": 45,
+          "warning_probability": 0.00017,
+          "predicted_rul": 138.5,
+          "actual_rul": 116
+        },
+        {
+          "cycle": 50,
+          "warning_probability": 0.00018,
+          "predicted_rul": 137.95,
+          "actual_rul": 111
+        },
+        {
+          "cycle": 55,
+          "warning_probability": 0.00015,
+          "predicted_rul": 142.79,
+          "actual_rul": 106
+        },
+        {
+          "cycle": 60,
+          "warning_probability": 0.00022,
+          "predicted_rul": 139.63,
+          "actual_rul": 101
+        },
+        {
+          "cycle": 65,
+          "warning_probability": 0.00029,
+          "predicted_rul": 149.2,
+          "actual_rul": 96
+        },
+        {
+          "cycle": 70,
+          "warning_probability": 0.00014,
+          "predicted_rul": 134.96,
+          "actual_rul": 91
+        },
+        {
+          "cycle": 75,
+          "warning_probability": 0.0002,
+          "predicted_rul": 145.39,
+          "actual_rul": 86
+        },
+        {
+          "cycle": 80,
+          "warning_probability": 0.00041,
+          "predicted_rul": 148.66,
+          "actual_rul": 81
+        },
+        {
+          "cycle": 85,
+          "warning_probability": 0.00302,
+          "predicted_rul": 63.62,
+          "actual_rul": 76
+        },
+        {
+          "cycle": 90,
+          "warning_probability": 0.00035,
+          "predicted_rul": 132.45,
+          "actual_rul": 71
+        },
+        {
+          "cycle": 95,
+          "warning_probability": 0.00034,
+          "predicted_rul": 131.83,
+          "actual_rul": 66
+        },
+        {
+          "cycle": 100,
+          "warning_probability": 0.00091,
+          "predicted_rul": 143.39,
+          "actual_rul": 61
+        },
+        {
+          "cycle": 105,
+          "warning_probability": 0.0004,
+          "predicted_rul": 135.33,
+          "actual_rul": 56
+        },
+        {
+          "cycle": 110,
+          "warning_probability": 0.00047,
+          "predicted_rul": 138.05,
+          "actual_rul": 51
+        },
+        {
+          "cycle": 115,
+          "warning_probability": 0.00101,
+          "predicted_rul": 69.29,
+          "actual_rul": 46
+        },
+        {
+          "cycle": 120,
+          "warning_probability": 0.00811,
+          "predicted_rul": 50.27,
+          "actual_rul": 41
+        },
+        {
+          "cycle": 125,
+          "warning_probability": 0.00458,
+          "predicted_rul": 58.53,
+          "actual_rul": 36
+        },
+        {
+          "cycle": 130,
+          "warning_probability": 0.41822,
+          "predicted_rul": 36.18,
+          "actual_rul": 31
+        },
+        {
+          "cycle": 133,
+          "warning_probability": 0.57469,
+          "predicted_rul": 33.17,
+          "actual_rul": 28
+        }
+      ]
+    },
+    {
+      "engine_id": 40,
+      "category": "missed_risk",
+      "any_premature_alert": false,
+      "sampled_history": [
+        {
+          "cycle": 30,
+          "warning_probability": 1e-05,
+          "predicted_rul": 111.56,
+          "actual_rul": 131
+        },
+        {
+          "cycle": 35,
+          "warning_probability": 2e-05,
+          "predicted_rul": 118.34,
+          "actual_rul": 126
+        },
+        {
+          "cycle": 40,
+          "warning_probability": 3e-05,
+          "predicted_rul": 115.34,
+          "actual_rul": 121
+        },
+        {
+          "cycle": 45,
+          "warning_probability": 3e-05,
+          "predicted_rul": 115.79,
+          "actual_rul": 116
+        },
+        {
+          "cycle": 50,
+          "warning_probability": 4e-05,
+          "predicted_rul": 117.66,
+          "actual_rul": 111
+        },
+        {
+          "cycle": 55,
+          "warning_probability": 5e-05,
+          "predicted_rul": 110.9,
+          "actual_rul": 106
+        },
+        {
+          "cycle": 60,
+          "warning_probability": 0.00011,
+          "predicted_rul": 120.0,
+          "actual_rul": 101
+        },
+        {
+          "cycle": 65,
+          "warning_probability": 0.00011,
+          "predicted_rul": 107.39,
+          "actual_rul": 96
+        },
+        {
+          "cycle": 70,
+          "warning_probability": 0.00045,
+          "predicted_rul": 86.87,
+          "actual_rul": 91
+        },
+        {
+          "cycle": 75,
+          "warning_probability": 8e-05,
+          "predicted_rul": 95.07,
+          "actual_rul": 86
+        },
+        {
+          "cycle": 80,
+          "warning_probability": 4e-05,
+          "predicted_rul": 101.58,
+          "actual_rul": 81
+        },
+        {
+          "cycle": 85,
+          "warning_probability": 2e-05,
+          "predicted_rul": 102.09,
+          "actual_rul": 76
+        },
+        {
+          "cycle": 90,
+          "warning_probability": 4e-05,
+          "predicted_rul": 92.25,
+          "actual_rul": 71
+        },
+        {
+          "cycle": 95,
+          "warning_probability": 2e-05,
+          "predicted_rul": 90.77,
+          "actual_rul": 66
+        },
+        {
+          "cycle": 100,
+          "warning_probability": 3e-05,
+          "predicted_rul": 88.33,
+          "actual_rul": 61
+        },
+        {
+          "cycle": 105,
+          "warning_probability": 0.00011,
+          "predicted_rul": 74.02,
+          "actual_rul": 56
+        },
+        {
+          "cycle": 110,
+          "warning_probability": 0.01063,
+          "predicted_rul": 45.69,
+          "actual_rul": 51
+        },
+        {
+          "cycle": 115,
+          "warning_probability": 0.00143,
+          "predicted_rul": 54.96,
+          "actual_rul": 46
+        },
+        {
+          "cycle": 120,
+          "warning_probability": 0.01717,
+          "predicted_rul": 42.77,
+          "actual_rul": 41
+        },
+        {
+          "cycle": 125,
+          "warning_probability": 0.39496,
+          "predicted_rul": 34.04,
+          "actual_rul": 36
+        },
+        {
+          "cycle": 130,
+          "warning_probability": 0.03333,
+          "predicted_rul": 41.22,
+          "actual_rul": 31
+        },
+        {
+          "cycle": 133,
+          "warning_probability": 0.11383,
+          "predicted_rul": 37.59,
+          "actual_rul": 28
+        }
+      ]
+    },
+    {
+      "engine_id": 91,
+      "category": "premature_alert",
+      "any_premature_alert": true,
+      "sampled_history": [
+        {
+          "cycle": 30,
+          "warning_probability": 0.0007,
+          "predicted_rul": 142.2,
+          "actual_rul": 242
+        },
+        {
+          "cycle": 35,
+          "warning_probability": 0.00091,
+          "predicted_rul": 148.81,
+          "actual_rul": 237
+        },
+        {
+          "cycle": 40,
+          "warning_probability": 0.0006,
+          "predicted_rul": 119.41,
+          "actual_rul": 232
+        },
+        {
+          "cycle": 45,
+          "warning_probability": 0.00107,
+          "predicted_rul": 142.35,
+          "actual_rul": 227
+        },
+        {
+          "cycle": 50,
+          "warning_probability": 0.00067,
+          "predicted_rul": 136.8,
+          "actual_rul": 222
+        },
+        {
+          "cycle": 55,
+          "warning_probability": 0.00063,
+          "predicted_rul": 106.33,
+          "actual_rul": 217
+        },
+        {
+          "cycle": 60,
+          "warning_probability": 0.00018,
+          "predicted_rul": 115.69,
+          "actual_rul": 212
+        },
+        {
+          "cycle": 65,
+          "warning_probability": 0.0002,
+          "predicted_rul": 124.44,
+          "actual_rul": 207
+        },
+        {
+          "cycle": 70,
+          "warning_probability": 5e-05,
+          "predicted_rul": 116.39,
+          "actual_rul": 202
+        },
+        {
+          "cycle": 75,
+          "warning_probability": 7e-05,
+          "predicted_rul": 128.02,
+          "actual_rul": 197
+        },
+        {
+          "cycle": 80,
+          "warning_probability": 0.00021,
+          "predicted_rul": 112.93,
+          "actual_rul": 192
+        },
+        {
+          "cycle": 85,
+          "warning_probability": 0.00025,
+          "predicted_rul": 113.84,
+          "actual_rul": 187
+        },
+        {
+          "cycle": 90,
+          "warning_probability": 9e-05,
+          "predicted_rul": 112.56,
+          "actual_rul": 182
+        },
+        {
+          "cycle": 95,
+          "warning_probability": 9e-05,
+          "predicted_rul": 125.91,
+          "actual_rul": 177
+        },
+        {
+          "cycle": 100,
+          "warning_probability": 4e-05,
+          "predicted_rul": 119.88,
+          "actual_rul": 172
+        },
+        {
+          "cycle": 105,
+          "warning_probability": 3e-05,
+          "predicted_rul": 119.33,
+          "actual_rul": 167
+        },
+        {
+          "cycle": 110,
+          "warning_probability": 4e-05,
+          "predicted_rul": 117.88,
+          "actual_rul": 162
+        },
+        {
+          "cycle": 115,
+          "warning_probability": 3e-05,
+          "predicted_rul": 122.92,
+          "actual_rul": 157
+        },
+        {
+          "cycle": 120,
+          "warning_probability": 6e-05,
+          "predicted_rul": 119.71,
+          "actual_rul": 152
+        },
+        {
+          "cycle": 125,
+          "warning_probability": 5e-05,
+          "predicted_rul": 108.11,
+          "actual_rul": 147
+        },
+        {
+          "cycle": 130,
+          "warning_probability": 0.00011,
+          "predicted_rul": 114.78,
+          "actual_rul": 142
+        },
+        {
+          "cycle": 135,
+          "warning_probability": 0.00011,
+          "predicted_rul": 109.14,
+          "actual_rul": 137
+        },
+        {
+          "cycle": 140,
+          "warning_probability": 8e-05,
+          "predicted_rul": 100.84,
+          "actual_rul": 132
+        },
+        {
+          "cycle": 145,
+          "warning_probability": 0.00039,
+          "predicted_rul": 86.17,
+          "actual_rul": 127
+        },
+        {
+          "cycle": 150,
+          "warning_probability": 0.00012,
+          "predicted_rul": 93.3,
+          "actual_rul": 122
+        },
+        {
+          "cycle": 155,
+          "warning_probability": 7e-05,
+          "predicted_rul": 101.02,
+          "actual_rul": 117
+        },
+        {
+          "cycle": 160,
+          "warning_probability": 4e-05,
+          "predicted_rul": 99.42,
+          "actual_rul": 112
+        },
+        {
+          "cycle": 165,
+          "warning_probability": 3e-05,
+          "predicted_rul": 98.26,
+          "actual_rul": 107
+        },
+        {
+          "cycle": 170,
+          "warning_probability": 0.00043,
+          "predicted_rul": 72.47,
+          "actual_rul": 102
+        },
+        {
+          "cycle": 175,
+          "warning_probability": 8e-05,
+          "predicted_rul": 86.85,
+          "actual_rul": 97
+        },
+        {
+          "cycle": 180,
+          "warning_probability": 0.00158,
+          "predicted_rul": 64.54,
+          "actual_rul": 92
+        },
+        {
+          "cycle": 185,
+          "warning_probability": 0.0002,
+          "predicted_rul": 77.23,
+          "actual_rul": 87
+        },
+        {
+          "cycle": 190,
+          "warning_probability": 0.0002,
+          "predicted_rul": 72.15,
+          "actual_rul": 82
+        },
+        {
+          "cycle": 195,
+          "warning_probability": 0.00014,
+          "predicted_rul": 79.57,
+          "actual_rul": 77
+        },
+        {
+          "cycle": 200,
+          "warning_probability": 0.00015,
+          "predicted_rul": 76.69,
+          "actual_rul": 72
+        },
+        {
+          "cycle": 205,
+          "warning_probability": 0.00016,
+          "predicted_rul": 76.71,
+          "actual_rul": 67
+        },
+        {
+          "cycle": 210,
+          "warning_probability": 0.0581,
+          "predicted_rul": 40.87,
+          "actual_rul": 62
+        },
+        {
+          "cycle": 215,
+          "warning_probability": 0.00263,
+          "predicted_rul": 52.62,
+          "actual_rul": 57
+        },
+        {
+          "cycle": 220,
+          "warning_probability": 0.00965,
+          "predicted_rul": 45.29,
+          "actual_rul": 52
+        },
+        {
+          "cycle": 225,
+          "warning_probability": 0.02628,
+          "predicted_rul": 41.69,
+          "actual_rul": 47
+        },
+        {
+          "cycle": 230,
+          "warning_probability": 0.80493,
+          "predicted_rul": 28.54,
+          "actual_rul": 42
+        },
+        {
+          "cycle": 234,
+          "warning_probability": 0.93993,
+          "predicted_rul": 25.6,
+          "actual_rul": 38
+        }
+      ]
+    },
+    {
+      "engine_id": 1,
+      "category": "clean_monitoring",
+      "any_premature_alert": false,
+      "sampled_history": [
+        {
+          "cycle": 30,
+          "warning_probability": 0.00033,
+          "predicted_rul": 154.4,
+          "actual_rul": 113
+        },
+        {
+          "cycle": 31,
+          "warning_probability": 0.00032,
+          "predicted_rul": 149.85,
+          "actual_rul": 112
+        }
+      ]
+    },
+    {
+      "engine_id": 20,
+      "category": "caught_risk",
+      "any_premature_alert": false,
+      "sampled_history": [
+        {
+          "cycle": 30,
+          "warning_probability": 0.00041,
+          "predicted_rul": 120.71,
+          "actual_rul": 170
+        },
+        {
+          "cycle": 35,
+          "warning_probability": 0.00075,
+          "predicted_rul": 146.53,
+          "actual_rul": 165
+        },
+        {
+          "cycle": 40,
+          "warning_probability": 0.0006,
+          "predicted_rul": 123.82,
+          "actual_rul": 160
+        },
+        {
+          "cycle": 45,
+          "warning_probability": 0.00082,
+          "predicted_rul": 142.35,
+          "actual_rul": 155
+        },
+        {
+          "cycle": 50,
+          "warning_probability": 0.00073,
+          "predicted_rul": 126.09,
+          "actual_rul": 150
+        },
+        {
+          "cycle": 55,
+          "warning_probability": 0.00043,
+          "predicted_rul": 142.33,
+          "actual_rul": 145
+        },
+        {
+          "cycle": 60,
+          "warning_probability": 0.00035,
+          "predicted_rul": 141.79,
+          "actual_rul": 140
+        },
+        {
+          "cycle": 65,
+          "warning_probability": 0.00051,
+          "predicted_rul": 141.27,
+          "actual_rul": 135
+        },
+        {
+          "cycle": 70,
+          "warning_probability": 0.00044,
+          "predicted_rul": 143.63,
+          "actual_rul": 130
+        },
+        {
+          "cycle": 75,
+          "warning_probability": 0.00089,
+          "predicted_rul": 135.25,
+          "actual_rul": 125
+        },
+        {
+          "cycle": 80,
+          "warning_probability": 0.00123,
+          "predicted_rul": 108.5,
+          "actual_rul": 120
+        },
+        {
+          "cycle": 85,
+          "warning_probability": 0.00077,
+          "predicted_rul": 124.3,
+          "actual_rul": 115
+        },
+        {
+          "cycle": 90,
+          "warning_probability": 0.00082,
+          "predicted_rul": 116.49,
+          "actual_rul": 110
+        },
+        {
+          "cycle": 95,
+          "warning_probability": 0.00073,
+          "predicted_rul": 95.68,
+          "actual_rul": 105
+        },
+        {
+          "cycle": 100,
+          "warning_probability": 0.00093,
+          "predicted_rul": 128.4,
+          "actual_rul": 100
+        },
+        {
+          "cycle": 105,
+          "warning_probability": 0.00073,
+          "predicted_rul": 133.26,
+          "actual_rul": 95
+        },
+        {
+          "cycle": 110,
+          "warning_probability": 0.00111,
+          "predicted_rul": 132.35,
+          "actual_rul": 90
+        },
+        {
+          "cycle": 115,
+          "warning_probability": 0.00252,
+          "predicted_rul": 91.35,
+          "actual_rul": 85
+        },
+        {
+          "cycle": 120,
+          "warning_probability": 0.00056,
+          "predicted_rul": 103.59,
+          "actual_rul": 80
+        },
+        {
+          "cycle": 125,
+          "warning_probability": 0.00061,
+          "predicted_rul": 106.76,
+          "actual_rul": 75
+        },
+        {
+          "cycle": 130,
+          "warning_probability": 0.0125,
+          "predicted_rul": 54.19,
+          "actual_rul": 70
+        },
+        {
+          "cycle": 135,
+          "warning_probability": 0.00148,
+          "predicted_rul": 70.16,
+          "actual_rul": 65
+        },
+        {
+          "cycle": 140,
+          "warning_probability": 0.00029,
+          "predicted_rul": 92.09,
+          "actual_rul": 60
+        },
+        {
+          "cycle": 145,
+          "warning_probability": 0.0001,
+          "predicted_rul": 92.82,
+          "actual_rul": 55
+        },
+        {
+          "cycle": 150,
+          "warning_probability": 0.00163,
+          "predicted_rul": 56.85,
+          "actual_rul": 50
+        },
+        {
+          "cycle": 155,
+          "warning_probability": 0.00105,
+          "predicted_rul": 55.81,
+          "actual_rul": 45
+        },
+        {
+          "cycle": 160,
+          "warning_probability": 0.0032,
+          "predicted_rul": 49.92,
+          "actual_rul": 40
+        },
+        {
+          "cycle": 165,
+          "warning_probability": 0.06282,
+          "predicted_rul": 38.97,
+          "actual_rul": 35
+        },
+        {
+          "cycle": 170,
+          "warning_probability": 0.82305,
+          "predicted_rul": 28.32,
+          "actual_rul": 30
+        },
+        {
+          "cycle": 175,
+          "warning_probability": 0.99809,
+          "predicted_rul": 19.43,
+          "actual_rul": 25
+        },
+        {
+          "cycle": 180,
+          "warning_probability": 0.99437,
+          "predicted_rul": 20.77,
+          "actual_rul": 20
+        },
+        {
+          "cycle": 184,
+          "warning_probability": 0.9966,
+          "predicted_rul": 20.36,
+          "actual_rul": 16
+        }
+      ]
+    },
+    {
+      "engine_id": 2,
+      "category": "clean_monitoring",
+      "any_premature_alert": false,
+      "sampled_history": [
+        {
+          "cycle": 30,
+          "warning_probability": 0.0029,
+          "predicted_rul": 145.87,
+          "actual_rul": 117
+        },
+        {
+          "cycle": 35,
+          "warning_probability": 0.00193,
+          "predicted_rul": 139.51,
+          "actual_rul": 112
+        },
+        {
+          "cycle": 40,
+          "warning_probability": 0.004,
+          "predicted_rul": 143.09,
+          "actual_rul": 107
+        },
+        {
+          "cycle": 45,
+          "warning_probability": 0.00813,
+          "predicted_rul": 139.48,
+          "actual_rul": 102
+        },
+        {
+          "cycle": 49,
+          "warning_probability": 0.00483,
+          "predicted_rul": 148.15,
+          "actual_rul": 98
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Multiple windows per engine are correlated; pooled-window metrics are not independent-engine confidence estimates.",
+    "Official FD001 test trajectories stop before failure; many engines have no observed data within 30 cycles of failure.",
+    "A past-only rolling replay is not a deployed live monitor and has no measured operational benefit.",
+    "Some early warnings are premature false alerts under the fixed 30-cycle horizon.",
+    "Only selected prediction traces are included in the public report; no raw source sensor rows are redistributed.",
+    "This uses the independent compact model, NOT the organizer's OpenTime 5B pilot.",
+    "Exploratory analysis uses the fixed 0.5 threshold; no test-threshold tuning."
+  ]
+}
