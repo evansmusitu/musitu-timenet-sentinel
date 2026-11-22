@@ -33,6 +33,7 @@ def main():
     p.add_argument("--val-loss-limit", type=int, default=96)
     p.add_argument("--val-cuts-per-engine", type=int, default=10)
     p.add_argument("--seed", type=int, default=42, help="Training seed (data selection stays fixed)")
+    p.add_argument("--subset", choices=["FD001", "FD004"], default="FD001")
     args = p.parse_args()
 
     import re
@@ -49,8 +50,14 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     started = time.time()
 
-    train, test, labels = load_fd001(download_dataset(Path("data/raw")))
-    dev_a, dev_b = partitions(train)
+    root = download_dataset(Path("data/raw"))
+    subset_info = {}
+    if args.subset == "FD004":
+        from .opentime_fd004 import load_fd004
+        dev_a, dev_b, test, labels, subset_info = load_fd004(root, partitions)
+    else:
+        train, test, labels = load_fd001(root)
+        dev_a, dev_b = partitions(train)
     v2.check_sensors(dev_a)
     train_rows = v2.training_rows(dev_a, seed=42)
     rng = random.Random(43)
@@ -128,7 +135,7 @@ def main():
 
     report = {
         "checkpoint": MODEL_ID, "revision": args.revision, "helper_revision": HELPER_REV,
-        "helper_sha256": helper_sha, "dataset": "NASA C-MAPSS FD001 (simulated)",
+        "helper_sha256": helper_sha, "dataset": f"NASA C-MAPSS {args.subset} (simulated)", "subset_info": subset_info,
         "protocol": "full past-only history, 14 varying sensors, cycle count in prompt; epoch by "
                     "validation loss; threshold by F1 on validation-engine truncations; one test pass",
         "train_examples": len(tr), "val_loss_examples": len(vl), "val_threshold_examples": len(val_cut_rows),
