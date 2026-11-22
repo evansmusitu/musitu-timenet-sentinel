@@ -27,6 +27,6 @@ def test_published_paired_evidence_is_consistent_with_original_2163_window_proto
             +x["baseline_only_risk_detection"]+x["neither_detect_risk"])==25
     assert (x["both_detect_risk"]+x["compact_only_risk_detection"])==report["compact"]["engines"]["detected"]
     assert (x["both_detect_risk"]+x["baseline_only_risk_detection"])==report["classical"]["engines"]["detected"]
-    site=(p.parents[1]/"docs/maintenance-replay.html").read_text()
+    site=(p.parents[1]/"maintenance-replay.html").read_text()
     assert "24 vs 21" in site and "8 vs 5" in site
     assert "not statistically conclusive" in site
