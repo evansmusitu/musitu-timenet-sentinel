@@ -2,7 +2,13 @@
 
 Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 simulated turbofan engine telemetry.
 
-**Status:** NASA C-MAPSS FD001 CPU benchmarks reproduced and OpenTime November 2026 5B checkpoint **genuinely loaded, fine-tuned for one small epoch and evaluated** on an RTX PRO 6000 GPU. 100-engine held-out warning F1 increased from 0.000 to 0.324 (accuracy 24% to 75%); still below the separate CPU baselines. See [verified GPU evidence](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md).
+**Status:** the organizer's OpenTime November 2026 5B time-series language model, fine-tuned on all 80 FD001 development-train engines, reaches **30-cycle warning F1 0.958 / 0.958 / 0.913** across three training seeds on the 100 official NASA test engines, with zero false alarms. That beats our classical gradient-boosting baseline (0.889) in every seed and is on par with our separate compact temporal Transformer (0.960). Bootstrap intervals on the gain touch zero, so superiority is not statistically established. The first 16-example pilot (F1 0.324) is superseded. See [verified GPU evidence](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md).
+
+| 100 official FD001 test engines (25 at risk) | Caught | False alarms | Missed | Warning F1 |
+|---|---:|---:|---:|---:|
+| Classical gradient boosting | 20 | 0 | 5 | 0.889 |
+| Compact temporal QA Transformer (not OpenTime) | 24 | 1 | 1 | 0.960 |
+| **OpenTime 5B v2, seed 42 / 7 / 99** | 23 / 23 / 21 | 0 / 0 / 0 | 2 / 2 / 4 | **0.958 / 0.958 / 0.913** |
 
 ## TimeNet Round 1 evidence package
 
@@ -10,7 +16,7 @@ Evidence-first predictive maintenance prototype using NASA Ames C-MAPSS FD001 si
 - **Verified 100-engine decision audit:** [Confusion matrices, uncertainty intervals and an interactive maintenance-warning trade-off](docs/decision-audit.html).
 - **Cross-cohort robustness lab (new):** [Independent FD001-frozen model transfer across four NASA simulated cohorts, and exploratory FD004-heldout multi-domain models](docs/robustness-lab.html). Experiments use CPU-only models **not OpenTime 5B**.
 - **Competition submission pack:** [Technical pitch, TimeNet PR, evaluation evidence and limitations](docs/TIMENET_ROUND1_FINAL_SUBMISSION.md).
-- **Completed organizer OpenTime 5B pilot:** [Verified model metrics and limitations](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md) · [successful Nebius run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462) · [recovered job logs](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44984604004).
+- **OpenTime 5B v2 fine-tune:** [Verified metrics and limitations](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md) · [seed 42 Nebius run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45018761652) · [seeds 7 and 99](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45021536671) · [evidence summary](docs/evidence/opentime-v2/summary.json). Superseded pilot: [run](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462).
 - **Real-time GPU capacity:** [Nebius RTX 6000 96 GiB quota-clipped availability](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44982965639).
 - **Independent cloud safety monitor:** [Read-only verification](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983644358) and time-limited native Nebius Job configuration.
 - **Round 1 entry:** the team owner reports that the official [Tally project form](https://tally.so/r/J1qbyK) was submitted November 22, 2026. An independent organizer receipt has not been verified. Do not submit a duplicate entry.
@@ -38,18 +44,17 @@ We then explored separate CPU classical models trained on **FD001/FD002/FD003 de
 
 [Open the public, aggregate-only robustness lab](https://evansmusitu.github.io/musitu-timenet-sentinel/robustness-lab.html) · [Original classical transfer CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45003875499) · [Original compact checkpoint transfer CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45003991598) · [Multi-domain classifier CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45004601674).
 
-## Experimental OpenTime checkpoint adaptation (small GPU pilot completed)
+## OpenTime 5B fine-tune
 
-A new GPU runner is checked in at `sentinel/opentime_train.py`. It uses the organizer-recommended AWS reference implementation pinned to commit `b83a9901d401e9e872ee9048fe61e6c9df9a5b78` and explicit immutable HF checkpoint revision. It constructs past-only 24-channel windows, freezes the base model according to the upstream recipe, selects the best epoch on development engines only, and logs before/after performance and raw predictions on the fixed 100-engine official test set. The model was loaded on a genuine RTX PRO 6000 GPU and completed one epoch, with F1=0.324 on 100 held-out NASA official test engines. The data adapter was also exercised with regression tests. See [full reproducible GPU report](docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md).
+`sentinel/opentime_v2_train.py` fine-tunes `opentime/tslm-nov26` with the organizer-recommended AWS reference implementation (pinned to commit `b83a9901d401e9e872ee9048fe61e6c9df9a5b78`) and an immutable checkpoint revision. It gives the model each engine's full past-only history of the 14 varying sensors plus the cycle count, trains on the 80 development-train engines, selects the epoch by validation loss on 20 disjoint engines, picks the warning threshold on truncated validation histories, and then scores the 100 official test engines once. `sentinel/opentime_v2_audit.py` compares the result with the classical baseline engine by engine. Nebius jobs: `.github/workflows/nebius-opentime-v2.yml` and `nebius-opentime-v2-seeds.yml`.
 
 ```bash
-# Run on CUDA-enabled PyTorch 2.9 GPU image; recommend one 80 GB GPU.
+# Run on a CUDA PyTorch 2.9 image with one GPU of at least 48 GB.
 python -m pip install -r requirements-opentime.txt
-REV=$(python -c 'from huggingface_hub import model_info; print(model_info("opentime/tslm-nov26").sha)')
-python -m sentinel.opentime_train --revision "$REV" --epochs 1 --train-limit 48 --val-limit 24
+python -m sentinel.opentime_v2_train --revision 5e030b001fb8d4be6d10ebb3a8b9bc3e6ef80983 --seed 42 --epochs 3
 ```
 
-Results and adapted parameter weights go to `artifacts/opentime/`. Inspect the checkpoint's Gemma license prior to use or distribution. No GPU execution or paid cloud provisioning is performed by this script.
+Results go to `artifacts/opentime_v2/`. The first pilot's runner (`sentinel/opentime_train.py`) is kept for reproducibility. Inspect the checkpoint's Gemma license prior to use or distribution. No GPU execution or paid cloud provisioning is performed by this script.
 
 ## Reproduce
 
@@ -73,4 +78,4 @@ Archived source: https://zenodo.org/records/15346912 (MD5 `79a22f36e80606c69d0e9
 
 TimeNet: https://github.com/OpenTSLM/TimeNet . Current challenge: https://challenge.timenet.ai/ . Submission deadline 2026-11-22 11:59 p.m. PST, official form https://tally.so/r/J1qbyK .
 
-**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from a CPU baseline must not be presented as TSLM results. The upstream PR is **open and ready for review, not merged**, and the demo is published. Remaining: upstream TimeNet maintainer review and dataset-license clarification; independent verification of the user's reported Tally submission and public social-post permalinks. The OpenTime GPU pilot has been completed and verified but needs larger training experiments to improve warning F1.
+**Limitations:** Engine data is simulated. Do not use these predictions for real aircraft maintenance. Results from the CPU baselines must not be presented as TSLM results; the OpenTime v2 numbers are binary 30-cycle warnings on 100 test engines, not remaining-life estimates. The upstream PR is **open and ready for review, not merged**, and the demo is published. Remaining: upstream TimeNet maintainer review and dataset-license clarification; independent verification of the user's reported Tally submission and public social-post permalinks. OpenTime v2 seeds trained on 1,568, 1,190 and 1,418 examples because the script fits the training set to a time budget.

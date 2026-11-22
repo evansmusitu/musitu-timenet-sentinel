@@ -33,9 +33,10 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <section class="hero">
 <span class="pill">TimeNet · OpenTime Hackathon 2026 · Evidence-first project</span>
 <h1>Detect the failure <em>before it happens.</em></h1>
-<p class="lead">MUSITU AXIOM Sentinel explores how multivariate time-series intelligence can turn complex machinery telemetry into explainable maintenance warnings. Our two trained, reproducible models—a classical baseline and a fixed-question temporal Transformer—have been evaluated on 100 held-out NASA simulated turbofan engines.</p>
+<p class="lead">MUSITU AXIOM Sentinel explores how multivariate time-series intelligence can turn complex machinery telemetry into explainable maintenance warnings. We fine-tuned the organizer's 5B OpenTime time-series language model on full engine histories. On 100 held-out NASA simulated turbofan engines it reaches warning F1 0.913–0.958 across three seeds with zero false alarms, beating our classical baseline (0.889) in every seed.</p>
 <div class="actions">
-<a class="btn" href="#demo">Explore the interactive evidence →</a>
+<a class="btn" href="#opentime">See the OpenTime 5B result →</a>
+<a class="btn alt" href="#demo">Explore the interactive evidence</a>
 <a class="btn alt" href="https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/TIMENET_ROUND1_JUDGES_GUIDE.md">90-second judges' tour ↗</a>
 <a class="btn alt" href="./decision-audit.html">Full 100-engine decision audit ↗</a>
 <a class="btn alt" href="./robustness-lab.html">Cross-domain robustness lab ↗</a>
@@ -46,7 +47,7 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <div class="stat"><div class="label">Held-out test engines</div><div class="num">100</div><div class="note">NASA C-MAPSS FD001</div></div>
 <div class="stat"><div class="label">Remaining life MAE</div><div class="num">19.04</div><div class="note">Cycles · temporal QA model</div></div>
 <div class="stat"><div class="label">Failure-warning F1</div><div class="num">0.960</div><div class="note">Temporal warning head</div></div>
-<div class="stat"><div class="label">Temporal model training</div><div class="num">12</div><div class="note">Verified epochs · 5/5 tests passed</div></div>
+<div class="stat"><div class="label">OpenTime 5B warning F1</div><div class="num">0.943</div><div class="note">Mean of 3 seeds · 0 false alarms</div></div>
 </section>
 <section class="section" id="demo">
 <h2>Inspect an engine. Challenge the model.</h2>
@@ -92,21 +93,24 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 </div>
 </section>
 <section class="section" id="opentime">
-<h2>Our real OpenTime 5B pilot — and what it does not prove</h2>
-<p class="description">We separately loaded the organizer's actual OpenTime November 2026 5.24B checkpoint on one Nebius RTX PRO 6000 (96 GB), trained for <strong>one epoch on just 16 training windows</strong> with eight validation windows, and scored 100 official held-out NASA FD001 engines. This pilot is distinct from the independent compact Transformer displayed above.</p>
+<h2>OpenTime 5B, fine-tuned on full engine histories</h2>
+<p class="description">We fine-tuned the organizer's OpenTime November 2026 5.24B checkpoint on one Nebius RTX PRO 6000 (96 GB) per run: all 80 development-train engines, each engine's <strong>full past history</strong> of the 14 sensors that vary, and the cycle count in the prompt. Epoch and warning threshold were chosen on 20 separate validation engines. Each of three training seeds was scored once on the 100 official NASA test engines.</p>
 <div class="grid2">
-<div class="panel"><h3>Before → after small adaptation</h3>
-<div class="key"><span>30-cycle warning F1</span><strong>0.0000 → 0.3243</strong></div>
-<div class="key"><span>Warning accuracy</span><strong>24% → 75%</strong></div>
-<div class="key"><span>Invalid answers / 100</span><strong>64 → 0</strong></div>
-<div class="key"><span>Warning recall after training</span><strong>0.24</strong></div>
-<p class="note">Honest result: output validity improved, but warning recall and F1 are still poor and below both separate CPU-trained baselines. No real aircraft deployment or operational safety claim.</p></div>
-<div class="panel"><h3>See the original proof</h3>
-<ul><li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md">Full before/after metrics, checkpoint revision and limitations</a></li>
-<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44983256462">Successful Nebius 5B execution</a></li>
-<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/44984604004">Independent log recovery and metrics</a></li>
+<div class="panel"><h3>100 official test engines · 25 at risk</h3>
+<div class="key"><span>Classical baseline · caught / false alarms</span><strong>20 / 0 · F1 0.889</strong></div>
+<div class="key"><span>OpenTime 5B seed 42</span><strong>23 / 0 · F1 0.958</strong></div>
+<div class="key"><span>OpenTime 5B seed 7</span><strong>23 / 0 · F1 0.958</strong></div>
+<div class="key"><span>OpenTime 5B seed 99</span><strong>21 / 0 · F1 0.913</strong></div>
+<div class="key"><span>Model's own Yes/No answer · F1</span><strong>0.941–0.980 · 0 invalid</strong></div>
+<div class="key"><span>First pilot (16 examples, superseded)</span><strong>F1 0.324</strong></div>
+<p class="note">Beats the classical baseline in every seed and is on par with our compact temporal Transformer (0.960, not an OpenTime model). Paired bootstrap 95% intervals on the gain have lower bounds from −0.084 to 0.000, so superiority is not statistically established on 100 engines. Seeds trained on 1,568, 1,190 and 1,418 examples. Simulated data; no aircraft deployment or safety claim.</p></div>
+<div class="panel"><h3>Check the evidence</h3>
+<ul><li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/OPENTIME_5B_VERIFIED_GPU_RESULTS.md">Full metrics, protocol, checkpoint revision and limitations</a></li>
+<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45018761652">Nebius GPU run, seed 42</a></li>
+<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45021536671">Nebius GPU runs, seeds 7 and 99</a></li>
+<li><a href="https://github.com/evansmusitu/musitu-timenet-sentinel/blob/main/docs/evidence/opentime-v2/summary.json">Machine-readable summary and paired audits</a></li>
 <li><a href="https://github.com/OpenTSLM/TimeNet/pull/836">Official TimeNet dataset connector PR #836 (open for review)</a></li></ul>
-<p class="note">The interactive engine selector above uses the separate classical and compact temporal models, <strong>not live 5B inference</strong>.</p></div>
+<p class="note">The interactive engine selector above uses the classical and compact temporal models, <strong>not live 5B inference</strong>.</p></div>
 </div></section>
 <section class="section" id="method">
 <h2>From telemetry to an auditable warning</h2>
@@ -116,13 +120,13 @@ footer{padding:38px 0 65px;border-top:1px solid var(--line);color:var(--muted);f
 <div class="step"><b>02 / REASON</b><h3>Estimate remaining life</h3><p>A gradient-boosted baseline and an original 12-epoch temporal QA Transformer produce held-out remaining-life estimates and 30-cycle warning responses.</p></div>
 <div class="step"><b>03 / DECIDE</b><h3>Surface an actionable warning</h3><p>Flag engines estimated at or below 30 remaining cycles. Compare the prediction against known test labels.</p></div>
 </div>
-<div class="caution"><strong>Research status and limitations.</strong> NASA C-MAPSS FD001 is simulated engine degradation data. Our scored models are a classical CPU baseline and an original fixed-question temporal QA Transformer, <strong>not an OpenTime 5B fine-tune or a general-purpose language model</strong>. The separate OpenTime November 2026 5B pilot completed on Nebius and is documented above; <strong>the interactive selector is not the 5B model</strong>. The pilot's held-out F1 remains below the independent CPU-trained baselines. The demonstration must not be used for live aircraft maintenance or safety decisions.</div>
+<div class="caution"><strong>Research status and limitations.</strong> NASA C-MAPSS FD001 is simulated engine degradation data. The interactive selector shows a classical CPU baseline and an original fixed-question temporal QA Transformer; <strong>it is not the 5B model</strong>. The OpenTime 5B fine-tune is reported separately above as a binary 30-cycle warning on 100 test engines. The demonstration must not be used for live aircraft maintenance or safety decisions.</div>
 </section>
 <section class="section"><h2>Why this direction matters</h2><p class="lead">An effective time-series AI employee should not merely predict a number. It should provide evidence, make errors visible, trigger human-review workflows, and help businesses take preventive action. This is our testable starting point toward that vision.</p>
 <div class="actions"><a class="btn" href="https://github.com/evansmusitu/musitu-timenet-sentinel">Verify it on GitHub →</a><a class="btn alt" href="https://challenge.timenet.ai/">TimeNet competition ↗</a></div>
 </section>
 </main>
-<footer><div class="wrap">MUSITU AXIOM Sentinel · Independent TimeNet / OpenTime 2026 entry · NASA simulated data · Demonstration and research only.<br>CPU baseline results from 20 November and 5B GPU pilot from 22 November 2026 UTC · Created by MUSITU.</div></footer>
+<footer><div class="wrap">MUSITU AXIOM Sentinel · Independent TimeNet / OpenTime 2026 entry · NASA simulated data · Demonstration and research only.<br>CPU baseline results from 20 November and OpenTime 5B fine-tune from 22 November 2026 UTC · Created by MUSITU.</div></footer>
 <script>
 const sample=[
 {u:1,c:31,a:112,p:193.79,t:149.85,r:0},{u:3,c:126,a:69,p:45.10,t:70.64,r:0},{u:6,c:105,a:93,p:126.93,t:122.35,r:0},
