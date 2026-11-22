@@ -4,6 +4,7 @@ on:
     branches: [feat/multidomain-rul-20261122]
     paths:
       - 'sentinel/multidomain_audit.py'
+      - 'sentinel/transfer_audit.py'
       - 'tests/test_multidomain_audit.py'
       - '.github/workflows/multidomain-audit.yml'
   workflow_dispatch:
