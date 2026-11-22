@@ -1,0 +1,52 @@
+name: Frozen compact temporal QA cross-cohort robustness check
+
+on:
+  push:
+    branches: [feat/fault-mode-transfer-20261122]
+    paths:
+      - 'sentinel/temporal_transfer_audit.py'
+      - 'tests/test_temporal_transfer_audit.py'
+      - '.github/workflows/temporal-transfer-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  frozen-compact-transfer-cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install reproducible CPU libraries
+        run: |
+          python -m pip install -r requirements.txt pytest
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Download the original verified model artifact from the previous successful training run
+        uses: actions/download-artifact@v4
+        with:
+          name: sentinel-temporal-qa-model-and-results
+          run-id: 44819987425
+          github-token: ${{ github.token }}
+          path: artifacts/original-compact-checkpoint
+      - name: Verify checkpoint exists and do not permit model retraining
+        run: |
+          test -s artifacts/original-compact-checkpoint/temporal_qa_checkpoint.pt
+          python -m pytest -q tests/test_temporal_transfer_audit.py
+      - name: Evaluate the frozen compact QA model on all four NASA official test subsets
+        run: |
+          python -m sentinel.temporal_transfer_audit \
+            --data-dir data/raw --download \
+            --checkpoint artifacts/original-compact-checkpoint/temporal_qa_checkpoint.pt \
+            --output-dir artifacts/compact-transfer
+      - name: Publish only aggregate generalization evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compact-qa-frozen-cross-cohort-aggregate
+          path: artifacts/compact-transfer/compact_cross_cohort_transfer.json
+          retention-days: 30
