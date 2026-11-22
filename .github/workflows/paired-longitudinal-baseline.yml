@@ -48,6 +48,17 @@ jobs:
           python -m sentinel.replay_baseline_compare --download \
             --artifact-dir artifacts/frozen_replay \
             --output-dir artifacts/paired_replay
+      - name: Assert committed public evidence matches genuine replay output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          computed=json.loads(Path('artifacts/paired_replay/paired_replay_comparison.json').read_text())
+          published=json.loads(Path('docs/evidence/paired_replay_comparison.json').read_text())
+          if computed != published:
+              raise SystemExit('BLOCKED: public comparison does not match actual frozen-model calculation')
+          print('VERIFIED: published model comparison equals freshly reproduced evaluation')
+          PY
       - name: Archive verified aggregate only
         if: success()
         uses: actions/upload-artifact@v4
