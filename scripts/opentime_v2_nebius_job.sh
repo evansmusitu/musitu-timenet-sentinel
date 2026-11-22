@@ -32,5 +32,5 @@ python -m pip install -q -r requirements-opentime.txt
 REV=5e030b001fb8d4be6d10ebb3a8b9bc3e6ef80983
 echo "MODEL_REVISION=$REV"
 timeout --signal=TERM --kill-after=30s 75m python -m sentinel.opentime_v2_train \
-    --revision "$REV" --epochs 3 --train-budget-seconds 2400 --output artifacts/opentime_v2
+    --revision "$REV" --seed "${MUSITU_SEED:-42}" --epochs 3 --train-budget-seconds 2400 --output artifacts/opentime_v2
 echo "MUSITU_V2_JOB_SUCCESS"

@@ -1,0 +1,220 @@
+name: MUSITU OpenTime 5B v2 seed replication (Nebius, 90-minute cap per seed)
+
+on:
+  push:
+    branches: [feat/opentime-full-finetune]
+    paths:
+      - .github/workflows/nebius-opentime-v2-seeds.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: musitu-nebius-opentime-v2-seeds
+  cancel-in-progress: false
+
+jobs:
+  launch-and-collect:
+    if: github.repository == 'evansmusitu/musitu-timenet-sentinel' && github.ref == 'refs/heads/feat/opentime-full-finetune' && github.actor == 'evansmusitu'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        seed: [7, 99]
+    timeout-minutes: 130
+    env:
+      SA_ID: ${{ secrets.NEBIUS_SERVICE_ACCOUNT_ID }}
+      KEY_ID: ${{ secrets.NEBIUS_PUBLIC_KEY_ID }}
+      PRIVATE_PEM: ${{ secrets.NEBIUS_PRIVATE_KEY }}
+      HOME_PROJECT_ID: ${{ secrets.NEBIUS_PROJECT_ID }}
+      TENANT_ID: tenant-e00tpcsv2jp7n3t544
+      JOB_NAME: musitu-opentime-fd001-v2-s${{ matrix.seed }}-20261122
+      SEED: ${{ matrix.seed }}
+      REGION: eu-south1
+      PLATFORM: gpu-rtx6000-a
+      PRESET: 1gpu-24vcpu-218gb
+    steps:
+      - uses: actions/checkout@v4
+      - name: Launch single real OpenTime pilot only if quota and capacity confirmed
+        id: pilot
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          set +x
+          umask 077
+          if [[ -z "$SA_ID" || -z "$KEY_ID" || -z "$PRIVATE_PEM" ]]; then
+            echo "Missing Nebius credentials; no billable resource created." >&2; exit 2
+          fi
+          [[ "$SA_ID" == "serviceaccount-e04afk1xvsf8pwvd58" ]] || exit 2
+          [[ "$HOME_PROJECT_ID" == "e04p7wefbc00y3c7de0pcn" || "$HOME_PROJECT_ID" == "project-e04p7wefbc00y3c7de0pcn" ]] || exit 2
+          tmp="$(mktemp -d)"
+          mkdir -p "$GITHUB_WORKSPACE/artifacts/nebius"
+          JOB_ID=""
+          was_created=false
+          cleanup() {
+            status=$?
+            if [[ "$was_created" == true && "$status" -ne 0 && -n "$JOB_ID" ]]; then
+              echo "Emergency job cancellation on CI failure..."
+              nebius ai job cancel --id "$JOB_ID" --profile musitu-pilot >/dev/null 2>&1 || true
+            fi
+            rm -rf "$tmp"
+          }
+          trap cleanup EXIT
+          printf '%s\n' "$PRIVATE_PEM" > "$tmp/key.pem"
+          openssl pkey -in "$tmp/key.pem" -noout 2>/dev/null
+          curl --fail --silent --show-error --location https://storage.eu-north1.nebius.cloud/cli/install.sh -o "$tmp/install.sh"
+          bash "$tmp/install.sh" >/dev/null
+          if ! command -v nebius >/dev/null 2>&1; then
+            cli="$(find "$HOME" -maxdepth 5 -type f -name nebius -perm -u+x -print -quit 2>/dev/null)"
+            [[ -n "$cli" ]] || exit 5
+            export PATH="$(dirname "$cli"):$PATH"
+          fi
+          nebius profile create --endpoint api.nebius.cloud \
+            --service-account-id "$SA_ID" --public-key-id "$KEY_ID" \
+            --private-key-file "$tmp/key.pem" --profile musitu-pilot \
+            --parent-id "project-e04p7wefbc00y3c7de0pcn" >/dev/null
+
+          nebius iam project list --parent-id "$TENANT_ID" --all \
+            --profile musitu-pilot --format json > "$tmp/projects.json"
+          nebius capacity resource-advice list --parent-id "$TENANT_ID" --all \
+            --profile musitu-pilot --format json > "$tmp/capacity.json"
+
+          python - "$tmp/projects.json" "$tmp/capacity.json" "$tmp/project" <<'PY'
+          import json,os,sys
+          def collection(filename):
+              data=json.load(open(filename,encoding="utf-8"))
+              return data if isinstance(data,list) else data.get("items",[])
+          candidates=[x for x in collection(sys.argv[1])
+                      if (x.get("status") or {}).get("region")=="eu-south1"]
+          if len(candidates)!=1:
+              raise SystemExit("Expected exactly one existing eu-south1 project; no deployment")
+          project=(candidates[0].get("metadata") or {}).get("id","")
+          if not project.startswith("project-"):
+              raise SystemExit("Invalid project identity")
+          matches=[]
+          for x in collection(sys.argv[2]):
+              spec=x.get("spec") or {}
+              if spec.get("region")!="eu-south1": continue
+              cfg=spec.get("compute_instance") or {}
+              if cfg.get("platform")!="gpu-rtx6000-a": continue
+              preset=cfg.get("preset") or {}
+              if preset.get("name")!="1gpu-24vcpu-218gb": continue
+              av=(x.get("status") or {}).get("on_demand") or {}
+              fresh=av.get("data_state")=="DATA_STATE_FRESH"
+              enough=int(av.get("available") or 0)>=1
+              cap=int(av.get("limit") or 0)>=1
+              if fresh and enough and cap:
+                  matches.append(x)
+          if not matches:
+              raise SystemExit("No fresh, positive one-GPU on-demand RTX capacity; no deployment")
+          open(sys.argv[3],"w",encoding="utf-8").write(project)
+          print("Safe capacity check: PASS. Selected one existing RTX GPU eu-south1 project.")
+          PY
+          PROJECT_ID="$(cat "$tmp/project")"
+          nebius vpc subnet list --parent-id "$PROJECT_ID" --all --profile musitu-pilot --format json > "$tmp/subnets.json"
+          python - "$tmp/subnets.json" "$tmp/subnet" <<'PY'
+          import json,os,sys
+          data=json.load(open(sys.argv[1],encoding="utf-8"))
+          items=data if isinstance(data,list) else data.get("items",[])
+          if len(items)!=1:
+              raise SystemExit("Expected one existing VPC subnet; no deployment")
+          name=(items[0].get("metadata") or {}).get("id","")
+          if not name.startswith("vpcsubnet-"):
+              raise SystemExit("Invalid subnet ID")
+          open(sys.argv[2],"w",encoding="utf-8").write(name)
+          PY
+          SUBNET_ID="$(cat "$tmp/subnet")"
+          # Fail closed if the fixed pilot job name exists from any earlier attempt.
+          nebius ai job list --parent-id "$PROJECT_ID" --profile musitu-pilot --format json > "$tmp/jobs.json"
+          python - "$tmp/jobs.json" <<'PY'
+          import json,os,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          items=d if isinstance(d,list) else d.get("items",[])
+          if any((x.get("metadata") or {}).get("name")==os.environ["JOB_NAME"] for x in items):
+              raise SystemExit("Pilot already exists; refusing duplicate or repeat GPU charges")
+          print("No prior pilot found; duplicate guard passed")
+          PY
+          # The cloud job auto-terminates. Hourly GPU reference $1.80
+          # plus temporary disk usage; this planning estimate is not a billing hard cap.
+          create=(
+            --parent-id "$PROJECT_ID"
+            --name "$JOB_NAME"
+            --platform "$PLATFORM"
+            --preset "$PRESET"
+            --image "pytorch/pytorch:2.9.0-cuda12.8-cudnn9-runtime"
+            --disk-size 100Gi
+            --subnet-id "$SUBNET_ID"
+            --restart-policy never
+            --timeout 1h30m
+            --container-command /bin/bash
+            --args "/tmp/musitu-entry.sh"
+            --inject-file "$GITHUB_WORKSPACE/scripts/opentime_v2_nebius_job.sh:/tmp/musitu-entry.sh"
+            --env "MUSITU_REVISION=$GITHUB_SHA"
+            --env "MUSITU_SEED=$SEED"
+          )
+          echo "Validating bounded 1-GPU job using Nebius dry-run API..."
+          nebius ai job create "${create[@]}" --dry-run --profile musitu-pilot >/dev/null
+          echo "Dry run passed. Creating exactly one on-demand job with a 90-minute cloud timeout."
+          nebius ai job create "${create[@]}" --profile musitu-pilot --format json > "$tmp/create.json"
+          was_created=true
+          cat "$tmp/create.json" | python -c 'import json,sys; d=json.load(sys.stdin); print("Nebius created:",(d.get("metadata") or {}).get("name","pilot"))'
+          # Fetch by name and validate exact project before polling.
+          for n in $(seq 1 12); do
+            if nebius ai job get-by-name --parent-id "$PROJECT_ID" --name "$JOB_NAME" --profile musitu-pilot --format json > "$tmp/job.json" 2>/dev/null; then
+              break
+            fi
+            sleep 5
+          done
+          JOB_ID="$(python - "$tmp/job.json" "$PROJECT_ID" <<'PY'
+          import json,os,sys
+          x=json.load(open(sys.argv[1],encoding="utf-8"))
+          m=x.get("metadata") or {}
+          if m.get("name")!=os.environ["JOB_NAME"] or m.get("parent_id")!=sys.argv[2]:
+              raise SystemExit("Incorrect job identity")
+          print(m.get("id",""))
+          PY
+          )"
+          [[ "$JOB_ID" == job-* || "$JOB_ID" == aijob-* ]] || {
+            echo "Unexpected job ID; inspect Nebius job listing immediately"; exit 9
+          }
+          printf 'Job ID: %s\nRegion: %s\nJob timeout: 1h30m\n' "$JOB_ID" "$REGION" > "$GITHUB_WORKSPACE/artifacts/nebius/job.txt"
+          echo "Nebius Serverless AI GPU job started: $JOB_ID"
+          echo "Cloud-side timeout: 1h30m. Polling job state..."
+          state=""
+          for n in $(seq 1 105); do
+            if nebius ai job get --id "$JOB_ID" --profile musitu-pilot --format json > "$tmp/current.json" 2>/dev/null; then
+              state="$(python - "$tmp/current.json" <<'PY'
+          import json,os,sys
+          x=json.load(open(sys.argv[1],encoding="utf-8"))
+          print((x.get("status") or {}).get("state","UNKNOWN"))
+          PY
+          )"
+              echo "Poll $n: $state"
+              if [[ "$state" == COMPLETED || "$state" == FAILED || "$state" == CANCELLED || "$state" == ERROR ]]; then break; fi
+            fi
+            sleep 60
+          done
+          nebius ai job logs "$JOB_ID" --tail 1000 --since 4h --profile musitu-pilot > "$GITHUB_WORKSPACE/artifacts/nebius/job.log" 2>&1 || true
+          echo "Final job state: $state" | tee "$GITHUB_WORKSPACE/artifacts/nebius/state.txt"
+          if [[ "$state" != COMPLETED ]]; then
+            echo "Pilot failed or exceeded CI wait; attempting remote cancel and retaining logs."
+            nebius ai job cancel --id "$JOB_ID" --profile musitu-pilot >/dev/null 2>&1 || true
+            was_created=false
+            exit 8
+          fi
+          was_created=false
+          grep -o 'MUSITU_V2_METRICS .*' "$GITHUB_WORKSPACE/artifacts/nebius/job.log" | head -1 | sed 's/^MUSITU_V2_METRICS //' > "$GITHUB_WORKSPACE/artifacts/nebius/metrics.json" || true
+          grep -o 'MUSITU_V2_PRED .*' "$GITHUB_WORKSPACE/artifacts/nebius/job.log" | sed 's/^MUSITU_V2_PRED //' > "$GITHUB_WORKSPACE/artifacts/nebius/test_predictions.jsonl" || true
+          python -m json.tool "$GITHUB_WORKSPACE/artifacts/nebius/metrics.json" || echo "Metrics line not found in logs"
+          echo "Predictions recovered: $(wc -l < "$GITHUB_WORKSPACE/artifacts/nebius/test_predictions.jsonl")"
+          echo "MUSITU OpenTime v2 completed. Logs preserved in GitHub Actions artifacts."
+
+      - name: Upload Nebius logs and metadata even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: musitu-nebius-opentime-v2-seed-${{ matrix.seed }}
+          path: artifacts/nebius/
+          if-no-files-found: warn
+          retention-days: 30

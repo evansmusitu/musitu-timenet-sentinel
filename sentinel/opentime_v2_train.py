@@ -32,6 +32,7 @@ def main():
                    help="Shrink the training set (balanced) if the measured speed cannot fit it")
     p.add_argument("--val-loss-limit", type=int, default=96)
     p.add_argument("--val-cuts-per-engine", type=int, default=10)
+    p.add_argument("--seed", type=int, default=42, help="Training seed (data selection stays fixed)")
     args = p.parse_args()
 
     import re
@@ -44,7 +45,7 @@ def main():
         raise ValueError("Supply an immutable checkpoint commit SHA")
     if not torch.cuda.is_available():
         raise SystemExit("CUDA GPU required")
-    random.seed(42); torch.manual_seed(42)
+    random.seed(args.seed); torch.manual_seed(args.seed)
     args.output.mkdir(parents=True, exist_ok=True)
     started = time.time()
 
@@ -95,7 +96,7 @@ def main():
     tr = [ex(r) for r in train_rows]
     vl = [ex(r) for r in val_loss_rows]
     t_train = time.time()
-    u.train(model, tr, vl, epochs=args.epochs, accumulation=8, seed=42)
+    u.train(model, tr, vl, epochs=args.epochs, accumulation=8, seed=args.seed)
     train_seconds = time.time() - t_train
     model.eval()
 
@@ -132,7 +133,7 @@ def main():
                     "validation loss; threshold by F1 on validation-engine truncations; one test pass",
         "train_examples": len(tr), "val_loss_examples": len(vl), "val_threshold_examples": len(val_cut_rows),
         "train_engines": int(dev_a.unit.nunique()), "val_engines": int(dev_b.unit.nunique()),
-        "epochs": args.epochs, "seconds_per_example_probe": per_example, "train_seconds": train_seconds,
+        "epochs": args.epochs, "training_seed": args.seed, "seconds_per_example_probe": per_example, "train_seconds": train_seconds,
         "threshold_from_validation": threshold, "validation_f1_at_threshold": val_f1,
         "validation_auroc": float(roc_auc_score(val_actual, val_scores)) if 0 < sum(val_actual) < len(val_actual) else None,
         "test": {
