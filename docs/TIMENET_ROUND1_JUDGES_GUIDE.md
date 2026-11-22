@@ -38,6 +38,17 @@ TimeNet connector: https://github.com/OpenTSLM/TimeNet/pull/836 (open for review
 | Compact trained temporal QA Transformer | 19.0436 | 0.9600 | Separate original architecture, **not** organizer checkpoint |
 | Genuine OpenTime November 2026 5B **after** small adaptation pilot | Not measured (binary QA only) | **0.3243** (before: 0.0000) | Actual organizer checkpoint, one epoch/16 training examples |
 
+## Exploratory simulated cross-domain follow-up — separate from the 5B pilot
+
+[Open the public NASA FD001–FD004 robustness lab](https://evansmusitu.github.io/musitu-timenet-sentinel/robustness-lab.html). It reports failure as well as improvement:
+
+- The original FD001-only classical warning model fell to **F1=0.000 on FD004**, while the independently trained compact temporal warning head achieved **F1=0.479**, but with **112 false alarms and one missed at-risk engine** among 237 eligible test cases. These systems are **not OpenTime 5B**.
+- In an explicitly **post-hoc, exploratory** experiment, a separate classical regression model trained on FD001/FD002/FD003 development engines reached **F1=0.643** on held-out FD004. A dedicated classical direct-warning classifier used a 0.40 probability threshold selected **only on engine-disjoint development validation**, and reached **F1=0.8163**, precision 0.8889, recall 0.7547: **40 correct warnings, five false alarms, 13 misses, 179 correctly excluded non-warnings**. FD004 data were not used in model training or threshold selection.
+- FD004 has 248 official test engines, of which 237 have the required 30-cycle window; **11 short trajectories were explicitly excluded**. All four subsets are NASA simulations, not truly different physical manufacturers or real aircraft.
+- Original proof: [FD001-frozen classical transfer CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45003875499), [original compact checkpoint transfer CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45003991598), [multi-domain regression CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45004350622) and [validation-selected classifier CI](https://github.com/evansmusitu/musitu-timenet-sentinel/actions/runs/45004601674).
+
+These findings support a **need for validation under distribution shift**, not a claim of actual maintenance safety, commercial savings or superiority over a real-world wind benchmark.
+
 ### Evidence in one click
 
 - [Project source and reproducibility](https://github.com/evansmusitu/musitu-timenet-sentinel)
