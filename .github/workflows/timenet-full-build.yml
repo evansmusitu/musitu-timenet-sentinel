@@ -60,6 +60,31 @@ jobs:
           print("PASS: full TimeNet dataset release files written", len(items))
           print("Extensions:",sorted({p.suffix for p in items}))
           PY
+      - name: Verify full release is readable and train/validation/test tasks survive serialization
+        env:
+          REGISTRY: ${{ runner.temp }}/musitu-full-build-registry
+        run: |
+          uv run --no-sync python - <<'PY'
+          from pathlib import Path
+          import os
+          from timenet.reader import TimeFReader
+          from timenet.types import Split
+          path=Path(os.environ["REGISTRY"])/"musitu"/"cmapss-fd001"/"0.1.0"
+          assert path.is_dir(), "Missing real release directory"
+          with TimeFReader.open(path) as reader:
+              reader.verify()
+              ids=reader.record_ids()
+              counts={}
+              for split in (Split.TRAIN, Split.VALIDATION, Split.TEST):
+                  counts[str(split)]=len(reader.read_tasks(split=split))
+              assert len(ids)==len(set(ids)), "Duplicated records in full release"
+              assert sum(counts.values())==len(ids), "Record/task mismatch after roundtrip"
+              assert all(n>0 for n in counts.values()), "Empty split after release serialization"
+              assert len(reader.read_tasks(split=Split.TEST))==100, "Official NASA test cohort not 100 engines"
+              print("PASS: TimeNet reader verified hashes, distinct records and all split task counts")
+              print("Full release train/validation/test counts:",counts)
+              print("Total original TimeNet records:",len(ids))
+          PY
       - name: Prove completed build is reusable from the same official CLI
         env:
           REGISTRY: ${{ runner.temp }}/musitu-full-build-registry
