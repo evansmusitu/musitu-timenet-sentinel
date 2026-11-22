@@ -91,18 +91,20 @@ def plan(data_dir: Path, train_limit: int, val_limit: int, *, download: bool = F
     validation_windows=examples(validation)
     full=audit_engine_groups(train_windows,validation_windows)
     chosen_train=balanced_engine_diverse(train_windows,train_limit,seed=42)
-    chosen_val=balanced_engine_diverse(validation_windows,val_limit,seed=43)
+    from .opentime_v2_sampler import prevalence_matched_engine_diverse
+    chosen_val=prevalence_matched_engine_diverse(validation_windows,val_limit,seed=43)
     selected=audit_engine_groups(chosen_train,chosen_val)
     return {
       'dataset':'NASA C-MAPSS FD001 development engines only',
       'training_sampler':'balanced-engine-diverse-v1',
+      'validation_sampler':'prevalence-matched-engine-diverse-v1',
       'seed':42,
       'requested_train_limit':train_limit,'requested_validation_limit':val_limit,
       'available':full,'selected':selected,
       'heldout_evaluation_performed':False,
       'checkpoint_loaded':False,
       'gpu_or_paid_compute_used':False,
-      'note':'Planning only, no trained 5B performance. A future GPU run must be separately authorized and evaluated without selecting on the official test set.'
+      'note':'Planning only. Training classes balanced, validation prevalence matched to development source, no official-test model selection. No GPU launched or training result claimed; billing requires a real provider-enforced no-overrun guarantee.'
     }
 
 
